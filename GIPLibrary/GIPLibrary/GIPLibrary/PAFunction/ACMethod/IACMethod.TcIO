@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4020.12">
+  <Itf Name="IACMethod" Id="{749bf654-4a4b-4f5a-bd03-9adffb4ebd84}">
+    <Declaration><![CDATA[INTERFACE IACMethod EXTENDS IACObject
+]]></Declaration>
+    <Property Name="IsValid" Id="{39d7fa7a-776a-4cf8-952e-8d495cf1d333}">
+      <Declaration><![CDATA[PROPERTY IsValid : BOOL]]></Declaration>
+      <Get Name="Get" Id="{795dc368-6ca7-4904-b5ff-6159f7975509}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+  </Itf>
+</TcPlcObject>

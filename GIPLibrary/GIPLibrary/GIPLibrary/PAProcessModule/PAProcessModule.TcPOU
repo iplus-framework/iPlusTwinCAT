@@ -1,0 +1,168 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.6">
+  <POU Name="PAProcessModule" Id="{6c01c64c-a15e-4232-b69d-0c8e44fa854b}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK PAProcessModule EXTENDS PAClassPhysicalBase IMPLEMENTS IPAProcessModule 
+VAR_INPUT
+END_VAR
+VAR_OUTPUT
+END_VAR
+VAR
+	_Allocated : BOOL;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Property Name="Allocated" Id="{bea17035-c899-4924-a5d9-29cbf433a68f}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+{attribute 'TcRpcEnable'}
+PROPERTY PUBLIC Allocated : BOOL]]></Declaration>
+      <Get Name="Get" Id="{32a211e0-f30e-4643-8fa4-a6fa241b0818}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Allocated := _Allocated;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{2b52d50c-fe0e-4248-9f68-4132a6409b52}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_Allocated := Allocated;
+Root.OnPropertyChangedBool(THIS^, 16, _Allocated);]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="FB_postinit" Id="{fc896cbe-d39a-468b-b7d9-ab016e66809d}">
+      <Declaration><![CDATA[METHOD PUBLIC FB_postinit
+VAR_INPUT
+		root : IACVariobatch;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SUPER^.FB_postinit(root);
+Root.OnPropertyChangedBool(THIS^, 16, _Allocated);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="GetRoutingStateOfDependents" Id="{ec89391f-b555-43fb-b295-065ef60c0e38}">
+      <Declaration><![CDATA[METHOD PROTECTED GetRoutingStateOfDependents  : PARoutingState
+VAR_INPUT
+	controlModule	: IPAControlModule;
+	rStateAll : PARoutingState;
+	direction : PARoutingDirection;
+END_VAR
+VAR
+	activePF : IPAProcessFunction;
+	currentPF : IPAProcessFunction;
+	i: INT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[activePF := controlModule.AllocatedByFunction;
+
+// Suche nach aktiver Prozessfunktion, die in diesem Prozessmodul vorliegt
+// Es müssen keine Points durchsucht werden, da normalerweise ein Ein-/Ausgangspunkt eine Prozessmodules immer mit einem Punkt einer Prozessfunktion verbunden sein sollte
+// (eine Edge vom Typ LogicalBrige)
+IF activePF = 0 THEN
+	GetRoutingStateOfDependents := PARoutingState.Idle;
+	RETURN;
+END_IF
+
+GetRoutingStateOfDependents := PARoutingState.Idle;
+FOR i:=1 TO GCL.cChildsMAX BY 1
+  DO
+    IF (_Childs[i] <> 0) THEN
+		IF __QUERYINTERFACE(_Childs[i], currentPF) THEN
+			IF activePF = currentPF THEN
+				// Falls gefunden gebe einfach den aktuellen Routingstatus, des Vorgänger-ControlModuls zurück.
+				GetRoutingStateOfDependents := rStateAll;
+				RETURN;
+			END_IF
+		END_IF
+	ELSE
+		EXIT;
+	END_IF
+END_FOR;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnInitMemory" Id="{3ea7b46c-1da6-41d8-9160-5bebd163629e}">
+      <Declaration><![CDATA[METHOD OnInitMemory
+VAR_INPUT
+	root : IACVariobatch;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[RegisterProperty(root, 16, GCL.cSizeBYTE); //Allocated
+SUPER^.OnInitMemory(root);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="RoutingStateFromSource" Id="{675129f3-a06f-4e98-9837-0aabe2afa9c1}">
+      <Declaration><![CDATA[METHOD RoutingStateFromSource : PARoutingState
+VAR_INPUT
+	controlModule: IPAControlModule;
+	rStateAll : PARoutingState;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[RoutingStateFromSource := GetRoutingStateOfDependents(controlModule, rStateAll, PARoutingDirection.ToPredecessors);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="RoutingStateToTarget" Id="{6747f9a9-f260-4cf1-9945-bc34f6727062}">
+      <Declaration><![CDATA[METHOD RoutingStateToTarget : PARoutingState
+VAR_INPUT
+	controlModule: IPAControlModule;
+	rStateAll : PARoutingState;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[RoutingStateToTarget := GetRoutingStateOfDependents(controlModule, rStateAll, PARoutingDirection.ToSuccessors);]]></ST>
+      </Implementation>
+    </Method>
+    <LineIds Name="PAProcessModule">
+      <LineId Id="9" Count="0" />
+    </LineIds>
+    <LineIds Name="PAProcessModule.Allocated.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAProcessModule.Allocated.Set">
+      <LineId Id="5" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAProcessModule.FB_postinit">
+      <LineId Id="9" Count="0" />
+      <LineId Id="8" Count="0" />
+    </LineIds>
+    <LineIds Name="PAProcessModule.GetRoutingStateOfDependents">
+      <LineId Id="24" Count="0" />
+      <LineId Id="32" Count="2" />
+      <LineId Id="31" Count="0" />
+      <LineId Id="25" Count="0" />
+      <LineId Id="27" Count="0" />
+      <LineId Id="26" Count="0" />
+      <LineId Id="39" Count="0" />
+      <LineId Id="23" Count="0" />
+      <LineId Id="38" Count="0" />
+      <LineId Id="13" Count="1" />
+      <LineId Id="36" Count="0" />
+      <LineId Id="15" Count="0" />
+      <LineId Id="35" Count="0" />
+      <LineId Id="28" Count="0" />
+      <LineId Id="30" Count="0" />
+      <LineId Id="29" Count="0" />
+      <LineId Id="37" Count="0" />
+      <LineId Id="20" Count="1" />
+      <LineId Id="18" Count="1" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="PAProcessModule.OnInitMemory">
+      <LineId Id="10" Count="0" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="PAProcessModule.RoutingStateFromSource">
+      <LineId Id="7" Count="0" />
+    </LineIds>
+    <LineIds Name="PAProcessModule.RoutingStateToTarget">
+      <LineId Id="7" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

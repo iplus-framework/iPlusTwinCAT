@@ -1,0 +1,30 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4020.12">
+  <DUT Name="TypeOfACObjectEnum" Id="{807805c1-cd79-4d32-a793-18602668b3fa}">
+    <Declaration><![CDATA[{attribute 'qualified_only'}
+{attribute 'strict'}
+TYPE TypeOfACObjectEnum :
+(
+	Unknown := 0,
+	Component := 1,
+	Point := 2,
+	Edge := 3,
+	
+	ProcessFunction := 1000,
+	Dosing := 1100,
+	Discharging := 1101,
+	Mixing := 1102,
+	
+	ControlModule := 2000,
+	ScaleBase := 2100,
+	ScaleGravimetric := 2101,
+	ScaleTotalizing := 2102,
+	ScaleVolumetric := 2103,
+	
+	ProcessModule := 3000,
+	Silo := 3100
+);
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

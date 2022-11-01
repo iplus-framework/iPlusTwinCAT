@@ -1,0 +1,7 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4020.12">
+  <Itf Name="IPAScaleTotalizing" Id="{b8486f86-e96e-4a2d-903e-ab4fcd030a22}">
+    <Declaration><![CDATA[INTERFACE IPAScaleTotalizing EXTENDS IPAScaleGravimetric
+]]></Declaration>
+  </Itf>
+</TcPlcObject>

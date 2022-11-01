@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4020.12">
+  <DUT Name="ACMethodVacuumR" Id="{57954b3e-440a-4a54-a592-5207b710ed6d}">
+    <Declaration><![CDATA[{attribute 'pack_mode' := '0'}
+TYPE ACMethodVacuumR EXTENDS ACMethodBaseR :
+STRUCT
+	//Ist-Druck
+	_ActPressure : LREAL;
+	//Dauer
+	_ActDuration : TIME;
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

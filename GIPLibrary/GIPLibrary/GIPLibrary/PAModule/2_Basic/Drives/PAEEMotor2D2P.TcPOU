@@ -1,0 +1,511 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.6">
+  <POU Name="PAEEMotor2D2P" Id="{3f5f740c-9bfd-48df-8955-a3dfd86476a7}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK PUBLIC PAEEMotor2D2P EXTENDS PAEEMotorStartCtrl
+VAR_INPUT
+END_VAR
+VAR_OUTPUT
+END_VAR
+VAR
+	_PAPointMatInOut1 : PAPoint(THIS^);
+	_PAPointMatInOut2 : PAPoint(THIS^);
+	_DirectionLeft : BOOL;
+	_ReqDirectionLeft : BOOL;
+	_ReqSpeedFast : BOOL;
+	_SpeedFast : BOOL;
+	_ToggleAllowed : BOOL;
+	_TransitTimeSlowFast : TIME;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Property Name="DirectionLeft" Id="{ed3ff90f-bcc4-49c9-8761-31d9d9624016}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+//{attribute 'TcRpcEnable'}
+PROPERTY PUBLIC DirectionLeft : BOOL]]></Declaration>
+      <Get Name="Get" Id="{f6dc5d98-06b6-432e-af7d-35a3a0fd72b4}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[DirectionLeft := _DirectionLeft;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{3edb5c4d-1f99-4b28-9d7d-f33340e0ddd3}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_DirectionLeft := DirectionLeft;
+Root.OnPropertyChangedBool(THIS^, 51, _DirectionLeft);]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="FB_init" Id="{cb962b15-023e-4e9c-bde3-fbf834738e9a}">
+      <Declaration><![CDATA[METHOD FB_init : BOOL
+VAR_INPUT
+	bInitRetains : BOOL; // if TRUE, the retain variables are initialized (warm start / cold start)
+	bInCopyCode : BOOL;  // if TRUE, the instance afterwards gets moved into the copy code (online change)
+	parent : IACComponent;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[AddPoint(_PAPointMatInOut1);
+AddPoint(_PAPointMatInOut2);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="FB_postinit" Id="{de3f108b-b7f2-451e-a281-50b9e0cdc5f0}">
+      <Declaration><![CDATA[METHOD FB_postinit
+VAR_INPUT
+	root : IACVariobatch;	
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SUPER^.FB_postinit(root);  
+root.OnPropertyChangedTime(THIS^, 50, _TransitTimeSlowFast);
+root.OnPropertyChangedBool(THIS^, 51, _DirectionLeft);
+root.OnPropertyChangedBool(THIS^, 52, _SpeedFast);
+root.OnPropertyChangedBool(THIS^, 53, _ReqDirectionLeft);
+root.OnPropertyChangedBool(THIS^, 54, _ReqSpeedFast);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="HasPointReachedOffPosition" Id="{52500e5a-2cbd-4e31-95d7-fb4c24a154bb}">
+      <Declaration><![CDATA[METHOD PUBLIC HasPointReachedOffPosition : BOOL
+VAR_INPUT
+	point : IACPoint;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF point = PAPointMatInOut1 OR point = PAPointMatInOut2 THEN
+	HasPointReachedOffPosition := NOT _RunState;
+ELSE
+	HasPointReachedOffPosition := FALSE;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="HasPointReachedOnPosition" Id="{775d5d48-7abd-4846-96c7-21d5d986ae40}">
+      <Declaration><![CDATA[METHOD PUBLIC HasPointReachedOnPosition : BOOL
+VAR_INPUT
+	point : IACPoint;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF point = PAPointMatInOut1 THEN
+	HasPointReachedOnPosition :=	( 	(NOT _DirectionLeft) 
+									 AND _RunState 
+									 AND (   (_ReqSpeedFast AND _SpeedFast) 
+									 	  OR (NOT _ReqSpeedFast AND NOT _SpeedFast))
+									)
+								OR _DirectionLeft; // Fungiert als Eingangspunkt
+ELSIF point = PAPointMatInOut2 THEN
+	HasPointReachedOnPosition := 	(	_DirectionLeft 
+									AND _RunState 
+									AND (   (_ReqSpeedFast AND _SpeedFast) 
+									 	 OR (NOT _ReqSpeedFast AND NOT _SpeedFast))
+									)
+								OR NOT _DirectionLeft; // Fungiert als Eingangspunkt
+ELSE
+	HasPointReachedOnPosition := FALSE;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="InvokeSetterBool" Id="{1b7fc5d0-c5f2-4e80-a927-97f36ad5883d}">
+      <Declaration><![CDATA[METHOD PUBLIC InvokeSetterBool
+VAR_INPUT
+	PropertyID : INT;
+	PropertyValue : BOOL;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SUPER^.InvokeSetterBool(PropertyID, PropertyValue);
+IF PropertyID = 51 THEN
+	DirectionLeft := PropertyValue;
+ELSIF PropertyID = 52 THEN	
+	SpeedFast := PropertyValue;
+ELSIF PropertyID = 53 THEN	
+	ReqDirectionLeft := PropertyValue;
+ELSIF PropertyID = 54 THEN	
+	ReqSpeedFast := PropertyValue;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="InvokeSetterTime" Id="{ea275111-c7e4-49e4-b253-36f38a4b74bc}">
+      <Declaration><![CDATA[METHOD PUBLIC InvokeSetterTime
+VAR_INPUT
+	PropertyID : INT;
+	PropertyValue : DINT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SUPER^.InvokeSetterTime(PropertyID, PropertyValue);
+CASE PropertyID OF
+	50:
+		TransitTimeSlowFast := TO_TIME(PropertyValue);
+END_CASE]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="IsEnabledTurnOnFastLeft" Id="{095620b2-e94e-426b-9adc-e80da2c2d9f2}">
+      <Declaration><![CDATA[METHOD PUBLIC IsEnabledTurnOnFastLeft : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="IsEnabledTurnOnFastRight" Id="{025ef2ad-a140-44e5-9218-7f52ae579e12}">
+      <Declaration><![CDATA[METHOD PUBLIC IsEnabledTurnOnFastRight : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="IsEnabledTurnOnSlowLeft" Id="{a0e7d9c2-a2c8-47a3-bdc0-759b189e0a72}">
+      <Declaration><![CDATA[METHOD PUBLIC IsEnabledTurnOnSlowLeft : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="IsEnabledTurnOnSlowRight" Id="{ecaeb439-942e-4d04-b9dd-2b2c3487e92a}">
+      <Declaration><![CDATA[METHOD PUBLIC IsEnabledTurnOnSlowRight : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnInitMemory" Id="{5fff14d6-ea95-4167-bbf5-7a774d35e837}">
+      <Declaration><![CDATA[METHOD OnInitMemory
+VAR_INPUT
+	root : IACVariobatch;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[RegisterProperty(root, 50, GCL.cSizeTIME); //TransitTimeSlowFast
+RegisterProperty(root, 51, GCL.cSizeBYTE); //DirectionLeft
+RegisterProperty(root, 52, GCL.cSizeBYTE); //SpeedFast
+RegisterProperty(root, 53, GCL.cSizeBYTE); //ReqDirectionLeft
+RegisterProperty(root, 54, GCL.cSizeBYTE); //ReqSpeedFast
+SUPER^.OnInitMemory(root);]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="PAPointMatInOut1" Id="{ce7eb083-070c-471e-83be-a65d1c841d31}">
+      <Declaration><![CDATA[PROPERTY PUBLIC PAPointMatInOut1 : IACPoint]]></Declaration>
+      <Get Name="Get" Id="{84720b4d-238f-4f29-885c-02ab119f4746}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[PAPointMatInOut1 := _PAPointMatInOut1;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="PAPointMatInOut2" Id="{82e7fbc2-3970-4c49-bcc2-23609c2bc019}">
+      <Declaration><![CDATA[PROPERTY PUBLIC PAPointMatInOut2 : IACPoint]]></Declaration>
+      <Get Name="Get" Id="{59a55cd7-fab3-4af3-89e0-140f3502ca7e}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[PAPointMatInOut2 := _PAPointMatInOut2;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="ReqDirectionLeft" Id="{b0d4afd9-8d0a-4f87-8f81-022a9274185d}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+//{attribute 'TcRpcEnable'}
+PROPERTY PUBLIC ReqDirectionLeft : BOOL]]></Declaration>
+      <Get Name="Get" Id="{ce9f8243-e14b-47b8-8cf1-011d5b167c94}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[ReqDirectionLeft := _ReqDirectionLeft;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{d7b27653-3c4c-488b-acfe-c39f9144f5f0}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_ReqDirectionLeft := ReqDirectionLeft;
+Root.OnPropertyChangedBool(THIS^, 53, _ReqDirectionLeft);
+IF Root.InSimulation THEN
+	DirectionLeft := _ReqDirectionLeft;
+END_IF]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="ReqSpeedFast" Id="{187177d4-ea49-4da7-90f5-61a0bf748802}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+//{attribute 'TcRpcEnable'}
+PROPERTY PUBLIC ReqSpeedFast : BOOL]]></Declaration>
+      <Get Name="Get" Id="{ecfdc6cd-9972-42ee-8da5-0c36730ca586}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[ReqSpeedFast := _ReqSpeedFast;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{9eb43bfa-0f45-4c81-9846-986ae543bb56}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_ReqSpeedFast := ReqSpeedFast;
+Root.OnPropertyChangedBool(THIS^, 54, _ReqSpeedFast);
+IF Root.InSimulation THEN
+	SpeedFast := _ReqSpeedFast;
+END_IF]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="SpeedFast" Id="{04fa51ea-deab-480c-80eb-5bd5933b5783}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+//{attribute 'TcRpcEnable'}
+PROPERTY PUBLIC SpeedFast : BOOL]]></Declaration>
+      <Get Name="Get" Id="{3800fea8-9749-496d-9741-f57484383f3d}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[SpeedFast := _SpeedFast;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{bcd7bca2-8a8e-431f-be6d-2c4a5419080b}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_SpeedFast := SpeedFast;
+Root.OnPropertyChangedBool(THIS^, 52, _SpeedFast);]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="ToggleAllowed" Id="{f08ee637-0898-4e5f-a72c-96600adefe18}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+//{attribute 'TcRpcEnable'}
+PROPERTY PUBLIC ToggleAllowed : BOOL]]></Declaration>
+      <Get Name="Get" Id="{b1f5e305-fa5c-4096-b908-6dc21694ea1f}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[ToggleAllowed := _ToggleAllowed;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{e2f8682f-a55e-445e-92b5-84eca479b338}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_ToggleAllowed := ToggleAllowed;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="TransitTimeSlowFast" Id="{9aa6f619-7d04-4ac2-bfdf-53695149b91b}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+//{attribute 'TcRpcEnable'}
+PROPERTY PUBLIC TransitTimeSlowFast : TIME]]></Declaration>
+      <Get Name="Get" Id="{c9f57aa8-2420-4c2b-b64b-99cedcb6d5d3}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[TransitTimeSlowFast := _TransitTimeSlowFast;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{510af53e-7e85-41cd-95b1-0485e25c13f2}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_TransitTimeSlowFast := TransitTimeSlowFast;
+Root.OnPropertyChangedTime(THIS^, 50, _TransitTimeSlowFast);]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="TurnOnFastLeft" Id="{01147020-63e3-40b2-a9bd-8b368b487cb7}">
+      <Declaration><![CDATA[METHOD PUBLIC TurnOnFastLeft
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="TurnOnFastRight" Id="{5cd8d378-3f4c-42f1-a07d-172c1a072ffd}">
+      <Declaration><![CDATA[METHOD PUBLIC TurnOnFastRight
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="TurnOnSlowLeft" Id="{d9290f2b-d40e-4759-a23b-32c1d8ae8652}">
+      <Declaration><![CDATA[METHOD PUBLIC TurnOnSlowLeft
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="TurnOnSlowRight" Id="{62d3a9dd-9d83-4f21-840d-03e9f093b89e}">
+      <Declaration><![CDATA[METHOD PUBLIC TurnOnSlowRight
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <LineIds Name="PAEEMotor2D2P">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEEMotor2D2P.DirectionLeft.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEEMotor2D2P.DirectionLeft.Set">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEEMotor2D2P.FB_init">
+      <LineId Id="8" Count="0" />
+      <LineId Id="7" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEEMotor2D2P.FB_postinit">
+      <LineId Id="12" Count="0" />
+      <LineId Id="18" Count="0" />
+      <LineId Id="7" Count="0" />
+      <LineId Id="17" Count="0" />
+      <LineId Id="8" Count="1" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEEMotor2D2P.HasPointReachedOffPosition">
+      <LineId Id="7" Count="3" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEEMotor2D2P.HasPointReachedOnPosition">
+      <LineId Id="7" Count="0" />
+      <LineId Id="14" Count="0" />
+      <LineId Id="13" Count="0" />
+      <LineId Id="15" Count="0" />
+      <LineId Id="28" Count="0" />
+      <LineId Id="24" Count="1" />
+      <LineId Id="9" Count="0" />
+      <LineId Id="16" Count="2" />
+      <LineId Id="27" Count="0" />
+      <LineId Id="19" Count="0" />
+      <LineId Id="26" Count="0" />
+      <LineId Id="11" Count="1" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEEMotor2D2P.InvokeSetterBool">
+      <LineId Id="5" Count="0" />
+      <LineId Id="9" Count="7" />
+      <LineId Id="8" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEEMotor2D2P.InvokeSetterTime">
+      <LineId Id="16" Count="0" />
+      <LineId Id="8" Count="2" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEEMotor2D2P.IsEnabledTurnOnFastLeft">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEEMotor2D2P.IsEnabledTurnOnFastRight">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEEMotor2D2P.IsEnabledTurnOnSlowLeft">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEEMotor2D2P.IsEnabledTurnOnSlowRight">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEEMotor2D2P.OnInitMemory">
+      <LineId Id="17" Count="0" />
+      <LineId Id="9" Count="0" />
+      <LineId Id="18" Count="0" />
+      <LineId Id="10" Count="1" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEEMotor2D2P.PAPointMatInOut1.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEEMotor2D2P.PAPointMatInOut2.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEEMotor2D2P.ReqDirectionLeft.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEEMotor2D2P.ReqDirectionLeft.Set">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+      <LineId Id="8" Count="1" />
+      <LineId Id="7" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEEMotor2D2P.ReqSpeedFast.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEEMotor2D2P.ReqSpeedFast.Set">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+      <LineId Id="8" Count="1" />
+      <LineId Id="7" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEEMotor2D2P.SpeedFast.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEEMotor2D2P.SpeedFast.Set">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEEMotor2D2P.ToggleAllowed.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEEMotor2D2P.ToggleAllowed.Set">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEEMotor2D2P.TransitTimeSlowFast.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEEMotor2D2P.TransitTimeSlowFast.Set">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEEMotor2D2P.TurnOnFastLeft">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEEMotor2D2P.TurnOnFastRight">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEEMotor2D2P.TurnOnSlowLeft">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEEMotor2D2P.TurnOnSlowRight">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

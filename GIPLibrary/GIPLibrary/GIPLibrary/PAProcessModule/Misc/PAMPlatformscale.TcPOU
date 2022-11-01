@@ -1,0 +1,68 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4020.12">
+  <POU Name="PAMPlatformscale" Id="{9833b039-f9b1-4cf8-89e9-1913eb68accb}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK PAMPlatformscale EXTENDS PAProcessModule
+VAR_INPUT
+END_VAR
+VAR_OUTPUT
+END_VAR
+VAR
+	_PAPointMatIn1 : PAPoint(THIS^);
+	_PAPointMatOut1 : PAPoint(THIS^);
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Method Name="FB_init" Id="{42614e4c-ef3f-45fd-a399-8b5b102563d1}">
+      <Declaration><![CDATA[METHOD FB_init : BOOL
+VAR_INPUT
+	bInitRetains : BOOL; // if TRUE, the retain variables are initialized (warm start / cold start)
+	bInCopyCode : BOOL;  // if TRUE, the instance afterwards gets moved into the copy code (online change)
+	parent : IACComponent;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[AddPoint(_PAPointMatIn1);
+AddPoint(_PAPointMatOut1);]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="PAPointMatIn1" Id="{c537a64e-8d27-4844-9398-00aa172a0bc6}">
+      <Declaration><![CDATA[PROPERTY PUBLIC PAPointMatIn1 : IACPoint]]></Declaration>
+      <Get Name="Get" Id="{5bc0117b-b9d2-41a8-850d-990c45b579fa}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[PAPointMatIn1 := _PAPointMatIn1;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="PAPointMatOut1" Id="{76edb520-db86-47d6-b0a5-7a67dbf6d0c6}">
+      <Declaration><![CDATA[PROPERTY PUBLIC PAPointMatOut1 : IACPoint]]></Declaration>
+      <Get Name="Get" Id="{181c9bb3-bac5-4931-b1d1-c0234f51b6ea}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[PAPointMatOut1 := _PAPointMatOut1;
+]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <LineIds Name="PAMPlatformscale">
+      <LineId Id="9" Count="0" />
+    </LineIds>
+    <LineIds Name="PAMPlatformscale.FB_init">
+      <LineId Id="8" Count="0" />
+      <LineId Id="7" Count="0" />
+    </LineIds>
+    <LineIds Name="PAMPlatformscale.PAPointMatIn1.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAMPlatformscale.PAPointMatOut1.Get">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

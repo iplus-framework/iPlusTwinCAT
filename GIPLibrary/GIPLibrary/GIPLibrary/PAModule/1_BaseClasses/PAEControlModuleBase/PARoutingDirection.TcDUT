@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4020.12">
+  <DUT Name="PARoutingDirection" Id="{33bc310b-834c-418f-b046-8bd052fb0730}">
+    <Declaration><![CDATA[{attribute 'qualified_only'}
+{attribute 'strict'}
+TYPE PARoutingDirection :
+(
+	ToSuccessors := 0,
+	ToPredecessors := 1
+);
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

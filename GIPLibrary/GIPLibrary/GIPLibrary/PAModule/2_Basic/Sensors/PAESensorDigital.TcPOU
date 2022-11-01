@@ -1,0 +1,575 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.6">
+  <POU Name="PAESensorDigital" Id="{9da30ee0-a458-4d16-844e-669bc076b2d2}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK PAESensorDigital EXTENDS PAESensorBase
+VAR_INPUT
+END_VAR
+VAR_OUTPUT
+END_VAR
+VAR
+	_ActiveLow : BOOL;
+	_CollectiveAck : BOOL;
+	_DelayTimeSignalOff : TIME;
+	_DelayTimeSignalOn : TIME;
+	_FaultACK : BOOL;
+	_FaultDelayTime : TIME;
+	_ForceSensorSignal : BOOL;
+	_IgnoreDelayTimes : BOOL;
+	_SensorRole : PAESensorRole;
+	_SensorState : PANotifyState;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Property Name="ActiveLow" Id="{7d34cca1-5511-4eb1-b0fc-cb0e2d497173}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+//{attribute 'TcRpcEnable'}
+PROPERTY PUBLIC ActiveLow : BOOL]]></Declaration>
+      <Get Name="Get" Id="{544481d2-3885-4afe-8787-c21213f26691}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[ActiveLow := _ActiveLow;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{c2c5d8b9-a9d7-4c26-8eaa-ceeedc278299}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_ActiveLow := ActiveLow;
+Root.OnPropertyChangedBool(THIS^, 26, _ActiveLow);]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="CollectiveAck" Id="{a358a5b1-fef1-40da-99fc-3817739bbcb0}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+//{attribute 'TcRpcEnable'}
+PROPERTY PUBLIC CollectiveAck : BOOL]]></Declaration>
+      <Get Name="Get" Id="{50543538-f216-41b9-b600-6b94a2d041b7}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[CollectiveAck := _CollectiveAck;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{91295cd1-3037-4e7b-8feb-ef9038463ecb}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_CollectiveAck := CollectiveAck;
+Root.OnPropertyChangedBool(THIS^, 29, _CollectiveAck);]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="DelayTimeSignalOff" Id="{4fa1849f-4f55-4b09-bc95-9480d40c8e51}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+//{attribute 'TcRpcEnable'}
+PROPERTY PUBLIC DelayTimeSignalOff : TIME]]></Declaration>
+      <Get Name="Get" Id="{aebfa03e-24f4-456a-928c-37cce416f79e}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[DelayTimeSignalOff := _DelayTimeSignalOff;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{2be620dc-6fca-4d45-ae4c-ffb69a208476}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_DelayTimeSignalOff := DelayTimeSignalOff;
+Root.OnPropertyChangedTime(THIS^, 24, _DelayTimeSignalOff);]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="DelayTimeSignalOn" Id="{294ff7bf-8adf-4650-b59d-06ef4c88c584}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+//{attribute 'TcRpcEnable'}
+PROPERTY PUBLIC DelayTimeSignalOn : TIME]]></Declaration>
+      <Get Name="Get" Id="{c7c5cd08-36e8-4de2-8fb8-45bb477796d4}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[DelayTimeSignalOn := _DelayTimeSignalOn;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{24a2c0c5-d23f-4bcd-ad42-8745b691ae6e}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_DelayTimeSignalOn := DelayTimeSignalOn;
+Root.OnPropertyChangedTime(THIS^, 23, _DelayTimeSignalOn);]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="FaultACK" Id="{871da3ab-e5b5-485f-86c4-5bc1da2fe48e}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+//{attribute 'TcRpcEnable'}
+PROPERTY PUBLIC FaultACK : BOOL]]></Declaration>
+      <Get Name="Get" Id="{db9f2f13-b5c5-4ecb-8e27-d949c8b53b16}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[FaultACK := _FaultACK;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{90162525-8618-4b25-8a54-899724e81cad}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_FaultACK := FaultACK;
+Root.OnPropertyChangedBool(THIS^, 32, _FaultACK);]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="FaultDelayTime" Id="{ec9ba10c-7b13-4314-a92b-329abfaef570}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+//{attribute 'TcRpcEnable'}
+PROPERTY PUBLIC FaultDelayTime : TIME]]></Declaration>
+      <Get Name="Get" Id="{1548c3fd-211b-4868-865c-198b95853d77}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[FaultDelayTime := _FaultDelayTime;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{0fcf3391-702c-42e3-8774-364551748555}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_FaultDelayTime := FaultDelayTime;
+Root.OnPropertyChangedTime(THIS^, 25, _FaultDelayTime);]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="FB_postinit" Id="{2ce055c2-d9e7-4bba-936c-b93b55575775}">
+      <Declaration><![CDATA[METHOD FB_postinit
+VAR_INPUT
+	root : IACVariobatch;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SUPER^.FB_postinit(root);
+root.OnPropertyChangedTime(THIS^, 23, _DelayTimeSignalOn);
+root.OnPropertyChangedTime(THIS^, 24, _DelayTimeSignalOff);
+root.OnPropertyChangedTime(THIS^, 25, _FaultDelayTime);
+root.OnPropertyChangedBool(THIS^, 26, _ActiveLow);
+root.OnPropertyChangedInt(THIS^, 27, _SensorRole);
+root.OnPropertyChangedBool(THIS^,28, _ForceSensorSignal);
+root.OnPropertyChangedBool(THIS^, 29, _CollectiveAck);
+root.OnPropertyChangedBool(THIS^,30, _IgnoreDelayTimes);
+root.OnPropertyChangedInt(THIS^, 31, _SensorState);
+root.OnPropertyChangedBool(THIS^, 32, _FaultACK);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="ForceSensorSignal" Id="{fba0b91f-a1b2-4fbe-8bf5-ce8ca80f0b81}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+//{attribute 'TcRpcEnable'}
+PROPERTY PUBLIC ForceSensorSignal : BOOL]]></Declaration>
+      <Get Name="Get" Id="{8267a788-04d8-43f3-ac9d-35b3871a9854}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[ForceSensorSignal := _ForceSensorSignal;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{acca9665-d8a7-4636-9697-a5afcf6b5fbc}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_ForceSensorSignal := ForceSensorSignal;
+Root.OnPropertyChangedBool(THIS^,28, _ForceSensorSignal);]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="ForceSignal" Id="{8f7461dd-f467-4a40-983f-94113130d3b8}">
+      <Declaration><![CDATA[METHOD PUBLIC ForceSignal
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="IgnoreDelayTimes" Id="{f228548d-d715-4e34-af9f-139ebeaa538b}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+//{attribute 'TcRpcEnable'}
+PROPERTY PUBLIC IgnoreDelayTimes : BOOL]]></Declaration>
+      <Get Name="Get" Id="{8a6b81f9-c60b-4e37-afbc-76ba699dbc44}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[IgnoreDelayTimes := _IgnoreDelayTimes;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{9f017c6c-f31b-49d1-b39c-103b04ae4ff1}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_IgnoreDelayTimes := IgnoreDelayTimes;
+Root.OnPropertyChangedBool(THIS^,30, _IgnoreDelayTimes);]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="InvokeSetterBool" Id="{6beb9c75-444a-4a7a-bbd4-b4cc5622bee1}">
+      <Declaration><![CDATA[METHOD PUBLIC InvokeSetterBool
+VAR_INPUT
+	PropertyID : INT;
+	PropertyValue : BOOL;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SUPER^.InvokeSetterBool(PropertyID, PropertyValue);
+CASE PropertyID OF
+	26:
+		ActiveLow := PropertyValue;
+	28:
+		ForceSensorSignal := PropertyValue;
+	29:
+		CollectiveAck := PropertyValue;
+	30:
+		IgnoreDelayTimes := PropertyValue;
+	32:
+		FaultACK := PropertyValue;
+END_CASE]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="InvokeSetterEnum" Id="{8629daf7-91ef-400f-97ba-69cb710e81f8}">
+      <Declaration><![CDATA[METHOD PUBLIC InvokeSetterEnum
+VAR_INPUT
+	PropertyID : INT;
+	PropertyValue : INT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SUPER^.InvokeSetterEnum(PropertyID, PropertyValue);
+IF PropertyID = 27 THEN
+	THIS^.SensorRole := PropertyValue;
+ELSIF PropertyID = 31 THEN	
+	THIS^.SensorState := PropertyValue;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="InvokeSetterTime" Id="{46f5be07-ae0d-4f2c-814b-9d1e3f8ab9a4}">
+      <Declaration><![CDATA[METHOD PUBLIC InvokeSetterTime
+VAR_INPUT
+	PropertyID : INT;
+	PropertyValue : DINT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SUPER^.InvokeSetterTime(PropertyID, PropertyValue);
+CASE PropertyID OF
+	23:
+		DelayTimeSignalOn := TO_TIME(PropertyValue);
+	24:
+		DelayTimeSignalOff := TO_TIME(PropertyValue);
+	25:
+		FaultDelayTime := TO_TIME(PropertyValue);
+	
+END_CASE]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="IsEnabledAcknowledgeAlarms" Id="{9b14075d-3a06-4c13-97d0-3eb61f027729}">
+      <Declaration><![CDATA[METHOD PUBLIC IsEnabledAcknowledgeAlarms : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="IsEnabledForceSignal" Id="{596877a1-4b74-4331-bfaa-f307c4422270}">
+      <Declaration><![CDATA[METHOD PUBLIC IsEnabledForceSignal : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="IsEnabledResetSignal" Id="{7b28d81c-0d06-498d-8a86-7024a7732d35}">
+      <Declaration><![CDATA[METHOD PUBLIC IsEnabledResetSignal : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnInitMemory" Id="{512e32db-1bd2-4674-8d01-dc57a2bc247e}">
+      <Declaration><![CDATA[METHOD OnInitMemory
+VAR_INPUT
+	root : IACVariobatch;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[RegisterProperty(root, 23, GCL.cSizeTIME); //DelayTimeSignalOn
+RegisterProperty(root, 24, GCL.cSizeTIME); //DelayTimeSignalOff
+RegisterProperty(root, 25, GCL.cSizeTIME); //FaultDelayTime
+RegisterProperty(root, 26, GCL.cSizeBYTE); //ActiveLow
+RegisterProperty(root, 27, GCL.cSizeINT); //SensorRole
+RegisterProperty(root, 28, GCL.cSizeBYTE); //ForceSensorSignal
+RegisterProperty(root, 29, GCL.cSizeBYTE); //CollectiveAck
+RegisterProperty(root, 30, GCL.cSizeBYTE); //IgnoreDelayTimes
+RegisterProperty(root, 31, GCL.cSizeINT); //SensorState
+RegisterProperty(root, 32, GCL.cSizeBYTE); //FaultACK
+SUPER^.OnInitMemory(root);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnSetSensorState" Id="{fed6acd6-dec1-4c96-b075-312c4bf44443}">
+      <Declaration><![CDATA[METHOD PUBLIC OnSetSensorState
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="PAESensorDigital" Id="{755923f8-e456-4180-8b66-5dd7968f3fc0}">
+      <Declaration><![CDATA[METHOD PUBLIC PAESensorDigital
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ResetSignal" Id="{bcaaeb58-70a6-4258-8f97-09f2f95c3202}">
+      <Declaration><![CDATA[METHOD PUBLIC ResetSignal
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="SensorRole" Id="{69ac0b00-6738-416b-b736-d356892cf3a6}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+//{attribute 'TcRpcEnable'}
+PROPERTY PUBLIC SensorRole : PAESensorRole]]></Declaration>
+      <Get Name="Get" Id="{36db8fb0-2101-4a79-ad9c-993e6bec82c3}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[SensorRole := _SensorRole;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{b6f5c887-8f60-4fbc-814c-1908e4ec9508}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_SensorRole := SensorRole;
+Root.OnPropertyChangedInt(THIS^, 27, _SensorRole);]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="SensorState" Id="{02ec0c2a-d061-4cae-b7c4-ce7534cfc1f4}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+//{attribute 'TcRpcEnable'}
+PROPERTY PUBLIC SensorState : PANotifyState]]></Declaration>
+      <Get Name="Get" Id="{da715933-e319-462c-8a62-75420dc9afe2}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[SensorState := _SensorState;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{1f5ced43-caaa-443b-bd16-38823f4abac6}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_SensorState := SensorState;
+Root.OnPropertyChangedInt(THIS^, 31, _SensorState);]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="SensorState_PropertyChanged" Id="{a2857184-6eb8-4950-ab7d-e98e79b510c4}">
+      <Declaration><![CDATA[METHOD PUBLIC SensorState_PropertyChanged
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <LineIds Name="PAESensorDigital">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAESensorDigital.ActiveLow.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAESensorDigital.ActiveLow.Set">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAESensorDigital.CollectiveAck.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAESensorDigital.CollectiveAck.Set">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAESensorDigital.DelayTimeSignalOff.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAESensorDigital.DelayTimeSignalOff.Set">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAESensorDigital.DelayTimeSignalOn.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAESensorDigital.DelayTimeSignalOn.Set">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAESensorDigital.FaultACK.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAESensorDigital.FaultACK.Set">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAESensorDigital.FaultDelayTime.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAESensorDigital.FaultDelayTime.Set">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAESensorDigital.FB_postinit">
+      <LineId Id="7" Count="0" />
+      <LineId Id="21" Count="0" />
+      <LineId Id="20" Count="0" />
+      <LineId Id="18" Count="0" />
+      <LineId Id="8" Count="0" />
+      <LineId Id="19" Count="0" />
+      <LineId Id="22" Count="0" />
+      <LineId Id="9" Count="0" />
+      <LineId Id="23" Count="1" />
+      <LineId Id="12" Count="0" />
+      <LineId Id="6" Count="0" />
+    </LineIds>
+    <LineIds Name="PAESensorDigital.ForceSensorSignal.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAESensorDigital.ForceSensorSignal.Set">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAESensorDigital.ForceSignal">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAESensorDigital.IgnoreDelayTimes.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAESensorDigital.IgnoreDelayTimes.Set">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAESensorDigital.InvokeSetterBool">
+      <LineId Id="8" Count="11" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="PAESensorDigital.InvokeSetterEnum">
+      <LineId Id="17" Count="0" />
+      <LineId Id="8" Count="3" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="PAESensorDigital.InvokeSetterTime">
+      <LineId Id="8" Count="0" />
+      <LineId Id="21" Count="0" />
+      <LineId Id="10" Count="5" />
+      <LineId Id="9" Count="0" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="PAESensorDigital.IsEnabledAcknowledgeAlarms">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAESensorDigital.IsEnabledForceSignal">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAESensorDigital.IsEnabledResetSignal">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAESensorDigital.OnInitMemory">
+      <LineId Id="24" Count="0" />
+      <LineId Id="23" Count="0" />
+      <LineId Id="25" Count="0" />
+      <LineId Id="8" Count="0" />
+      <LineId Id="26" Count="1" />
+      <LineId Id="9" Count="0" />
+      <LineId Id="28" Count="1" />
+      <LineId Id="12" Count="0" />
+      <LineId Id="6" Count="0" />
+    </LineIds>
+    <LineIds Name="PAESensorDigital.OnSetSensorState">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAESensorDigital.PAESensorDigital">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAESensorDigital.ResetSignal">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAESensorDigital.SensorRole.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAESensorDigital.SensorRole.Set">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAESensorDigital.SensorState.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAESensorDigital.SensorState.Set">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAESensorDigital.SensorState_PropertyChanged">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

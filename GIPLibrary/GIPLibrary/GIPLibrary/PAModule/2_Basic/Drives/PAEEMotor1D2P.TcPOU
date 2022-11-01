@@ -1,0 +1,344 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.6">
+  <POU Name="PAEEMotor1D2P" Id="{7148997b-6a4f-466a-8a7f-a825c5f17240}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK PUBLIC PAEEMotor1D2P EXTENDS PAEEMotorStartCtrl
+VAR_INPUT
+END_VAR
+VAR_OUTPUT
+END_VAR
+VAR
+	_PAPointMatIn1 : PAPoint(THIS^);
+	_PAPointMatOut1 : PAPoint(THIS^);
+	_ReqSpeedFast : BOOL;
+	_SpeedFast : BOOL;
+	_TransitTimeSlowFast : TIME;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Method Name="FB_init" Id="{7747e107-fdf0-43a0-8c6f-6c09de9b1983}">
+      <Declaration><![CDATA[METHOD FB_init : BOOL
+VAR_INPUT
+	bInitRetains : BOOL; // if TRUE, the retain variables are initialized (warm start / cold start)
+	bInCopyCode : BOOL;  // if TRUE, the instance afterwards gets moved into the copy code (online change)
+	parent : IACComponent;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[AddPoint(_PAPointMatIn1);
+AddPoint(_PAPointMatOut1);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="FB_postinit" Id="{5e557da7-9d59-4c9f-a678-46a51555ce85}">
+      <Declaration><![CDATA[METHOD FB_postinit
+VAR_INPUT
+	root : IACVariobatch;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SUPER^.FB_postinit(root);
+root.OnPropertyChangedTime(THIS^, 50, _TransitTimeSlowFast);
+root.OnPropertyChangedBool(THIS^, 51, _SpeedFast);
+root.OnPropertyChangedBool(THIS^, 52, _ReqSpeedFast);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="HasPointReachedOffPosition" Id="{437439a6-2f9b-45f9-a0e2-10dd9259bf40}">
+      <Declaration><![CDATA[METHOD PUBLIC HasPointReachedOffPosition : BOOL
+VAR_INPUT
+	point : IACPoint;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF point = PAPointMatOut1 THEN
+	HasPointReachedOffPosition := NOT _RunState;
+ELSIF point = PAPointMatIn1 THEN
+	HasPointReachedOffPosition := TRUE;
+ELSE
+	HasPointReachedOffPosition := FALSE;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="HasPointReachedOnPosition" Id="{4f54ec9a-a122-4fd8-8d7a-3e9edbe968d4}">
+      <Declaration><![CDATA[METHOD PUBLIC HasPointReachedOnPosition : BOOL
+VAR_INPUT
+	point : IACPoint;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF point = PAPointMatOut1 THEN
+	HasPointReachedOnPosition :=     _RunState
+								AND (   (_ReqSpeedFast AND _SpeedFast) 
+									 OR (NOT _ReqSpeedFast AND NOT _SpeedFast));
+ELSIF point = PAPointMatIn1 THEN
+	HasPointReachedOnPosition := TRUE;
+ELSE
+	HasPointReachedOnPosition := FALSE;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="InvokeSetterBool" Id="{88699ae8-4c39-4d62-8fcc-dc22b1b75e27}">
+      <Declaration><![CDATA[METHOD PUBLIC InvokeSetterBool
+VAR_INPUT
+	PropertyID : INT;
+	PropertyValue : BOOL;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SUPER^.InvokeSetterBool(PropertyID, PropertyValue);
+IF PropertyID = 51 THEN
+	SpeedFast := PropertyValue;
+ELSIF PropertyID = 52 THEN	
+	ReqSpeedFast := PropertyValue;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="InvokeSetterTime" Id="{93cde5f6-aaa9-4c57-9ce3-e8384ca849d9}">
+      <Declaration><![CDATA[METHOD PUBLIC InvokeSetterTime
+VAR_INPUT
+	PropertyID : INT;
+	PropertyValue : DINT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SUPER^.InvokeSetterTime(PropertyID, PropertyValue);
+CASE PropertyID OF
+	50:
+		TransitTimeSlowFast := TO_TIME(PropertyValue);
+END_CASE]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="IsEnabledTurnOnFast" Id="{b789567f-4950-4c0e-8d00-4b1b1b2b4f4a}">
+      <Declaration><![CDATA[METHOD PUBLIC IsEnabledTurnOnFast : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="IsEnabledTurnOnSlow" Id="{29651ab8-a476-4bea-9d0e-2cfe557d8a5e}">
+      <Declaration><![CDATA[METHOD PUBLIC IsEnabledTurnOnSlow : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnInitMemory" Id="{d5941243-26df-4121-93bf-7c30eb58df4f}">
+      <Declaration><![CDATA[METHOD OnInitMemory
+VAR_INPUT
+	root : IACVariobatch;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[RegisterProperty(root, 50, GCL.cSizeTIME); //TransitTimeSlowFast
+RegisterProperty(root, 51, GCL.cSizeBYTE); //SpeedFast
+RegisterProperty(root, 52, GCL.cSizeBYTE); //ReqSpeedFast
+SUPER^.OnInitMemory(root);]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="PAPointMatIn1" Id="{20d3d490-6d15-4324-a7a0-1bc5935ac943}">
+      <Declaration><![CDATA[PROPERTY PUBLIC PAPointMatIn1 : IACPoint]]></Declaration>
+      <Get Name="Get" Id="{7475e970-e900-4025-8f27-64af1a5f6ded}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[PAPointMatIn1 := _PAPointMatIn1;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="PAPointMatOut1" Id="{987b8fb1-e442-427a-827f-0faf859d9a4f}">
+      <Declaration><![CDATA[PROPERTY PUBLIC PAPointMatOut1 : IACPoint]]></Declaration>
+      <Get Name="Get" Id="{1b1efa63-648e-4c51-a34f-5ec2c191c4e8}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[PAPointMatOut1 := _PAPointMatOut1;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="ReqSpeedFast" Id="{ee3faaf9-b33f-436c-af28-c8b13f1f27bb}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+//{attribute 'TcRpcEnable'}
+PROPERTY PUBLIC ReqSpeedFast : BOOL]]></Declaration>
+      <Get Name="Get" Id="{dc40edd0-24f1-40b0-bafc-18135f69ade4}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[ReqSpeedFast := _ReqSpeedFast;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{1e1914c7-2109-4069-85cd-83eaca22de3c}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_ReqSpeedFast := ReqSpeedFast;
+Root.OnPropertyChangedBool(THIS^, 52, _ReqSpeedFast);
+IF Root.InSimulation THEN
+	SpeedFast := _ReqSpeedFast;
+END_IF]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="SpeedFast" Id="{743b58a9-31f8-4d08-a7bc-37f7498cb415}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+//{attribute 'TcRpcEnable'}
+PROPERTY PUBLIC SpeedFast : BOOL]]></Declaration>
+      <Get Name="Get" Id="{0e448035-f345-498d-8c05-87438693dcff}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[SpeedFast := _SpeedFast;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{28f0f9b5-dbbd-4b95-9e41-8ceb3f6a0bfc}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_SpeedFast := SpeedFast;
+Root.OnPropertyChangedBool(THIS^, 51, _SpeedFast);]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="TransitTimeSlowFast" Id="{c0bfcead-d702-46a2-bbe3-ea113eec1dfd}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+{attribute 'TcRpcEnable'}
+PROPERTY PUBLIC TransitTimeSlowFast : TIME]]></Declaration>
+      <Get Name="Get" Id="{b899bc7a-009a-493e-ada9-9b8a3d9cfba1}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[TransitTimeSlowFast := _TransitTimeSlowFast;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{777ed0f7-646b-4e5c-9320-6851d5891586}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_TransitTimeSlowFast := TransitTimeSlowFast;
+Root.OnPropertyChangedTime(THIS^, 50, _TransitTimeSlowFast);]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="TurnOnFast" Id="{8e023646-151e-476e-81a8-faf91faafc77}">
+      <Declaration><![CDATA[METHOD PUBLIC TurnOnFast
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="TurnOnSlow" Id="{0068d8e2-d9fd-405a-867c-9b733d4b3ca0}">
+      <Declaration><![CDATA[METHOD PUBLIC TurnOnSlow
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <LineIds Name="PAEEMotor1D2P">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEEMotor1D2P.FB_init">
+      <LineId Id="8" Count="0" />
+      <LineId Id="7" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEEMotor1D2P.FB_postinit">
+      <LineId Id="7" Count="0" />
+      <LineId Id="10" Count="0" />
+      <LineId Id="15" Count="1" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEEMotor1D2P.HasPointReachedOffPosition">
+      <LineId Id="7" Count="1" />
+      <LineId Id="15" Count="1" />
+      <LineId Id="9" Count="1" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEEMotor1D2P.HasPointReachedOnPosition">
+      <LineId Id="7" Count="1" />
+      <LineId Id="11" Count="1" />
+      <LineId Id="17" Count="1" />
+      <LineId Id="9" Count="1" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEEMotor1D2P.InvokeSetterBool">
+      <LineId Id="8" Count="4" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEEMotor1D2P.InvokeSetterTime">
+      <LineId Id="8" Count="0" />
+      <LineId Id="16" Count="0" />
+      <LineId Id="10" Count="0" />
+      <LineId Id="9" Count="0" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEEMotor1D2P.IsEnabledTurnOnFast">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEEMotor1D2P.IsEnabledTurnOnSlow">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEEMotor1D2P.OnInitMemory">
+      <LineId Id="15" Count="0" />
+      <LineId Id="14" Count="0" />
+      <LineId Id="7" Count="0" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEEMotor1D2P.PAPointMatIn1.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEEMotor1D2P.PAPointMatOut1.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEEMotor1D2P.ReqSpeedFast.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEEMotor1D2P.ReqSpeedFast.Set">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+      <LineId Id="8" Count="1" />
+      <LineId Id="7" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEEMotor1D2P.SpeedFast.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEEMotor1D2P.SpeedFast.Set">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEEMotor1D2P.TransitTimeSlowFast.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEEMotor1D2P.TransitTimeSlowFast.Set">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEEMotor1D2P.TurnOnFast">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEEMotor1D2P.TurnOnSlow">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

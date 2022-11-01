@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4020.12">
+  <POU Name="PAEActValve2_3pos" Id="{7bd99d84-d7d1-4fc7-9615-c23cbe5ddbf2}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK PAEActValve2_3pos EXTENDS PAEActuator2way_3pos
+VAR_INPUT
+END_VAR
+VAR_OUTPUT
+END_VAR
+VAR
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <LineIds Name="PAEActValve2_3pos">
+      <LineId Id="9" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

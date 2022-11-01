@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4020.12">
+  <POU Name="PAEActDosingSlider" Id="{8f801670-1eea-483e-b4cb-65459fc4ad68}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK PAEActDosingSlider EXTENDS PAEActuator1way_3pos
+VAR_INPUT
+END_VAR
+VAR_OUTPUT
+END_VAR
+VAR
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <LineIds Name="PAEActDosingSlider">
+      <LineId Id="9" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

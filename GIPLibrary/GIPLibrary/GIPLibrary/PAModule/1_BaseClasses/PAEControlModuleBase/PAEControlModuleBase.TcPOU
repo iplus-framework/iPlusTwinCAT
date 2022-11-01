@@ -1,0 +1,1497 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.6">
+  <POU Name="PAEControlModuleBase" Id="{a756d94a-22c1-470e-b3c0-dd546f11be3d}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK PAEControlModuleBase EXTENDS PAModule IMPLEMENTS IPAControlModule
+VAR_INPUT
+END_VAR
+VAR_OUTPUT
+END_VAR
+VAR	
+	_FaultState : PANotifyState;
+	_OperatingTime : TIME;
+	_SwitchingFrequency : DINT;
+	_TotalAlarms : DINT;
+	_TurnOnInstant : DATE_AND_TIME;
+	_TurnOffInstant : DATE_AND_TIME;
+	_OnTime : TIME;
+	_TurnOnDelay : TIME;
+	_TurnOffDelay : TIME;
+	_FaultDelayTime : TIME;
+	_TurnOnInterlockDelay : TIME;
+	_DepletingTime : TIME;
+	_OnSiteTurnedOn : BOOL;
+	_TurnOnInterlock : BOOL;
+	_RunningTime : TIME;	
+	_IsTriggered : BOOL;
+	_FaultStateACK : BOOL;	
+	_AllocatedByWay : BYTE;	
+	
+	// Gibt an, dass dieses Steuerungsmodul gerade von einer Funktion verwendet wird
+	_AllocatedByFunction : IPAProcessFunction;
+	_RoutingStateThis : PARoutingState;
+	_TimerTurnOnDelay : TON;
+	_TimerTurnOffDelay : TON;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Folder Name="ModuleProperties" Id="{f78ca878-981c-4622-a41e-101a9f8e7f2f}" />
+    <Folder Name="Routing" Id="{a5ecdbcf-3d11-41ee-8ab9-6f65c0eff01a}" />
+    <Folder Name="StateHandling" Id="{863f9ed5-4617-4c9f-a590-db3f72f2cbc1}" />
+    <Method Name="AcknowledgeAlarms" Id="{762dcf9d-49cc-42f9-90a0-cc524c1678e6}">
+      <Declaration><![CDATA[METHOD PUBLIC AcknowledgeAlarms
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="AllocatedByFunction" Id="{762b0cb6-cc24-4bd5-ae84-85a8f48ae51b}" FolderPath="Routing\">
+      <Declaration><![CDATA[{attribute 'TcRpcEnable'}
+PROPERTY PUBLIC AllocatedByFunction : IPAProcessFunction]]></Declaration>
+      <Get Name="Get" Id="{7d82c250-20cf-4a66-977f-6fc43a25d44d}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[AllocatedByFunction := _AllocatedByFunction;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{940013ec-c7c5-4523-a327-1c056ba5f865}">
+        <Declaration><![CDATA[PUBLIC 
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_AllocatedByFunction := AllocatedByFunction;
+_AllocatedByWay := BOOL_TO_BYTE(_AllocatedByFunction <> 0);
+Root.OnPropertyChangedByte(THIS^, 24, _AllocatedByWay);]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="AllocatedByWay" Id="{9ba54cea-c52b-4502-b703-28fed5f5f7f8}" FolderPath="Routing\">
+      <Declaration><![CDATA[{attribute 'TcRpcEnable'}
+PROPERTY PUBLIC AllocatedByWay : BOOL]]></Declaration>
+      <Get Name="Get" Id="{33ac9d79-c140-44d7-ad61-72f12cdff5e4}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[AllocatedByWay := _AllocatedByFunction <> 0;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="CombineRoutingStates" Id="{8cbd8a75-66f4-4b22-a9d4-8b8ac1b359b9}" FolderPath="Routing\">
+      <Declaration><![CDATA[METHOD PUBLIC CombineRoutingStates : PARoutingState
+VAR_INPUT
+	direction : PARoutingDirection;
+	rStateOfDependents : PARoutingState;
+END_VAR
+VAR
+	rStateCombined : PARoutingState;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF direction = PARoutingDirection.ToPredecessors THEN
+	// TODO: Logik nochmals checken:
+	IF rStateOfDependents <= PARoutingState.WaitOnPredecessors THEN
+		rStateCombined := PARoutingState.WaitOnPredecessors;
+	ELSE
+		IF _RoutingStateThis < PARoutingState.PredecessorsFinished THEN
+			rStateCombined := PARoutingState.PredecessorsFinished;
+		ELSE
+			rStateCombined := _RoutingStateThis;
+		END_IF
+	END_IF
+ELSE // direction = PARoutingDirection.ToSuccessors
+	IF rStateOfDependents <= PARoutingState.ReachedOnPosition THEN
+		rStateCombined := PARoutingState.WaitOnSuccessor;
+	ELSE //IF rStateAll >= PARoutingState.RoutePlaced THEN
+		IF _RoutingStateThis = PARoutingState.ReachedOnPosition THEN
+			rStateCombined := PARoutingState.RoutePlaced;
+		ELSIF _RoutingStateThis <= PARoutingState.SuccessorsPlaced THEN
+			rStateCombined := PARoutingState.SuccessorsPlaced;
+		ELSE
+			rStateCombined := _RoutingStateThis;
+		END_IF
+	END_IF
+END_IF
+
+CombineRoutingStates := rStateCombined;]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="DepletingTime" Id="{0d6193f0-77f2-4a7c-a4dd-9768daec3608}" FolderPath="ModuleProperties\">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+//{attribute 'TcRpcEnable'}
+PROPERTY PUBLIC DepletingTime : TIME]]></Declaration>
+      <Get Name="Get" Id="{b8c03518-5d89-4c88-a6c1-a2b72560aad6}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[DepletingTime := _DepletingTime;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{b4217e4b-3cac-4aaf-b0b8-c3b5af428b33}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_DepletingTime := DepletingTime;
+Root.OnPropertyChangedTime(THIS^, 22, _DepletingTime);]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="FaultDelayTime" Id="{585ce37b-8d38-4e4e-81f7-8519b6d9f7ee}" FolderPath="ModuleProperties\">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+//{attribute 'TcRpcEnable'}
+PROPERTY PUBLIC FaultDelayTime : TIME]]></Declaration>
+      <Get Name="Get" Id="{7237680e-374f-45da-955a-41cb7695bfa8}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[FaultDelayTime := _FaultDelayTime;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{0802c52c-2875-453c-b2f8-70fca73792b8}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_FaultDelayTime := FaultDelayTime;
+Root.OnPropertyChangedTime(THIS^, 20, _FaultDelayTime);]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="FaultState" Id="{e9212465-70f5-42b0-8bee-f8d788d43ba9}" FolderPath="ModuleProperties\">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+//{attribute 'TcRpcEnable'}
+PROPERTY PUBLIC FaultState : PANotifyState]]></Declaration>
+      <Get Name="Get" Id="{989edf0f-f4a1-4990-a75e-5a4e51e3bbf2}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[FaultState := _FaultState;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{208b89c9-78c8-4db2-b157-41f4573c5f7a}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_FaultState := FaultState;
+Root.OnPropertyChangedInt(THIS^, 23, _FaultState);
+]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="FaultStateACK" Id="{61499a33-6823-4cb9-ba73-0268de49e6f7}" FolderPath="ModuleProperties\">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+//{attribute 'TcRpcEnable'}
+PROPERTY PUBLIC FaultStateACK : BOOL]]></Declaration>
+      <Get Name="Get" Id="{c5760855-b065-40cf-8b78-b108b2ae004f}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[FaultStateACK := _FaultStateACK;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{74a40647-fbe4-43b7-b759-08aa85eef81e}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_FaultStateACK := FaultStateACK;
+Root.OnPropertyChangedBool(THIS^, 29, _FaultStateACK);]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="FB_postinit" Id="{8e469907-4f38-4d99-96b3-cc6d1dd85cb7}">
+      <Declaration><![CDATA[METHOD PUBLIC FB_postinit
+VAR_INPUT
+		root : IACVariobatch;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SUPER^.FB_postinit(root);
+root.OnPropertyChangedTime(THIS^, 12, _OperatingTime);
+root.OnPropertyChangedDInt(THIS^, 13, _SwitchingFrequency);
+root.OnPropertyChangedDInt(THIS^, 14, _TotalAlarms);
+root.OnPropertyChangedDT(THIS^, 15, _TurnOnInstant);
+root.OnPropertyChangedDT(THIS^, 16, _TurnOffInstant);
+root.OnPropertyChangedTime(THIS^, 17, _OnTime);
+root.OnPropertyChangedTime(THIS^, 18, _TurnOnDelay);
+root.OnPropertyChangedTime(THIS^, 19, _TurnOffDelay);
+root.OnPropertyChangedTime(THIS^, 20, _FaultDelayTime);
+root.OnPropertyChangedTime(THIS^, 21, _TurnOnInterlockDelay);
+root.OnPropertyChangedTime(THIS^, 22, _DepletingTime);
+root.OnPropertyChangedInt(THIS^, 23, _FaultState);
+root.OnPropertyChangedByte(THIS^, 24, _AllocatedByWay);
+root.OnPropertyChangedBool(THIS^, 25, _OnSiteTurnedOn);
+root.OnPropertyChangedBool(THIS^, 26, _TurnOnInterlock);
+root.OnPropertyChangedTime(THIS^, 27, _RunningTime);
+root.OnPropertyChangedBool(THIS^, 28, _IsTriggered);
+root.OnPropertyChangedBool(THIS^, 29, _FaultStateACK);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="GetActivePoints" Id="{8255df67-529b-4e6f-a19c-c146969fb1fa}" FolderPath="Routing\">
+      <Declaration><![CDATA[// Gibt die Punkte zurück, über die die aktuelle Route gestellt ist bzw. gestellt werden soll
+METHOD PUBLIC GetActivePoints : BOOL
+VAR_IN_OUT
+	resultPoints : ARRAY [1..GCL.cPointMAX] OF IACPoint;
+END_VAR
+VAR_INPUT
+	pointType : PAFindPointType;
+END_VAR
+VAR
+	i: INT;
+	j: INT;
+	edge : IACEdge;
+	rStateAll : PARoutingState;
+	iControlModule : IPAControlModule;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF NOT AllocatedByWay THEN
+	GetActivePoints := FALSE;
+	RETURN;
+END_IF
+
+// Array leeren
+FOR i:=1 TO GCL.cPointMAX BY 1
+  DO
+	resultPoints[i] := 0;
+END_FOR;
+
+j := 1;
+// Durchlaufe alle Punkte und ermittle den Gesamtstatus über aller Nachfolgeelemente
+FOR i:=1 TO GCL.cPointMAX BY 1
+  DO
+    IF _Points[i] <> 0 THEN
+		
+	    // Suche aktiven Weg
+		edge := _Points[i].GetAllocatedEdge(AllocatedByFunction);
+		
+		IF edge <> 0 THEN
+			IF (pointType = PAFindPointType.InPoints) AND (edge.Target = _Points[i]) THEN
+				resultPoints[j] := _Points[i];
+			ELSIF (pointType = PAFindPointType.OutPoints) AND (edge.Source = _Points[i]) THEN
+				resultPoints[j] := _Points[i];
+			ELSE
+				resultPoints[j] := _Points[i];			
+			END_IF
+			j := j + 1;
+		END_IF
+	ELSE
+		EXIT;
+	END_IF
+END_FOR;
+
+GetActivePoints := TRUE;
+RETURN;
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="GetRoutingStateOfDependents" Id="{f9893d72-3c41-45cf-be8b-b606d2a7c51f}" FolderPath="Routing\">
+      <Declaration><![CDATA[METHOD PUBLIC GetRoutingStateOfDependents : PARoutingState
+VAR_IN_OUT
+	activeOutPoints : ARRAY [1..GCL.cPointMAX] OF IACPoint;
+	activeInPoints : ARRAY [1..GCL.cPointMAX] OF IACPoint;
+END_VAR
+VAR_INPUT
+	direction : PARoutingDirection;
+END_VAR
+VAR
+	i: INT;
+	edge : IACEdge;
+	rStateAll : PARoutingState;
+	iControlModule : IPAControlModule;
+	iProcessModule : IPAProcessModule;
+	targetRoutingState : PARoutingState;
+	findPointType : PAFindPointType;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF NOT AllocatedByWay THEN
+	GetRoutingStateOfDependents := PARoutingState.Idle;
+	RETURN;
+END_IF
+
+IF direction = PARoutingDirection.ToPredecessors THEN
+	findPointType := PAFindPointType.InPoints;
+	rStateAll := PARoutingState.ReachedOffPosition;
+ELSE // direction = PARoutingDirection.ToSuccessors
+	findPointType := PAFindPointType.OutPoints;
+	rStateAll := PARoutingState.RoutePlaced;
+END_IF
+
+GetActivePoints(activeOutPoints,PAFindPointType.OutPoints);
+GetActivePoints(activeInPoints,PAFindPointType.InPoints);
+
+// Durchlaufe alle Punkte und ermittle den Gesamtstatus über alle Elemente
+// Falls Suchrichtung zu Nachfolger (Ausgangspunkte)
+IF (direction = PARoutingDirection.ToSuccessors) THEN		
+	FOR i:=1 TO GCL.cPointMAX BY 1
+	  DO
+		IF activeOutPoints[i] <> 0 THEN
+			
+			// Suche aktiven Weg
+			edge := activeOutPoints[i].GetAllocatedEdge(AllocatedByFunction);
+			
+			// Falls das Ziel ein Control-Module ist dann frage Status ab und korrigiere Gesamtstatus aller Nachfolger
+			IF __QUERYINTERFACE(edge.Target, iControlModule) THEN
+				targetRoutingState := iControlModule.RoutingStateToTarget;
+				IF targetRoutingState < rStateAll THEN
+					rStateAll := targetRoutingState;
+				END_IF
+			ELSIF __QUERYINTERFACE(edge.Target, iProcessModule) THEN
+				targetRoutingState := iProcessModule.RoutingStateToTarget(THIS^, rStateAll);
+				IF targetRoutingState < rStateAll THEN
+					rStateAll := targetRoutingState;
+				END_IF
+			END_IF
+		ELSE
+			EXIT;
+		END_IF
+	END_FOR;
+ELSE
+	FOR i:=1 TO GCL.cPointMAX BY 1
+	  DO
+		IF activeInPoints[i] <> 0 THEN
+			
+			// Suche aktiven Weg
+			edge := activeInPoints[i].GetAllocatedEdge(AllocatedByFunction);
+			
+			// Falls das Quelle ein Control-Module ist dann frage Status ab und korrigiere Gesamtstatus aller Vorgänger
+			IF __QUERYINTERFACE(edge.Source, iControlModule) THEN
+				targetRoutingState := iControlModule.RoutingStateFromSource;
+				IF targetRoutingState < rStateAll THEN
+					rStateAll := targetRoutingState;
+				END_IF
+			ELSIF __QUERYINTERFACE(edge.Source, iProcessModule) THEN
+				targetRoutingState := iProcessModule.RoutingStateFromSource(THIS^, rStateAll);
+				IF targetRoutingState < rStateAll THEN
+					rStateAll := targetRoutingState;
+				END_IF
+			END_IF
+		ELSE
+			EXIT;
+		END_IF
+	END_FOR;
+END_IF
+
+GetRoutingStateOfDependents := rStateAll;
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="HasPointReachedOffPosition" Id="{d5381425-48dc-44b3-b482-92c59ac6da5c}" FolderPath="Routing\">
+      <Declaration><![CDATA[METHOD PUBLIC HasPointReachedOffPosition : BOOL
+VAR_INPUT
+	point : IACPoint;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[HasPointReachedOffPosition := FALSE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="HasPointReachedOnPosition" Id="{15c6ef5a-8bf7-4951-901d-7956b337ece7}" FolderPath="Routing\">
+      <Declaration><![CDATA[METHOD PUBLIC HasPointReachedOnPosition : BOOL
+VAR_INPUT
+	point : IACPoint;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[HasPointReachedOnPosition := FALSE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="HavePointsReachedOffPosition" Id="{6cd5ea6a-b101-4d97-9a5d-35f2634c0640}" FolderPath="Routing\">
+      <Declaration><![CDATA[METHOD PUBLIC HavePointsReachedOffPosition : BOOL
+VAR_INPUT
+	activeOutPoints : ARRAY [1..GCL.cPointMAX] OF IACPoint;
+	activeInPoints : ARRAY [1..GCL.cPointMAX] OF IACPoint;
+END_VAR
+
+VAR
+	i: INT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[FOR i:=1 TO GCL.cPointMAX BY 1
+  DO
+    IF activeOutPoints[i] <> 0 THEN
+		IF NOT HasPointReachedOffPosition(activeOutPoints[i]) THEN
+			HavePointsReachedOffPosition := FALSE;
+			RETURN;
+		END_IF
+	ELSE
+		EXIT;
+	END_IF
+END_FOR;
+FOR i:=1 TO GCL.cPointMAX BY 1
+  DO
+    IF activeInPoints[i] <> 0 THEN
+		IF NOT HasPointReachedOffPosition(activeInPoints[i]) THEN
+			HavePointsReachedOffPosition := FALSE;
+			RETURN;
+		END_IF
+	ELSE
+		EXIT;
+	END_IF
+END_FOR;HavePointsReachedOffPosition := TRUE;
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="HavePointsReachedOnPosition" Id="{2f5b89de-6523-4cc2-bcb1-f54654d95130}" FolderPath="Routing\">
+      <Declaration><![CDATA[METHOD PUBLIC HavePointsReachedOnPosition : BOOL
+VAR_INPUT
+	activeOutPoints : ARRAY [1..GCL.cPointMAX] OF IACPoint;
+	activeInPoints : ARRAY [1..GCL.cPointMAX] OF IACPoint;
+END_VAR
+
+VAR
+	i: INT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[FOR i:=1 TO GCL.cPointMAX BY 1
+  DO
+    IF activeOutPoints[i] <> 0 THEN
+		IF NOT HasPointReachedOnPosition(activeOutPoints[i]) THEN
+			HavePointsReachedOnPosition := FALSE;
+			RETURN;
+		END_IF
+	ELSE
+		EXIT;
+	END_IF
+END_FOR;
+FOR i:=1 TO GCL.cPointMAX BY 1
+  DO
+    IF activeInPoints[i] <> 0 THEN
+		IF NOT HasPointReachedOnPosition(activeInPoints[i]) THEN
+			HavePointsReachedOnPosition := FALSE;
+			RETURN;
+		END_IF
+	ELSE
+		EXIT;
+	END_IF
+END_FOR;
+HavePointsReachedOnPosition := TRUE;
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="InvokeSetterBool" Id="{363794f5-ce67-4811-8a82-c4bffa2ea76c}">
+      <Declaration><![CDATA[METHOD PUBLIC InvokeSetterBool
+VAR_INPUT
+	PropertyID : INT;
+	PropertyValue : BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SUPER^.InvokeSetterBool(PropertyID, PropertyValue);
+CASE PropertyID OF
+	25:
+		OnSiteTurnedOn := PropertyValue;
+	26:
+		TurnOnInterlock := PropertyValue;
+	28:
+		IsTriggered := PropertyValue;
+	29:
+		FaultStateACK := PropertyValue;
+END_CASE]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="InvokeSetterByte" Id="{cb0b5ea7-9ca4-42d3-9609-61bcdb644464}">
+      <Declaration><![CDATA[METHOD PUBLIC InvokeSetterByte
+VAR_INPUT
+	PropertyID : INT;
+	PropertyValue : BYTE;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SUPER^.InvokeSetterByte(PropertyID, PropertyValue);
+IF PropertyID = 24 THEN
+	_AllocatedByWay := PropertyValue;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="InvokeSetterDInt" Id="{370b925d-5c8b-400b-b34c-e0b3147c293a}">
+      <Declaration><![CDATA[METHOD PUBLIC InvokeSetterDInt
+VAR_INPUT
+	PropertyID : INT;
+	PropertyValue : DINT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SUPER^.InvokeSetterDInt(PropertyID, PropertyValue);
+CASE PropertyID OF
+	13:
+		SwitchingFrequency := PropertyValue;
+	14:
+		TotalAlarms := PropertyValue;
+END_CASE]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="InvokeSetterDT" Id="{c087178b-da4c-418e-983d-7b8d2fe6d57a}">
+      <Declaration><![CDATA[METHOD PUBLIC InvokeSetterDT
+VAR_INPUT
+	PropertyID : INT;
+	PropertyValue : DINT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SUPER^.InvokeSetterDT(PropertyID, PropertyValue);
+CASE PropertyID OF
+	16:
+		TurnOnInstant := TO_DT(PropertyValue);
+	17:
+		TurnOffInstant := TO_DT(PropertyValue);
+END_CASE]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="InvokeSetterEnum" Id="{48c254a8-7d2a-4a2b-80ec-3031912aa597}">
+      <Declaration><![CDATA[METHOD PUBLIC InvokeSetterEnum
+VAR_INPUT
+	PropertyID : INT;
+	PropertyValue : INT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SUPER^.InvokeSetterEnum(PropertyID, PropertyValue);
+IF PropertyID = 23 THEN
+	THIS^.FaultState := PropertyValue;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="InvokeSetterInt" Id="{8be91f0d-8fe8-4ae6-947b-3b1e9c16a84a}">
+      <Declaration><![CDATA[METHOD PUBLIC InvokeSetterInt
+VAR_INPUT
+	PropertyID : INT;
+	PropertyValue : INT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SUPER^.InvokeSetterInt(PropertyID, PropertyValue);
+CASE PropertyID OF
+	23:
+		FaultState := PropertyValue;
+END_CASE]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="InvokeSetterTime" Id="{91b56297-798a-45e9-94cd-f8bdaefc46a0}">
+      <Declaration><![CDATA[METHOD PUBLIC InvokeSetterTime
+VAR_INPUT
+	PropertyID : INT;
+	PropertyValue : DINT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SUPER^.InvokeSetterTime(PropertyID, PropertyValue);
+CASE PropertyID OF
+	12:
+		OperatingTIme := TO_TIME(PropertyValue);
+	17:
+		OnTime := TO_TIME(PropertyValue);
+	18:
+		TurnOnDelay := TO_TIME(PropertyValue);
+	19:
+		TurnOffDelay := TO_TIME(PropertyValue);
+	20:
+		FaultDelayTime := TO_TIME(PropertyValue);
+	21:
+		TurnOnInterlockDelay := TO_TIME(PropertyValue);
+	22:
+		DepletingTime := TO_TIME(PropertyValue);
+	27:
+		RunningTime := TO_TIME(PropertyValue);
+END_CASE]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="IsTriggered" Id="{7a7212b3-addc-4e77-b9cb-fe5425db76dc}" FolderPath="ModuleProperties\">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+//{attribute 'TcRpcEnable'}
+PROPERTY PUBLIC IsTriggered : BOOL]]></Declaration>
+      <Get Name="Get" Id="{7cb7c090-c4ff-4e53-8e2c-d5829597b5a8}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[IsTriggered := _IsTriggered;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{e6b93db9-63ea-491b-82da-d267fdefd16b}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_IsTriggered := IsTriggered;
+Root.OnPropertyChangedBool(THIS^,28,_IsTriggered);]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="OnInitMemory" Id="{803ca1bf-a80b-40b9-8a20-2180636babdb}">
+      <Declaration><![CDATA[METHOD OnInitMemory
+VAR_INPUT
+		root : IACVariobatch;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[RegisterProperty(root, 12, GCL.cSizeTIME); // _OperatingTime
+RegisterProperty(root, 13, GCL.cSizeDINT); // _SwitchingFrequency
+RegisterProperty(root, 14, GCL.cSizeDINT); // _TotalAlarms
+RegisterProperty(root, 15, GCL.cSizeDT); // _TurnOnInstant
+RegisterProperty(root, 16, GCL.cSizeDT); // _TurnOffInstant
+RegisterProperty(root, 17, GCL.cSizeTIME); // _OnTime
+RegisterProperty(root, 18, GCL.cSizeTIME); // TurnOnDelay
+RegisterProperty(root, 19, GCL.cSizeTIME); // TurnOffDelay
+RegisterProperty(root, 20, GCL.cSizeTIME); // FaultDelayTime
+RegisterProperty(root, 21, GCL.cSizeTIME); // TurnOnInterlockDelay
+RegisterProperty(root, 22, GCL.cSizeTIME); // DepletingTime
+RegisterProperty(root, 23, GCL.cSizeINT); // FaultState
+RegisterProperty(root, 24, GCL.cSizeBYTE); // AllocatedByWay
+RegisterProperty(root, 25, GCL.cSizeBYTE); // OnSiteTurnedOn
+RegisterProperty(root, 26, GCL.cSizeBYTE); // TurnOnInterlock
+RegisterProperty(root, 27, GCL.cSizeTIME); // RunningTime
+RegisterProperty(root, 28, GCL.cSizeBYTE); // IsTriggered
+RegisterProperty(root, 29, GCL.cSizeBYTE); // FaultStateACK
+SUPER^.OnInitMemory(root);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnMainEnter" Id="{23688101-43c5-475f-b683-184315c4b08d}">
+      <Declaration><![CDATA[METHOD PROTECTED OnMainEnter
+VAR_INPUT
+END_VAR
+VAR
+	activePoints : ARRAY [1..GCL.cPointMAX] OF IACPoint;
+	rStateOfDependents : PARoutingState;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SUPER^.OnMainEnter();
+IF AllocatedByWay THEN
+	CASE AllocatedByFunction.ACState OF
+		//ACStateEnum.SMIdle:
+		//ACStateEnum.SMStarting:
+
+		ACStateEnum.SMRunning:
+			SMStartAndControlWithDelay();
+		
+		//ACStateEnum.SMCompleted:
+		//ACStateEnum.SMResetting:
+		
+		ACStateEnum.SMPausing:
+			SMStopIntermediately();
+		//ACStateEnum.SMPaused:
+		ACStateEnum.SMResuming:
+			SMStartAndControlIntermediately();
+		
+		ACStateEnum.SMHolding:
+			SMStopWithDelay();
+		//ACStateEnum.SMHeld:	
+		ACStateEnum.SMRestarting:
+			SMStartAndControlWithDelay();
+			
+		ACStateEnum.SMAborting:
+			SMStopIntermediately();
+		//ACStateEnum.SMAborted:
+		
+		ACStateEnum.SMStopping:
+			SMStopWithDelay();
+		//ACStateEnum.SMStopped:
+	END_CASE
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="OnSiteTurnedOn" Id="{4f11b984-3c12-4fe7-963a-c86f43f22dc7}" FolderPath="ModuleProperties\">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+//{attribute 'TcRpcEnable'}
+PROPERTY PUBLIC OnSiteTurnedOn : BOOL]]></Declaration>
+      <Get Name="Get" Id="{6afc68c9-5ceb-414b-842c-209914ed0385}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[OnSiteTurnedOn := _OnSiteTurnedOn;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{b18a314d-ded7-49b4-af23-24065b040ce6}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_OnSiteTurnedOn := OnSiteTurnedOn;
+Root.OnPropertyChangedBool(THIS^, 25, _OnSiteTurnedOn);]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="OnTime" Id="{90931188-660d-4202-aa15-ec9cdb396638}" FolderPath="ModuleProperties\">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+//{attribute 'TcRpcEnable'}
+PROPERTY PUBLIC OnTime : TIME]]></Declaration>
+      <Get Name="Get" Id="{c7f86e69-b119-4225-9234-57b75458d342}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[OnTime := _OnTime;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{c45957b9-56b2-4761-b538-c71a4577a2ce}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_OnTime := OnTime;
+Root.OnPropertyChangedTime(THIS^, 17, _OnTime);
+]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="OperatingTime" Id="{19e08576-e8f7-4555-9a73-c149f83be78d}" FolderPath="ModuleProperties\">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+//{attribute 'TcRpcEnable'}
+PROPERTY OperatingTime : TIME]]></Declaration>
+      <Get Name="Get" Id="{e9997d58-adbb-4bb9-a749-c311f18cfcd2}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[OperatingTime := _OperatingTime;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{9f2463bd-01a3-4e6a-9cb1-704f00400103}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_OperatingTime := OperatingTime;
+Root.OnPropertyChangedTime(THIS^, 12, _OperatingTime);]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="RoutingStateFromSource" Id="{811632c2-1030-498a-8665-aaea9bb41082}" FolderPath="Routing\">
+      <Declaration><![CDATA[PROPERTY RoutingStateFromSource : PARoutingState]]></Declaration>
+      <Get Name="Get" Id="{c0918eab-e3cc-4458-bf32-dd0bbc259262}">
+        <Declaration><![CDATA[VAR
+	rStateOfDependents : PARoutingState;
+	rStateCombined : PARoutingState;
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[IF NOT AllocatedByWay THEN
+	RoutingStateFromSource := PARoutingState.Idle;
+	RETURN;
+END_IF
+
+rStateOfDependents := RoutingStateOfPredecessors;
+rStateCombined := CombineRoutingStates(PARoutingDirection.ToPredecessors, rStateOfDependents);
+RoutingStateFromSource := rStateCombined;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="RoutingStateOfPredecessors" Id="{cc34207b-2cff-4043-bed9-a1eb58661155}" FolderPath="Routing\">
+      <Declaration><![CDATA[PROPERTY RoutingStateOfPredecessors : PARoutingState]]></Declaration>
+      <Get Name="Get" Id="{07cf3e47-c2ef-4f72-a004-2eccc2def3c8}">
+        <Declaration><![CDATA[VAR
+	activeOutPoints : ARRAY [1..GCL.cPointMAX] OF IACPoint;
+	activeInPoints : ARRAY [1..GCL.cPointMAX] OF IACPoint;
+	rStateAll : PARoutingState;
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[IF NOT AllocatedByWay THEN
+	RoutingStateOfPredecessors := PARoutingState.Idle;
+	RETURN;
+END_IF
+
+rStateAll := GetRoutingStateOfDependents(activeOutPoints,activeInPoints,PARoutingDirection.ToPredecessors);
+RoutingStateOfPredecessors := rStateAll;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="RoutingStateOfSuccessors" Id="{17ce9339-d5d0-4cc2-b320-018447f974d1}" FolderPath="Routing\">
+      <Declaration><![CDATA[PROPERTY RoutingStateOfSuccessors : PARoutingState]]></Declaration>
+      <Get Name="Get" Id="{2dedf017-1666-4deb-b654-4b90f5fd6b46}">
+        <Declaration><![CDATA[VAR
+	activeOutPoints : ARRAY [1..GCL.cPointMAX] OF IACPoint;
+	activeInPoints : ARRAY [1..GCL.cPointMAX] OF IACPoint;
+	rStateAll : PARoutingState;
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[IF NOT AllocatedByWay THEN
+	RoutingStateOfSuccessors := PARoutingState.Idle;
+	RETURN;
+END_IF
+
+rStateAll := GetRoutingStateOfDependents(activeOutPoints,activeInPoints,PARoutingDirection.ToSuccessors);
+RoutingStateOfSuccessors := rStateAll;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="RoutingStateThis" Id="{bd8ee09a-2695-49d6-8ea1-604c80659027}" FolderPath="Routing\">
+      <Declaration><![CDATA[PROPERTY PUBLIC RoutingStateThis : PARoutingState]]></Declaration>
+      <Get Name="Get" Id="{82efcb33-1c8a-4566-bd23-7afa0a82c900}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[RoutingStateThis := _RoutingStateThis;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="RoutingStateToTarget" Id="{065d25f7-370b-45ac-8c23-9343c77b435b}" FolderPath="Routing\">
+      <Declaration><![CDATA[PROPERTY RoutingStateToTarget : PARoutingState
+]]></Declaration>
+      <Get Name="Get" Id="{3a34eb73-0159-4154-8cba-60091d97c8a7}">
+        <Declaration><![CDATA[VAR
+	rStateOfDependents : PARoutingState;
+	rStateCombined : PARoutingState;
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[IF NOT AllocatedByWay THEN
+	RoutingStateToTarget := PARoutingState.Idle;
+	RETURN;
+END_IF
+
+rStateOfDependents := RoutingStateOfSuccessors;
+rStateCombined := CombineRoutingStates(PARoutingDirection.ToSuccessors, rStateOfDependents);
+RoutingStateToTarget := rStateCombined;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="RunningTime" Id="{d7bed24e-bb15-49cd-a5a1-8bdeabffb439}" FolderPath="ModuleProperties\">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+//{attribute 'TcRpcEnable'}
+PROPERTY PUBLIC RunningTime : TIME]]></Declaration>
+      <Get Name="Get" Id="{1366aebb-bc11-45bb-99b5-5da2ffa439d4}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[RunningTime := _RunningTime;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{34b2cea2-58a3-4bd0-8955-06afbb8d8318}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_RunningTime := RunningTime;
+Root.OnPropertyChangedTime(THIS^, 27, _RunningTime);]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="SMStartAndControlIntermediately" Id="{162f7d6d-8acf-48a2-8fa4-85f455f34309}" FolderPath="StateHandling\">
+      <Declaration><![CDATA[// Weg anfahren ohne Zeiten und anschliessend Weg überwachen. (Falls Nachfolgelemente angehalten, dann auch selbst anhalten)
+METHOD PROTECTED SMStartAndControlIntermediately
+VAR
+	activeOutPoints : ARRAY [1..GCL.cPointMAX] OF IACPoint;
+	activeInPoints : ARRAY [1..GCL.cPointMAX] OF IACPoint;
+	rStateOfDependents : PARoutingState;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[rStateOfDependents := THIS^.GetRoutingStateOfDependents(activeOutPoints, activeInPoints, PARoutingDirection.ToSuccessors);
+IF (rStateOfDependents = PARoutingState.RoutePlaced) THEN
+	
+	IF (THIS^._RoutingStateThis <= PARoutingState.TurnOnElapsing) OR (THIS^._RoutingStateThis >= PARoutingState.WaitOnPredecessors) THEN
+		THIS^._RoutingStateThis := PARoutingState.MovingOrTurningOn;
+	END_IF
+	
+	IF THIS^._RoutingStateThis = PARoutingState.MovingOrTurningOn THEN
+		IF HavePointsReachedOnPosition(activeOutPoints, activeInPoints) THEN
+			THIS^._RoutingStateThis := PARoutingState.ReachedOnPosition;
+		END_IF
+		RETURN;
+	END_IF
+ELSE
+	_TimerTurnOnDelay.IN := FALSE;
+	THIS^._RoutingStateThis := PARoutingState.WaitOnSuccessor;
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SMStartAndControlWithDelay" Id="{36a5888c-af1e-4efa-9280-8098093e2e23}" FolderPath="StateHandling\">
+      <Declaration><![CDATA[// Weg anfahren mit Zeiten und anschliessend Weg überwachen. (Falls Nachfolgelemente angehalten, dann auch selbst anhalten)
+METHOD PROTECTED SMStartAndControlWithDelay
+VAR
+	activeOutPoints : ARRAY [1..GCL.cPointMAX] OF IACPoint;
+	activeInPoints : ARRAY [1..GCL.cPointMAX] OF IACPoint;
+	rStateOfDependents : PARoutingState;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[rStateOfDependents := THIS^.GetRoutingStateOfDependents(activeOutPoints, activeInPoints, PARoutingDirection.ToSuccessors);
+IF (rStateOfDependents = PARoutingState.RoutePlaced) THEN
+	
+	IF (THIS^._RoutingStateThis < PARoutingState.TurnOnElapsing) OR (THIS^._RoutingStateThis >= PARoutingState.WaitOnPredecessors) THEN
+		_TimerTurnOnDelay(IN := TRUE,PT := TurnOnDelay);
+		THIS^._RoutingStateThis := PARoutingState.TurnOnElapsing;
+	END_IF	
+	
+	IF THIS^._RoutingStateThis = PARoutingState.TurnOnElapsing THEN
+		IF (_TimerTurnOnDelay.Q) THEN
+			THIS^._RoutingStateThis := PARoutingState.MovingOrTurningOn;
+		ELSE
+			RETURN;
+		END_IF
+	END_IF
+	
+	IF THIS^._RoutingStateThis = PARoutingState.MovingOrTurningOn THEN
+		IF HavePointsReachedOnPosition(activeOutPoints, activeInPoints) THEN
+			THIS^._RoutingStateThis := PARoutingState.ReachedOnPosition;
+		END_IF
+	END_IF
+ELSE
+	_TimerTurnOnDelay.IN := FALSE;
+	THIS^._RoutingStateThis := PARoutingState.WaitOnSuccessor;
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SMStopIntermediately" Id="{940ffc15-d570-43bc-b85d-8fcff5ed77c3}" FolderPath="StateHandling\">
+      <Declaration><![CDATA[// Weg unverzüglich anhalten
+METHOD PROTECTED SMStopIntermediately
+VAR
+	activeOutPoints : ARRAY [1..GCL.cPointMAX] OF IACPoint;
+	activeInPoints : ARRAY [1..GCL.cPointMAX] OF IACPoint;
+	rStateOfDependents : PARoutingState;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[rStateOfDependents := THIS^.GetRoutingStateOfDependents(activeOutPoints, activeInPoints, PARoutingDirection.ToPredecessors);
+IF (rStateOfDependents = PARoutingState.ReachedOffPosition) THEN
+	
+	IF THIS^._RoutingStateThis <= PARoutingState.TurnOffElapsing THEN
+		THIS^._RoutingStateThis := PARoutingState.MovingOrTurningOff;
+	END_IF	
+	
+	IF THIS^._RoutingStateThis = PARoutingState.MovingOrTurningOff THEN
+		IF HavePointsReachedOffPosition(activeOutPoints, activeInPoints) THEN
+			THIS^._RoutingStateThis := PARoutingState.ReachedOffPosition;
+		END_IF
+	END_IF
+ELSE
+	_TimerTurnOffDelay.IN := FALSE;
+	THIS^._RoutingStateThis := PARoutingState.WaitOnPredecessors;
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SMStopWithDelay" Id="{41d4f2fb-b4ab-4f5f-8554-4f12c8b8c7cc}" FolderPath="StateHandling\">
+      <Declaration><![CDATA[// Weg abfahren mit Zeiten.
+METHOD PROTECTED SMStopWithDelay
+VAR
+	activeOutPoints : ARRAY [1..GCL.cPointMAX] OF IACPoint;
+	activeInPoints : ARRAY [1..GCL.cPointMAX] OF IACPoint;
+	rStateOfDependents : PARoutingState;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[rStateOfDependents := THIS^.GetRoutingStateOfDependents(activeOutPoints, activeInPoints, PARoutingDirection.ToPredecessors);
+IF (rStateOfDependents = PARoutingState.ReachedOffPosition) THEN
+	
+	IF THIS^._RoutingStateThis < PARoutingState.TurnOffElapsing THEN
+		_TimerTurnOffDelay(IN := TRUE,PT := TurnOffDelay);
+		THIS^._RoutingStateThis := PARoutingState.TurnOffElapsing;
+	END_IF	
+	
+	IF THIS^._RoutingStateThis = PARoutingState.TurnOffElapsing THEN
+		IF (_TimerTurnOffDelay.Q) THEN
+			THIS^._RoutingStateThis := PARoutingState.MovingOrTurningOff;
+		ELSE
+			RETURN;
+		END_IF
+	END_IF
+	
+	IF THIS^._RoutingStateThis = PARoutingState.MovingOrTurningOff THEN
+		IF HavePointsReachedOffPosition(activeOutPoints, activeInPoints) THEN
+			THIS^._RoutingStateThis := PARoutingState.ReachedOffPosition;
+		END_IF
+	END_IF
+ELSE
+	_TimerTurnOffDelay.IN := FALSE;
+	THIS^._RoutingStateThis := PARoutingState.WaitOnPredecessors;
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="SwitchingFrequency" Id="{49c106ba-27c3-4456-a6f2-a5243c35d692}" FolderPath="ModuleProperties\">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+//{attribute 'TcRpcEnable'}
+PROPERTY PUBLIC SwitchingFrequency : DINT]]></Declaration>
+      <Get Name="Get" Id="{674ccd86-0883-486e-b48e-763c60d65c36}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[SwitchingFrequency := _SwitchingFrequency;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{ccbd352d-918c-4ca0-8496-ad3837e43632}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_SwitchingFrequency := SwitchingFrequency;
+Root.OnPropertyChangedDInt(THIS^, 13, _SwitchingFrequency);]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="TotalAlarms" Id="{bd1aef9e-1489-442d-b0f7-dc1a1793f687}" FolderPath="ModuleProperties\">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+//{attribute 'TcRpcEnable'}
+PROPERTY PUBLIC TotalAlarms : DINT]]></Declaration>
+      <Get Name="Get" Id="{ec021631-ab63-4ba6-8646-2e75c79fd23e}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[TotalAlarms := _TotalAlarms;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{ec8e4be6-77e2-4005-9bf9-0edb75344d52}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_TotalAlarms := TotalAlarms;
+Root.OnPropertyChangedDInt(THIS^, 14, _TotalAlarms);]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="TurnOffDelay" Id="{8a1c3291-d173-46dc-89a6-6d7836dfedd9}" FolderPath="ModuleProperties\">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+//{attribute 'TcRpcEnable'}
+PROPERTY PUBLIC TurnOffDelay : TIME]]></Declaration>
+      <Get Name="Get" Id="{77b89797-0748-4861-ae3f-2905e328e02f}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[TurnOffDelay := _TurnOffDelay;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{47d13aac-ab6c-40ba-8c8e-ac028b72c852}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_TurnOffDelay := TurnOffDelay;
+Root.OnPropertyChangedTime(THIS^, 19, _TurnOffDelay);]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="TurnOffInstant" Id="{b9122ac9-47a7-495c-9a01-5f4e0561ff3c}" FolderPath="ModuleProperties\">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+//{attribute 'TcRpcEnable'}
+PROPERTY PUBLIC TurnOffInstant : DATE_AND_TIME]]></Declaration>
+      <Get Name="Get" Id="{f5f66ec8-cb70-4f7a-a7de-6b02a0e82ca1}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[TurnOffInstant := _TurnOffInstant;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{26a04a74-ce0d-4d68-b3a7-d0b1c88da6b4}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_TurnOffInstant := TurnOffInstant;
+Root.OnPropertyChangedDT(THIS^, 16, _TurnOffInstant);]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="TurnOnDelay" Id="{a6bf0cee-2387-4fe7-b7f6-f91d3753aa0e}" FolderPath="ModuleProperties\">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+//{attribute 'TcRpcEnable'}
+PROPERTY PUBLIC TurnOnDelay : TIME]]></Declaration>
+      <Get Name="Get" Id="{9190e59f-2f75-46ec-a25d-83a849cc1a44}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[TurnOnDelay := _TurnOnDelay;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{01a7e247-1f05-4b87-85ec-a9a3dfd059d9}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_TurnOnDelay := TurnOnDelay;
+Root.OnPropertyChangedTime(THIS^, 18, _TurnOnDelay);]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="TurnOnInstant" Id="{81ff9cf3-d020-4f30-aaa6-0cc54d4069bd}" FolderPath="ModuleProperties\">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+//{attribute 'TcRpcEnable'}
+PROPERTY PUBLIC TurnOnInstant : DATE_AND_TIME]]></Declaration>
+      <Get Name="Get" Id="{00dc6f98-8132-4fdb-b5e7-f6d7a1c6d5fb}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[TurnOnInstant := _TurnOnInstant;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{6dce0667-c9a6-422e-9c8f-f6eacc8788d4}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_TurnOnInstant := TurnOnInstant;
+Root.OnPropertyChangedDT(THIS^, 15, _TurnOnInstant);]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="TurnOnInterlock" Id="{ac22fc36-3519-4911-9b76-b06f76906e94}" FolderPath="ModuleProperties\">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+//{attribute 'TcRpcEnable'}
+PROPERTY PUBLIC TurnOnInterlock : BOOL]]></Declaration>
+      <Get Name="Get" Id="{9c0e115c-eaa2-4a69-b072-b0e4f4b057c5}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[TurnOnInterlock := _TurnOnInterlock;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{95a3e0b7-9683-4b53-83b9-00af0ec655c7}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_TurnOnInterlock := TurnOnInterlock;
+Root.OnPropertyChangedBool(THIS^, 26, _TurnOnInterlock);]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="TurnOnInterlockDelay" Id="{eb2cc891-b925-4669-80a5-7dac4c580034}" FolderPath="ModuleProperties\">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+//{attribute 'TcRpcEnable'}
+PROPERTY PUBLIC TurnOnInterlockDelay : TIME]]></Declaration>
+      <Get Name="Get" Id="{fe1e0139-05d3-469b-bb8b-8574136fe0e3}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[TurnOnInterlockDelay := _TurnOnInterlockDelay;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{243cf18d-7235-4173-840b-f0344bc6e321}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_TurnOnInterlockDelay := TurnOnInterlockDelay;
+Root.OnPropertyChangedTime(THIS^, 21, _TurnOnInterlockDelay);]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <LineIds Name="PAEControlModuleBase">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEControlModuleBase.AcknowledgeAlarms">
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEControlModuleBase.AllocatedByFunction.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEControlModuleBase.AllocatedByFunction.Set">
+      <LineId Id="3" Count="1" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEControlModuleBase.AllocatedByWay.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEControlModuleBase.CombineRoutingStates">
+      <LineId Id="3" Count="24" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEControlModuleBase.DepletingTime.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEControlModuleBase.DepletingTime.Set">
+      <LineId Id="5" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEControlModuleBase.FaultDelayTime.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEControlModuleBase.FaultDelayTime.Set">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEControlModuleBase.FaultState.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEControlModuleBase.FaultState.Set">
+      <LineId Id="3" Count="1" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEControlModuleBase.FaultStateACK.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEControlModuleBase.FaultStateACK.Set">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEControlModuleBase.FB_postinit">
+      <LineId Id="12" Count="0" />
+      <LineId Id="40" Count="1" />
+      <LineId Id="36" Count="0" />
+      <LineId Id="38" Count="1" />
+      <LineId Id="37" Count="0" />
+      <LineId Id="32" Count="1" />
+      <LineId Id="17" Count="0" />
+      <LineId Id="34" Count="0" />
+      <LineId Id="46" Count="0" />
+      <LineId Id="18" Count="0" />
+      <LineId Id="35" Count="0" />
+      <LineId Id="27" Count="0" />
+      <LineId Id="30" Count="0" />
+      <LineId Id="28" Count="1" />
+      <LineId Id="19" Count="0" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEControlModuleBase.GetActivePoints">
+      <LineId Id="3" Count="36" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEControlModuleBase.GetRoutingStateOfDependents">
+      <LineId Id="3" Count="68" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEControlModuleBase.HasPointReachedOffPosition">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEControlModuleBase.HasPointReachedOnPosition">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEControlModuleBase.HavePointsReachedOffPosition">
+      <LineId Id="3" Count="21" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEControlModuleBase.HavePointsReachedOnPosition">
+      <LineId Id="3" Count="22" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEControlModuleBase.InvokeSetterBool">
+      <LineId Id="5" Count="0" />
+      <LineId Id="11" Count="8" />
+      <LineId Id="10" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEControlModuleBase.InvokeSetterByte">
+      <LineId Id="5" Count="0" />
+      <LineId Id="10" Count="1" />
+      <LineId Id="9" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEControlModuleBase.InvokeSetterDInt">
+      <LineId Id="13" Count="0" />
+      <LineId Id="8" Count="4" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEControlModuleBase.InvokeSetterDT">
+      <LineId Id="8" Count="0" />
+      <LineId Id="18" Count="0" />
+      <LineId Id="10" Count="2" />
+      <LineId Id="9" Count="0" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEControlModuleBase.InvokeSetterEnum">
+      <LineId Id="17" Count="0" />
+      <LineId Id="8" Count="0" />
+      <LineId Id="11" Count="0" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEControlModuleBase.InvokeSetterInt">
+      <LineId Id="8" Count="3" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEControlModuleBase.InvokeSetterTime">
+      <LineId Id="35" Count="0" />
+      <LineId Id="11" Count="0" />
+      <LineId Id="13" Count="9" />
+      <LineId Id="33" Count="1" />
+      <LineId Id="31" Count="1" />
+      <LineId Id="25" Count="0" />
+      <LineId Id="12" Count="0" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEControlModuleBase.IsTriggered.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEControlModuleBase.IsTriggered.Set">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEControlModuleBase.OnInitMemory">
+      <LineId Id="40" Count="5" />
+      <LineId Id="32" Count="0" />
+      <LineId Id="31" Count="0" />
+      <LineId Id="14" Count="0" />
+      <LineId Id="29" Count="0" />
+      <LineId Id="49" Count="0" />
+      <LineId Id="15" Count="0" />
+      <LineId Id="36" Count="0" />
+      <LineId Id="30" Count="0" />
+      <LineId Id="33" Count="2" />
+      <LineId Id="20" Count="0" />
+      <LineId Id="10" Count="0" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEControlModuleBase.OnMainEnter">
+      <LineId Id="6" Count="1" />
+      <LineId Id="9" Count="0" />
+      <LineId Id="101" Count="0" />
+      <LineId Id="90" Count="0" />
+      <LineId Id="98" Count="0" />
+      <LineId Id="89" Count="0" />
+      <LineId Id="13" Count="0" />
+      <LineId Id="95" Count="0" />
+      <LineId Id="17" Count="0" />
+      <LineId Id="19" Count="0" />
+      <LineId Id="43" Count="0" />
+      <LineId Id="99" Count="0" />
+      <LineId Id="21" Count="0" />
+      <LineId Id="23" Count="0" />
+      <LineId Id="92" Count="0" />
+      <LineId Id="25" Count="0" />
+      <LineId Id="41" Count="0" />
+      <LineId Id="27" Count="0" />
+      <LineId Id="97" Count="0" />
+      <LineId Id="96" Count="0" />
+      <LineId Id="31" Count="0" />
+      <LineId Id="91" Count="0" />
+      <LineId Id="45" Count="0" />
+      <LineId Id="100" Count="0" />
+      <LineId Id="33" Count="0" />
+      <LineId Id="35" Count="0" />
+      <LineId Id="50" Count="0" />
+      <LineId Id="93" Count="0" />
+      <LineId Id="37" Count="0" />
+      <LineId Id="39" Count="0" />
+      <LineId Id="8" Count="0" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEControlModuleBase.OnSiteTurnedOn.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEControlModuleBase.OnSiteTurnedOn.Set">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEControlModuleBase.OnTime.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEControlModuleBase.OnTime.Set">
+      <LineId Id="3" Count="1" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEControlModuleBase.OperatingTime.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEControlModuleBase.OperatingTime.Set">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEControlModuleBase.RoutingStateFromSource.Get">
+      <LineId Id="3" Count="6" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEControlModuleBase.RoutingStateOfPredecessors.Get">
+      <LineId Id="3" Count="5" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEControlModuleBase.RoutingStateOfSuccessors.Get">
+      <LineId Id="3" Count="5" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEControlModuleBase.RoutingStateThis.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEControlModuleBase.RoutingStateToTarget.Get">
+      <LineId Id="3" Count="6" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEControlModuleBase.RunningTime.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEControlModuleBase.RunningTime.Set">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEControlModuleBase.SMStartAndControlIntermediately">
+      <LineId Id="3" Count="16" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEControlModuleBase.SMStartAndControlWithDelay">
+      <LineId Id="3" Count="24" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEControlModuleBase.SMStopIntermediately">
+      <LineId Id="3" Count="15" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEControlModuleBase.SMStopWithDelay">
+      <LineId Id="3" Count="24" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEControlModuleBase.SwitchingFrequency.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEControlModuleBase.SwitchingFrequency.Set">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEControlModuleBase.TotalAlarms.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEControlModuleBase.TotalAlarms.Set">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEControlModuleBase.TurnOffDelay.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEControlModuleBase.TurnOffDelay.Set">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEControlModuleBase.TurnOffInstant.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEControlModuleBase.TurnOffInstant.Set">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEControlModuleBase.TurnOnDelay.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEControlModuleBase.TurnOnDelay.Set">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEControlModuleBase.TurnOnInstant.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEControlModuleBase.TurnOnInstant.Set">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEControlModuleBase.TurnOnInterlock.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEControlModuleBase.TurnOnInterlock.Set">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEControlModuleBase.TurnOnInterlockDelay.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEControlModuleBase.TurnOnInterlockDelay.Set">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

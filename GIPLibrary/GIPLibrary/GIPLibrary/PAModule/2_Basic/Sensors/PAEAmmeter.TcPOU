@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4020.6">
+  <POU Name="PAEAmmeter" Id="{598b7c52-afb0-4fac-b07a-6ba782c43600}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK PAEAmmeter EXTENDS PAESensorAnalog
+VAR_INPUT
+END_VAR
+VAR_OUTPUT
+END_VAR
+VAR
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+  </POU>
+</TcPlcObject>

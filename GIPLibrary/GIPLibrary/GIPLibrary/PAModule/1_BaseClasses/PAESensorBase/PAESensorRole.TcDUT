@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4020.12">
+  <DUT Name="PAESensorRole" Id="{7e5cd1c7-044c-42cc-a6bb-3036297bbad5}">
+    <Declaration><![CDATA[{attribute 'qualified_only'}
+TYPE PAESensorRole : 
+(
+	    None := 0,
+        Indicator := 1,
+        FaultSensor := 2
+);
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

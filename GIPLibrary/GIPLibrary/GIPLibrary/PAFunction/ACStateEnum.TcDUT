@@ -1,0 +1,30 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.6">
+  <DUT Name="ACStateEnum" Id="{c3331eec-4024-4b1a-ba75-cb40fa44fd3f}">
+    <Declaration><![CDATA[TYPE ACStateEnum :
+(
+	SMIdle := 0,
+	SMStarting := 100,
+	SMRunning := 200,
+
+		SMPausing := 210,
+		SMPaused := 211,
+		SMResuming := 212,
+
+		SMHolding := 220,
+		SMHeld := 221,
+		SMRestarting := 222,
+
+		SMAborting := 320,
+		SMAborted := 321,
+
+		SMStopping := 310,
+		SMStopped := 311,
+		
+	SMCompleted := 300,
+	SMResetting := 400	
+)INT;
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

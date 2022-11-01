@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4020.12">
+  <DUT Name="ACRMemoryIntEvents" Id="{13f8d2e8-77e6-45f8-9dc0-59e4482daf0a}">
+    <Declaration><![CDATA[TYPE ACRMemoryIntEvents :
+STRUCT
+	_Values : ARRAY [0..GCL.cMemoryEventsMAX] OF ACRMemoryIntEvent;
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

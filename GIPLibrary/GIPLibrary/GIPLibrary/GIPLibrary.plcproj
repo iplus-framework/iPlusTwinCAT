@@ -1,0 +1,686 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <!-- <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>-->
+    <FileVersion>1.0.0.0</FileVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{8c0fad5d-6b9a-484a-b733-2e1105355f48}</ProjectGuid>
+    <SubObjectsSortedByName>True</SubObjectsSortedByName>
+    <Name>GIPLibrary</Name>
+    <ProgramVersion>3.1.4020.2</ProgramVersion>
+    <Application>{9f2e8400-7ff6-4d2a-ab57-548374987df6}</Application>
+    <TypeSystem>{ad72ba82-c5f7-4180-b7f3-e63cc9a99a6b}</TypeSystem>
+    <Implicit_Task_Info>{3dd48c13-6eed-40db-94a6-1449864a46fe}</Implicit_Task_Info>
+    <Implicit_KindOfTask>{da1cf0ac-b397-4385-a34c-7c96bd1240db}</Implicit_KindOfTask>
+    <Implicit_Jitter_Distribution>{ebfa94d9-1caa-40ad-8399-7af4bb1080df}</Implicit_Jitter_Distribution>
+    <LibraryReferences>{1fb366f3-627e-4f58-9c9e-16eb5abe0508}</LibraryReferences>
+    <CombineIds>false</CombineIds>
+    <Company>gip</Company>
+    <Released>false</Released>
+    <Title>Automation components gip</Title>
+    <ProjectVersion>1.0.0</ProjectVersion>
+    <!--    <OutputType>Exe</OutputType>
+    <RootNamespace>MyApplication</RootNamespace>
+    <AssemblyName>MyApplication</AssemblyName>-->
+  </PropertyGroup>
+  <ItemGroup>
+    <Folder Include="ACComponent" />
+    <Folder Include="ACComponent\Routing" />
+    <Folder Include="ACProcessApplication" />
+    <Folder Include="ACVariobatch" />
+    <Folder Include="ACVariobatch\ACMemoryEvent" />
+    <Folder Include="PAFunction" />
+    <Folder Include="PAFunction\ACMethod" />
+    <Folder Include="PAFunction\PAFExtruding" />
+    <Folder Include="PAFunction\PAFVacuum" />
+    <Folder Include="PAFunction\PAFMixing" />
+    <Folder Include="PAFunction\PAFDischarging" />
+    <Folder Include="PAFunction\PARoutingFunction" />
+    <Folder Include="PAFunction\PAProcessFunction" />
+    <Folder Include="PAFunction\PAFDosing" />
+    <Folder Include="PAModule\Misc" />
+    <Folder Include="PAModule\3_Assembled" />
+    <Folder Include="PAProcessModule" />
+    <Folder Include="PAModule" />
+    <Folder Include="PAModule\1_BaseClasses\PAESensorBase" />
+    <Folder Include="PAModule\1_BaseClasses\PAEControlModuleBase" />
+    <Folder Include="PAModule\2_Basic" />
+    <Folder Include="PAModule\2_Basic\Actuators" />
+    <Folder Include="PAModule\1_BaseClasses" />
+    <Folder Include="PAModule\2_Basic\Actuators\1WayDerived" />
+    <Folder Include="PAModule\2_Basic\Actuators\2WayDerived" />
+    <Folder Include="PAModule\2_Basic\Actuators\3WayDerived" />
+    <Folder Include="PAModule\2_Basic\Drives" />
+    <Folder Include="PAModule\2_Basic\Sensors" />
+    <Folder Include="PAModule\2_Basic\Sensors\Scale" />
+    <Folder Include="PAProcessModule\Misc" />
+    <Folder Include="Version" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="ACComponent\ACComponent.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ACComponent\ACInitStateEnum.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ACComponent\ACObject.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ACComponent\IACComponent.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ACComponent\IACObject.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ACComponent\Routing\ConnectionTypesEnum.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ACComponent\Routing\IACEdge.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ACComponent\Routing\IACPoint.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ACComponent\Routing\IRouteableComponent.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ACComponent\Routing\PAEdge.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ACComponent\Routing\PAPoint.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ACComponent\Routing\PARoute.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ACComponent\Routing\PARoutePointers.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ACComponent\TypeOfACObjectEnum.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ACProcessApplication\PAAlarmChangeStateEnum.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ACProcessApplication\PAClassAlarmingBase.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ACProcessApplication\PAClassPhysicalBase.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ACProcessApplication\PAOperatingModeEnum.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ACVariobatch\ACMemoryEvent\ACRMemoryByteEvent.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ACVariobatch\ACMemoryEvent\ACRMemoryDIntEvents.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ACVariobatch\ACMemoryEvent\ACRMemoryRealEvents.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ACVariobatch\ACMemoryEvent\ACRMemoryLRealEvents.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ACVariobatch\ACMemoryEvent\ACRMemoryDTEvents.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ACVariobatch\ACMemoryEvent\ACRMemoryUIntEvents.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ACVariobatch\ACMemoryEvent\ACRMemoryDIntEvent.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ACVariobatch\ACMemoryEvent\ACRMemoryStringEvent.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ACVariobatch\ACMemoryEvent\ACRMemoryRealEvent.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ACVariobatch\ACMemoryEvent\ACRMemoryLRealEvent.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ACVariobatch\ACMemoryEvent\ACRMemoryDTEvent.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ACVariobatch\ACMemoryEvent\ACRMemoryUIntEvent.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ACVariobatch\ACMemoryEvent\ACRMemoryIntEvent.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ACVariobatch\ACMemoryEvent\ACRMemoryEvent.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ACVariobatch\ACMemoryEvent\ACRMemoryByteEvents.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ACVariobatch\ACMemoryEvent\ACRMemoryIntEvents.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ACVariobatch\ACMemoryEvent\ACRMemoryTimeEvent.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ACVariobatch\ACMemoryEvent\ACRMemoryTimeEvents.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ACVariobatch\ACMemoryEvent\ACRMemoryUDIntEvent.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ACVariobatch\ACMemoryEvent\ACRMemoryUDIntEvents.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ACVariobatch\ACMemoryEvent\ACRMemoryStringEvents.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ACVariobatch\ACREventCycleProp.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ACVariobatch\ACREventCycleInfo.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ACVariobatch\ACVariobatch.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ACVariobatch\ApplicationManager.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ACVariobatch\ACRMemoryMetaObj.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ACVariobatch\ACRMemoryMetaProp.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ACVariobatch\IACVariobatch.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="GCL.TcGVL">
+      <SubType>Code</SubType>
+      <LinkAlways>true</LinkAlways>
+    </Compile>
+    <Compile Include="GVL.TcGVL">
+      <SubType>Code</SubType>
+      <LinkAlways>true</LinkAlways>
+    </Compile>
+    <Compile Include="PAFunction\ACMethod\ACMethodBase.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PAFunction\ACMethod\ACMethodBaseP.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PAFunction\ACMethod\ACMethodBaseR.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PAFunction\ACMethod\IACMethod.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PAFunction\ACStateEnum.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PAFunction\PAFDischarging\ACMethodDischargingR.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PAFunction\PAFDischarging\ACMethodDischargingP.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PAFunction\PAFDischarging\ACMethodDischarging.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PAFunction\PAFDischarging\IPAFDischarging.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PAFunction\PAFDischarging\PAFDischarging.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PAFunction\PAFDosing\ACMethodDosing.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PAFunction\PAFDosing\ACMethodDosingP.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PAFunction\PAFDosing\ACMethodDosingR.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PAFunction\PAFDosing\IPAFDosing.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PAFunction\PAFDosing\PAFDosing.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PAFunction\PAFExtruding\ACMethodExtruding.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PAFunction\PAFExtruding\ACMethodExtrudingP.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PAFunction\PAFExtruding\ACMethodExtrudingR.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PAFunction\PAFExtruding\PAFExtruding.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PAFunction\PAFMixing\ACMethodMixing.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PAFunction\PAFMixing\ACMethodMixingR.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PAFunction\PAFMixing\ACMethodMixingP.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PAFunction\PAFMixing\IPAFMixing.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PAFunction\PAFMixing\PAFMixing.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PAFunction\PAFVacuum\ACMethodVacuum.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PAFunction\PAFVacuum\ACMethodVacuumR.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PAFunction\PAFVacuum\ACMethodVacuumP.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PAFunction\PAFVacuum\PAFVacuum.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PAFunction\PAFVacuum\PAFVacuumModeEnum.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PAFunction\PAProcessFunction\IPAProcessFunction.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PAFunction\PAProcessFunction\PAProcessFunction.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PAFunction\PARoutingFunction\ACMethodRouteBase.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PAFunction\PARoutingFunction\IACMethodRouteBase.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PAFunction\PARoutingFunction\PARoutingFunction.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PAFunction\TMMethod.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PAModule\1_BaseClasses\PAEControlModuleBase\IPAControlModule.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PAModule\1_BaseClasses\PAEControlModuleBase\PAEControlModuleBase.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PAModule\1_BaseClasses\PAEControlModuleBase\PAFindPointType.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PAModule\1_BaseClasses\PAEControlModuleBase\PANotifyState.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PAModule\1_BaseClasses\PAEControlModuleBase\PARoutingDirection.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PAModule\1_BaseClasses\PAEControlModuleBase\PARoutingState.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PAModule\1_BaseClasses\PAESensorBase\PAESensorBase.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PAModule\1_BaseClasses\PAESensorBase\PAESensorRole.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PAModule\2_Basic\Actuators\1WayDerived\PAEActDosingSlider.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PAModule\2_Basic\Actuators\1WayDerived\PAEActFlap.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PAModule\2_Basic\Actuators\1WayDerived\PAEActSlider.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PAModule\2_Basic\Actuators\1WayDerived\PAEActValve.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PAModule\2_Basic\Actuators\1WayDerived\PAEActValve_3pos.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PAModule\2_Basic\Actuators\2WayDerived\PAEActDiverter.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PAModule\2_Basic\Actuators\2WayDerived\PAEActFlap2.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PAModule\2_Basic\Actuators\2WayDerived\PAEActMixingValve.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PAModule\2_Basic\Actuators\2WayDerived\PAEActValve2.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PAModule\2_Basic\Actuators\2WayDerived\PAEActValve2_1plus2.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PAModule\2_Basic\Actuators\2WayDerived\PAEActValve2_3pos.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PAModule\2_Basic\Actuators\2WayDerived\PAEActValve2_Analog.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PAModule\2_Basic\Actuators\2WayDerived\PAEActValve2_In.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PAModule\2_Basic\Actuators\3WayDerived\PAEActValve3.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PAModule\2_Basic\Actuators\3WayDerived\PAEActValve3_3Flange.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PAModule\2_Basic\Actuators\PAEActuator1way.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PAModule\2_Basic\Actuators\PAEActuator1way_3pos.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PAModule\2_Basic\Actuators\PAEActuator1way_Analog.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PAModule\2_Basic\Actuators\PAEActuator2way.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PAModule\2_Basic\Actuators\PAEActuator2way_1plus2.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PAModule\2_Basic\Actuators\PAEActuator2way_3pos.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PAModule\2_Basic\Actuators\PAEActuator2way_Analog.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PAModule\2_Basic\Actuators\PAEActuator2way_In.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PAModule\2_Basic\Actuators\PAEActuator3way.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PAModule\2_Basic\Actuators\PAEActuatorBase.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PAModule\2_Basic\Actuators\PAEActuatorPos.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PAModule\2_Basic\Drives\PAEDriveBase.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PAModule\2_Basic\Drives\PAEEMotor1D.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PAModule\2_Basic\Drives\PAEEMotor1D2P.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PAModule\2_Basic\Drives\PAEEMotor2D.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PAModule\2_Basic\Drives\PAEEMotor2D2P.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PAModule\2_Basic\Drives\PAEEMotorBase.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PAModule\2_Basic\Drives\PAEEMotorFreq1D.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PAModule\2_Basic\Drives\PAEEMotorFreq2D.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PAModule\2_Basic\Drives\PAEEMotorFreqCtrl.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PAModule\2_Basic\Drives\PAEEMotorStartCtrl.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PAModule\2_Basic\Drives\PAETurnHeadDist.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PAModule\2_Basic\Sensors\PAEAmmeter.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PAModule\2_Basic\Sensors\PAEContactor.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PAModule\2_Basic\Sensors\PAEEmergencySwitch.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PAModule\2_Basic\Sensors\PAEJamSensor.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PAModule\2_Basic\Sensors\PAEMaterialSensor.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PAModule\2_Basic\Sensors\PAEMisalignment.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PAModule\2_Basic\Sensors\PAERotationControl.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PAModule\2_Basic\Sensors\PAESafetyRelay.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PAModule\2_Basic\Sensors\PAESensorAnalog.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PAModule\2_Basic\Sensors\PAESensorDigital.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PAModule\2_Basic\Sensors\PAEThermistor.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PAModule\2_Basic\Sensors\PAEThermometer.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PAModule\2_Basic\Sensors\Scale\IPAScale.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PAModule\2_Basic\Sensors\Scale\IPAScaleGravimetric.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PAModule\2_Basic\Sensors\Scale\IPAScaleTotalizing.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PAModule\2_Basic\Sensors\Scale\IPAScaleVolumetric.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PAModule\2_Basic\Sensors\Scale\PAEScaleBase.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PAModule\2_Basic\Sensors\Scale\PAEScaleGravimetric.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PAModule\2_Basic\Sensors\Scale\PAEScaleTotalizing.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PAModule\2_Basic\Sensors\Scale\PAEScaleVolumetric.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PAModule\3_Assembled\PAEChainConveyor.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PAModule\3_Assembled\PAEConveyorBelt.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PAModule\3_Assembled\PAEElevator.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PAModule\3_Assembled\PAEPump.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PAModule\3_Assembled\PAEScrew.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PAModule\3_Assembled\PAETransport.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PAModule\Misc\PAEGeneric.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PAModule\PAModule.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PAProcessModule\IPAProcessModule.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PAProcessModule\Misc\IPAMSilo.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PAProcessModule\Misc\PAMDryer.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PAProcessModule\Misc\PAMExtruder.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PAProcessModule\Misc\PAMFlowmeter.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PAProcessModule\Misc\PAMParkingspace.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PAProcessModule\Misc\PAMPlatformscale.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PAProcessModule\Misc\PAMHopperscale.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PAProcessModule\Misc\PAMIntermediatebin.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PAProcessModule\Misc\PAMIntake.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PAProcessModule\Misc\PAMMixer.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PAProcessModule\Misc\PAMLoadingstation.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PAProcessModule\Misc\PAMBeltscale.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PAProcessModule\Misc\PAMSilo.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PAProcessModule\Misc\PAMTank.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PAProcessModule\PAProcessModule.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Version\Global_Version.TcGVL">
+      <SubType>Code</SubType>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <PlaceholderReference Include="Tc2_Standard">
+      <DefaultResolution>Tc2_Standard, * (Beckhoff Automation GmbH)</DefaultResolution>
+      <Namespace>Tc2_Standard</Namespace>
+    </PlaceholderReference>
+    <PlaceholderReference Include="Tc2_System">
+      <DefaultResolution>Tc2_System, * (Beckhoff Automation GmbH)</DefaultResolution>
+      <Namespace>Tc2_System</Namespace>
+    </PlaceholderReference>
+    <PlaceholderReference Include="Tc3_Module">
+      <DefaultResolution>Tc3_Module, * (Beckhoff Automation GmbH)</DefaultResolution>
+      <Namespace>Tc3_Module</Namespace>
+    </PlaceholderReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="GIPLibrary.tmc">
+      <SubType>Content</SubType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <SubObject Include="PAFDosing.StartWithP">
+      <LinkAlways>true</LinkAlways>
+    </SubObject>
+  </ItemGroup>
+  <ProjectExtensions>
+    <PlcProjectOptions>
+      <XmlArchive>
+        <Data>
+          <o xml:space="preserve" t="OptionKey">
+      <v n="Name">"&lt;ProjectRoot&gt;"</v>
+      <d n="SubKeys" t="Hashtable" ckt="String" cvt="OptionKey">
+        <v>{8F99A816-E488-41E4-9FA3-846536012284}</v>
+        <o>
+          <v n="Name">"{8F99A816-E488-41E4-9FA3-846536012284}"</v>
+          <d n="SubKeys" t="Hashtable" />
+          <d n="Values" t="Hashtable" />
+        </o>
+        <v>{29BD8D0C-3586-4548-BB48-497B9A01693F}</v>
+        <o>
+          <v n="Name">"{29BD8D0C-3586-4548-BB48-497B9A01693F}"</v>
+          <d n="SubKeys" t="Hashtable" ckt="String" cvt="OptionKey">
+            <v>Rules</v>
+            <o>
+              <v n="Name">"Rules"</v>
+              <d n="SubKeys" t="Hashtable" />
+              <d n="Values" t="Hashtable" />
+            </o>
+          </d>
+          <d n="Values" t="Hashtable" />
+        </o>
+        <v>{40450F57-0AA3-4216-96F3-5444ECB29763}</v>
+        <o>
+          <v n="Name">"{40450F57-0AA3-4216-96F3-5444ECB29763}"</v>
+          <d n="SubKeys" t="Hashtable" />
+          <d n="Values" t="Hashtable" ckt="String" cvt="String">
+            <v>ActiveVisuProfile</v>
+            <v>IR0whWr8bwfABwAAAXCU0gAAAABQAgAAAyHS1QAAAAABAAAAAAAAAAEaUwB5AHMAdABlAG0ALgBTAHQAcgBpAG4AZwACTHsAZgA5ADUAYgBiADQAMgA2AC0ANQA1ADIANAAtADQAYgA0ADUALQA5ADQAMAAwAC0AZgBiADAAZgAyAGUANwA3AGUANQAxAGIAfQADCE4AYQBtAGUABDJUAHcAaQBuAEMAQQBUACAAMwAuADEAIABCAHUAaQBsAGQAIAA0ADAAMgAwAC4AMQAwAAUWUAByAG8AZgBpAGwAZQBEAGEAdABhAAZMewAxADYAZQA1ADUAYgA2ADAALQA3ADAANAAzAC0ANABhADYAMwAtAGIANgA1AGIALQA2ADEANAA3ADEAMwA4ADcAOABkADQAMgB9AAcSTABpAGIAcgBhAHIAaQBlAHMACEx7ADMAYgBmAGQANQA0ADUAOQAtAGIAMAA3AGYALQA0AGQANgBlAC0AYQBlADEAYQAtAGEAOAAzADMANQA2AGEANQA1ADEANAAyAH0ACUx7ADkAYwA5ADUAOAA5ADYAOAAtADIAYwA4ADUALQA0ADEAYgBiAC0AOAA4ADcAMQAtADgAOQA1AGYAZgAxAGYAZQBkAGUAMQBhAH0ACg5WAGUAcgBzAGkAbwBuAAsGaQBuAHQADApVAHMAYQBnAGUADQpUAGkAdABsAGUADhpWAGkAcwB1AEUAbABlAG0ATQBlAHQAZQByAA8OQwBvAG0AcABhAG4AeQAQDFMAeQBzAHQAZQBtABESVgBpAHMAdQBFAGwAZQBtAHMAEjBWAGkAcwB1AEUAbABlAG0AcwBTAHAAZQBjAGkAYQBsAEMAbwBuAHQAcgBvAGwAcwATKFYAaQBzAHUARQBsAGUAbQBzAFcAaQBuAEMAbwBuAHQAcgBvAGwAcwAUJFYAaQBzAHUARQBsAGUAbQBUAGUAeAB0AEUAZABpAHQAbwByABUiVgBpAHMAdQBOAGEAdABpAHYAZQBDAG8AbgB0AHIAbwBsABYUdgBpAHMAdQBpAG4AcAB1AHQAcwAXDHMAeQBzAHQAZQBtABgYVgBpAHMAdQBFAGwAZQBtAEIAYQBzAGUAGSZEAGUAdgBQAGwAYQBjAGUAaABvAGwAZABlAHIAcwBVAHMAZQBkABoIYgBvAG8AbAAbIlAAbAB1AGcAaQBuAEMAbwBuAHMAdAByAGEAaQBuAHQAcwAcTHsANAAzAGQANQAyAGIAYwBlAC0AOQA0ADIAYwAtADQANABkADcALQA5AGUAOQA0AC0AMQBiAGYAZABmADMAMQAwAGUANgAzAGMAfQAdHEEAdABMAGUAYQBzAHQAVgBlAHIAcwBpAG8AbgAeFFAAbAB1AGcAaQBuAEcAdQBpAGQAHxZTAHkAcwB0AGUAbQAuAEcAdQBpAGQAIEhhAGYAYwBkADUANAA0ADYALQA0ADkAMQA0AC0ANABmAGUANwAtAGIAYgA3ADgALQA5AGIAZgBmAGUAYgA3ADAAZgBkADEANwAhFFUAcABkAGEAdABlAEkAbgBmAG8AIkx7AGIAMAAzADMANgA2AGEAOAAtAGIANQBjADAALQA0AGIAOQBhAC0AYQAwADAAZQAtAGUAYgA4ADYAMAAxADEAMQAwADQAYwAzAH0AIw5VAHAAZABhAHQAZQBzACRMewAxADgANgA4AGYAZgBjADkALQBlADQAZgBjAC0ANAA1ADMAMgAtAGEAYwAwADYALQAxAGUAMwA5AGIAYgA1ADUANwBiADYAOQB9ACVMewBhADUAYgBkADQAOABjADMALQAwAGQAMQA3AC0ANAAxAGIANQAtAGIAMQA2ADQALQA1AGYAYwA2AGEAZAAyAGIAOQA2AGIANwB9ACYWTwBiAGoAZQBjAHQAcwBUAHkAcABlACdUVQBwAGQAYQB0AGUATABhAG4AZwB1AGEAZwBlAE0AbwBkAGUAbABGAG8AcgBDAG8AbgB2AGUAcgB0AGkAYgBsAGUATABpAGIAcgBhAHIAaQBlAHMAKBBMAGkAYgBUAGkAdABsAGUAKRRMAGkAYgBDAG8AbQBwAGEAbgB5ACoeVQBwAGQAYQB0AGUAUAByAG8AdgBpAGQAZQByAHMAKzhTAHkAcwB0AGUAbQAuAEMAbwBsAGwAZQBjAHQAaQBvAG4AcwAuAEgAYQBzAGgAdABhAGIAbABlACwSdgBpAHMAdQBlAGwAZQBtAHMALUg2AGMAYgAxAGMAZABlADEALQBkADUAZABjAC0ANABhADMAYgAtADkAMAA1ADQALQAyADEAZgBhADcANQA2AGEAMwBmAGEANAAuKEkAbgB0AGUAcgBmAGEAYwBlAFYAZQByAHMAaQBvAG4ASQBuAGYAbwAvTHsAYwA2ADEAMQBlADQAMAAwAC0ANwBmAGIAOQAtADQAYwAzADUALQBiADkAYQBjAC0ANABlADMAMQA0AGIANQA5ADkANgA0ADMAfQAwGE0AYQBqAG8AcgBWAGUAcgBzAGkAbwBuADEYTQBpAG4AbwByAFYAZQByAHMAaQBvAG4AMgxMAGUAZwBhAGMAeQAzMEwAYQBuAGcAdQBhAGcAZQBNAG8AZABlAGwAVgBlAHIAcwBpAG8AbgBJAG4AZgBvADQaQwBvAG0AcABhAHQAaQBiAGkAbABpAHQAeQDQAAIaA9ADAS0E0AUGGgbQBwgaAUUHCQjQAAkaBEUKCwQDAAAABQAAAAgAAAAAAAAA0AwLrQIAAADQDQEtDtAPAS0Q0AAJGgRFCgsEAwAAAAUAAAAIAAAAKAAAANAMC60BAAAA0A0BLRHQDwEtENAACRoERQoLBAMAAAAFAAAACAAAAAAAAADQDAutAgAAANANAS0S0A8BLRDQAAkaBEUKCwQDAAAABQAAAAgAAAAoAAAA0AwLrQIAAADQDQEtE9APAS0Q0AAJGgRFCgsEAwAAAAUAAAAIAAAAAAAAANAMC60CAAAA0A0BLRTQDwEtENAACRoERQoLBAMAAAAFAAAACAAAAAAAAADQDAutAgAAANANAS0V0A8BLRDQAAkaBEUKCwQDAAAABQAAAAgAAAAAAAAA0AwLrQIAAADQDQEtFtAPAS0X0AAJGgRFCgsEAwAAAAUAAAAIAAAAKAAAANAMC60EAAAA0A0BLRjQDwEtENAZGq0BRRscAdAAHBoCRR0LBAMAAAAFAAAACAAAAAAAAADQHh8tINAhIhoCRSMkAtAAJRoFRQoLBAMAAAADAAAAAAAAAAoAAADQJgutAAAAANADAS0n0CgBLRHQKQEtENAAJRoFRQoLBAMAAAADAAAAAAAAAAoAAADQJgutAQAAANADAS0n0CgBLRHQKQEtEJoqKwFFAAEC0AABLSzQAAEtF9AAHy0t0C4vGgPQMAutAQAAANAxC60RAAAA0DIarQDQMy8aA9AwC60CAAAA0DELrQMAAADQMhqtANA0Gq0A</v>
+          </d>
+        </o>
+        <v>{192FAD59-8248-4824-A8DE-9177C94C195A}</v>
+        <o>
+          <v n="Name">"{192FAD59-8248-4824-A8DE-9177C94C195A}"</v>
+          <d n="SubKeys" t="Hashtable" />
+          <d n="Values" t="Hashtable" />
+        </o>
+        <v>{F66C7017-BDD8-4114-926C-81D6D687E35F}</v>
+        <o>
+          <v n="Name">"{F66C7017-BDD8-4114-926C-81D6D687E35F}"</v>
+          <d n="SubKeys" t="Hashtable" />
+          <d n="Values" t="Hashtable" />
+        </o>
+        <v>{246001F4-279D-43AC-B241-948EB31120E1}</v>
+        <o>
+          <v n="Name">"{246001F4-279D-43AC-B241-948EB31120E1}"</v>
+          <d n="SubKeys" t="Hashtable" />
+          <d n="Values" t="Hashtable" ckt="String" cvt="String">
+            <v>GlobalVisuImageFilePath</v>
+            <v>%APPLICATIONPATH%</v>
+          </d>
+        </o>
+      </d>
+      <d n="Values" t="Hashtable" />
+    </o>
+        </Data>
+        <TypeList>
+          <Type n="Hashtable">System.Collections.Hashtable</Type>
+          <Type n="OptionKey">{54dd0eac-a6d8-46f2-8c27-2f43c7e49861}</Type>
+          <Type n="String">System.String</Type>
+        </TypeList>
+      </XmlArchive>
+    </PlcProjectOptions>
+  </ProjectExtensions>
+  <!-- 
+   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\Debug\</OutputPath>
+    <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\Release\</OutputPath>
+    <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
+  </PropertyGroup>
+-->
+</Project>

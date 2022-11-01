@@ -1,0 +1,33 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4020.12">
+  <Itf Name="IACPoint" Id="{5757c0fc-3675-430f-b1d8-f13cc716bbf3}">
+    <Declaration><![CDATA[INTERFACE IACPoint EXTENDS IACObject
+]]></Declaration>
+    <Method Name="AddEdge" Id="{a39e5a6a-5cf1-4847-bb5d-865a8f7ee40b}">
+      <Declaration><![CDATA[METHOD AddEdge : BOOL
+VAR_INPUT
+	edge : IACEdge;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Property Name="ConnectionList" Id="{5652df52-ca8d-4bd3-81e2-5c4f954d1764}">
+      <Declaration><![CDATA[PROPERTY ConnectionList : ARRAY [1..GCL.cEdgeMAX] OF IACEdge]]></Declaration>
+      <Get Name="Get" Id="{b2c227b2-863e-439f-9cea-b4405f043d8f}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Method Name="GetAllocatedEdge" Id="{69470acd-105a-4d11-8a4f-7936d42703b2}">
+      <Declaration><![CDATA[METHOD GetAllocatedEdge : IACEdge
+VAR_INPUT
+	paFunction : IPAProcessFunction;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Property Name="Parent" Id="{e4a78408-b62c-4f5e-a4a4-de7990f1c96f}">
+      <Declaration><![CDATA[PROPERTY Parent : IACComponent]]></Declaration>
+      <Get Name="Get" Id="{da73d826-06d7-444a-8121-494d96625d35}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+  </Itf>
+</TcPlcObject>

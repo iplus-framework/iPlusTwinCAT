@@ -1,0 +1,870 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.6">
+  <POU Name="PAEScaleBase" Id="{e8862d1e-7383-46af-9661-3cd48c1b6f4f}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK PUBLIC PAEScaleBase EXTENDS PAESensorAnalog IMPLEMENTS IPAScale
+VAR_INPUT
+END_VAR
+VAR_OUTPUT
+END_VAR
+VAR
+	_ActualWeight : LREAL;
+	_DesiredWeight : LREAL;
+	_FaultAckDosingTime : BOOL;
+	_FaultAckLackOfMaterial : BOOL;
+	_FaultAckScale : BOOL;
+	_FaultAckTolerance : BOOL;
+	_FollowOnDosingImpulsTime : TIME;
+	_IsDosing : BOOL;
+	_IsFine : BOOL;
+	_IsRough : BOOL;
+	_MaxDosingTime : TIME;
+	_MinDosingWeight : LREAL;
+	_RegistrationTime : TIME;
+	_StateDosingTime : PANotifyState;
+	_StateLackOfMaterial : PANotifyState;
+	_StateScale : PANotifyState;
+	_StateTolerance : PANotifyState;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Property Name="ActualWeight" Id="{77b24502-300c-4298-9efb-3ec11b368a49}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+//{attribute 'TcRpcEnable'}
+PROPERTY PUBLIC ActualWeight : LREAL]]></Declaration>
+      <Get Name="Get" Id="{88640358-95ca-45a6-8508-c7c4e8b380d4}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[ActualWeight := _ActualWeight;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{dd9b2778-0e23-4bd1-b434-a3f0c54ade20}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_ActualWeight := ActualWeight;
+Root.OnPropertyChangedLReal(THIS^, 57, _ActualWeight);]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="DesiredWeight" Id="{e2eee003-a4d4-4b9b-862b-2aae3164aa70}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+//{attribute 'TcRpcEnable'}
+PROPERTY PUBLIC DesiredWeight : LREAL]]></Declaration>
+      <Get Name="Get" Id="{5fe6447c-bf11-4e8a-89e6-f07840ef92cb}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[DesiredWeight := _DesiredWeight;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{27e5e7b6-82c2-4aaa-b334-e141268c377a}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_DesiredWeight := DesiredWeight;
+Root.OnPropertyChangedLReal(THIS^, 56, _DesiredWeight);]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="FaultAckDosingTime" Id="{a346591e-6c8b-4870-b855-1c620cd3c1fd}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+//{attribute 'TcRpcEnable'}
+PROPERTY PUBLIC FaultAckDosingTime : BOOL]]></Declaration>
+      <Get Name="Get" Id="{623cfe8c-0bd1-461e-b021-2d118bafc81e}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[FaultAckDosingTime := _FaultAckDosingTime;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{07628890-71fb-4b41-ba4f-7a85786b0e1a}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_FaultAckDosingTime := FaultAckDosingTime;
+Root.OnPropertyChangedBool(THIS^, 65, _FaultAckDosingTime);]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="FaultAckLackOfMaterial" Id="{a1984b1a-0aba-461e-87c5-222e40667d30}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+//{attribute 'TcRpcEnable'}
+PROPERTY PUBLIC FaultAckLackOfMaterial : BOOL]]></Declaration>
+      <Get Name="Get" Id="{7dae9e2f-70cb-4442-896a-648737e0405d}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[FaultAckLackOfMaterial := _FaultAckLackOfMaterial;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{2d9b8aa5-b6e5-4a8c-aeee-5d6f0f348b03}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_FaultAckLackOfMaterial := FaultAckLackOfMaterial;
+Root.OnPropertyChangedBool(THIS^, 63, _FaultAckLackOfMaterial);]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="FaultAckScale" Id="{a324bb84-7f68-4785-897a-e561e6d532e3}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+//{attribute 'TcRpcEnable'}
+PROPERTY PUBLIC FaultAckScale : BOOL]]></Declaration>
+      <Get Name="Get" Id="{19b31c4a-2342-41a1-9f05-5edc71077e2b}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[FaultAckScale := _FaultAckScale;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{e9173ef4-68b2-490b-9208-d3121ebcfaa8}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_FaultAckScale := FaultAckScale;
+Root.OnPropertyChangedBool(THIS^, 59, _FaultAckScale);]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="FaultAckTolerance" Id="{d43c2853-7d3f-4423-abdd-7f7d4008f3c6}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+//{attribute 'TcRpcEnable'}
+PROPERTY PUBLIC FaultAckTolerance : BOOL]]></Declaration>
+      <Get Name="Get" Id="{005d4dca-4597-4694-80e0-41bf54ef05d8}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[FaultAckTolerance := _FaultAckTolerance;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{068f7f6b-e8fb-480e-9d14-f4eea5167d1a}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_FaultAckTolerance := FaultAckTolerance;
+Root.OnPropertyChangedBool(THIS^, 61, _FaultAckTolerance);]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="FB_postinit" Id="{b693b3f7-80d5-495b-9703-3501fa1158c7}">
+      <Declaration><![CDATA[METHOD FB_postinit
+VAR_INPUT
+	root : IACVariobatch;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SUPER^.FB_postinit(root);
+root.OnPropertyChangedTime(THIS^, 52, _MaxDosingTime);
+root.OnPropertyChangedLReal(THIS^, 53, _MinDosingWeight);
+root.OnPropertyChangedTime(THIS^, 54, _RegistrationTime);
+root.OnPropertyChangedTime(THIS^, 55, _FollowOnDosingImpulsTime);
+root.OnPropertyChangedLReal(THIS^, 56, _DesiredWeight);
+root.OnPropertyChangedLReal(THIS^, 57, _ActualWeight);
+root.OnPropertyChangedInt(THIS^, 58, _StateScale);
+root.OnPropertyChangedBool(THIS^, 59, _FaultAckScale);
+root.OnPropertyChangedInt(THIS^, 60, _StateTolerance);
+root.OnPropertyChangedBool(THIS^, 61, _FaultAckTolerance);
+root.OnPropertyChangedInt(THIS^, 62, _StateLackOfMaterial);
+root.OnPropertyChangedBool(THIS^, 63, _FaultAckLackOfMaterial);
+root.OnPropertyChangedInt(THIS^, 64, _StateDosingTime);
+root.OnPropertyChangedBool(THIS^, 65, _FaultAckDosingTime);
+root.OnPropertyChangedBool(THIS^, 66, _IsDosing);
+root.OnPropertyChangedBool(THIS^, 67, _IsRough);
+root.OnPropertyChangedBool(THIS^, 68, _IsFine);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="FollowOnDosingImpulsTime" Id="{d6d053ad-5d40-4082-b070-c32c9a3dd7aa}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+//{attribute 'TcRpcEnable'}
+PROPERTY PUBLIC FollowOnDosingImpulsTime : TIME]]></Declaration>
+      <Get Name="Get" Id="{aed6a305-41fd-465a-abd5-18882f365f52}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[FollowOnDosingImpulsTime := _FollowOnDosingImpulsTime;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{510062dd-c81d-4d1d-afb3-562f05a47a4b}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_FollowOnDosingImpulsTime := FollowOnDosingImpulsTime;
+Root.OnPropertyChangedTime(THIS^, 55, _FollowOnDosingImpulsTime);]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="InvokeSetterBool" Id="{1565ca13-47ca-4c0b-8f41-8f2bc765a035}">
+      <Declaration><![CDATA[METHOD PUBLIC InvokeSetterBool
+VAR_INPUT
+	PropertyID : INT;
+	PropertyValue : BOOL;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SUPER^.InvokeSetterBool(PropertyID, PropertyValue);
+CASE PropertyID OF
+	59:
+		FaultAckScale := PropertyValue;
+	61:
+		FaultAckTolerance := PropertyValue;
+	63:
+		FaultAckLackOfMaterial := PropertyValue;
+	65:
+		FaultAckDosingTime := PropertyValue;
+	66:
+		IsDosing := PropertyValue;
+	67:
+		IsRough := PropertyValue;
+	68:
+		IsFine := PropertyValue;
+END_CASE]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="InvokeSetterEnum" Id="{ad2a590b-5b8f-48aa-8dbc-bfe4336c1884}">
+      <Declaration><![CDATA[METHOD PUBLIC InvokeSetterEnum
+VAR_INPUT
+	PropertyID : INT;
+	PropertyValue : INT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SUPER^.InvokeSetterEnum(PropertyID, PropertyValue);
+CASE PropertyID OF
+	64:
+		THIS^.StateDosingTime := PropertyValue;
+	62:
+		THIS^.StateLackOfMaterial := PropertyValue;
+	58:
+		THIS^.StateScale := PropertyValue;
+	60:
+		THIS^.StateTolerance := PropertyValue;
+END_CASE]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="InvokeSetterLReal" Id="{92c290e6-748f-42e8-ac2f-7ebec344e0e8}">
+      <Declaration><![CDATA[METHOD PUBLIC InvokeSetterLReal
+VAR_INPUT
+	PropertyID : INT;
+	PropertyValue : LREAL;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SUPER^.InvokeSetterLReal(PropertyID, PropertyValue);
+CASE PropertyID OF
+	53:
+		MinDosingWeight := PropertyValue;
+	56:
+		DesiredWeight := PropertyValue;
+	57:
+		ActualWeight := PropertyValue;
+END_CASE]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="InvokeSetterTime" Id="{3cebbfa2-ca20-4177-b389-b370ea6dd2a1}">
+      <Declaration><![CDATA[METHOD PUBLIC InvokeSetterTime
+VAR_INPUT
+	PropertyID : INT;
+	PropertyValue : DINT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SUPER^.InvokeSetterTime(PropertyID, PropertyValue);
+CASE PropertyID OF 
+	55:
+		FollowOnDosingImpulsTime := TO_TIME(PropertyValue);
+	52:
+		MaxDosingTime := TO_TIME(PropertyValue);
+	54:
+		RegistrationTime := TO_TIME(PropertyValue);
+END_CASE]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="IsDosing" Id="{c753dbdd-786e-46a1-93e7-64827ae5cb16}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+//{attribute 'TcRpcEnable'}
+PROPERTY PUBLIC IsDosing : BOOL]]></Declaration>
+      <Get Name="Get" Id="{e7716881-5087-4818-a88f-a0b3d39425a5}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[IsDosing := _IsDosing;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{cfb5a106-5907-4f4d-89fd-6f01f069a051}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_IsDosing := IsDosing;
+Root.OnPropertyChangedBool(THIS^, 66, _IsDosing);]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="IsEnabledAcknowledgeAlarms" Id="{a01902b9-9159-4cf4-a4f4-b41689aeceaf}">
+      <Declaration><![CDATA[METHOD PUBLIC IsEnabledAcknowledgeAlarms : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="IsFine" Id="{10986663-cb29-4ebe-8e3e-6a7b13de8280}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+//{attribute 'TcRpcEnable'}
+PROPERTY PUBLIC IsFine : BOOL]]></Declaration>
+      <Get Name="Get" Id="{49416d6c-bca9-40b1-a121-34f019734f8d}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[IsFine := _IsFine;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{811ccac4-bc40-47ce-aaad-b61fd68a6526}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_IsFine := IsFine;
+Root.OnPropertyChangedBool(THIS^, 68, _IsFine);]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="IsRough" Id="{276069b0-a642-4129-b4e6-6205ee2b64db}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+//{attribute 'TcRpcEnable'}
+PROPERTY PUBLIC IsRough : BOOL]]></Declaration>
+      <Get Name="Get" Id="{b6fb5af5-7117-4ff5-8336-6467c07d2a3a}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[IsRough := _IsRough;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{eb938bc7-e426-40a7-b117-ec5b88b94d61}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_IsRough := IsRough;
+Root.OnPropertyChangedBool(THIS^, 67, _IsRough);]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="MaxDosingTime" Id="{42314ec2-242d-46f7-94e5-0ecf79ca757f}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+//{attribute 'TcRpcEnable'}
+PROPERTY PUBLIC MaxDosingTime : TIME]]></Declaration>
+      <Get Name="Get" Id="{9a3afb30-a71d-4bdf-b9f2-a019b6de9713}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[MaxDosingTime := _MaxDosingTime;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{ae1a3381-8f7c-4f96-9a3b-272b72c9bd2b}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_MaxDosingTime := MaxDosingTime;
+Root.OnPropertyChangedTime(THIS^, 52, _MaxDosingTime);]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="MinDosingWeight" Id="{82d49705-4371-4227-8ad4-c81e3c051397}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+//{attribute 'TcRpcEnable'}
+PROPERTY PUBLIC MinDosingWeight : LREAL]]></Declaration>
+      <Get Name="Get" Id="{419bcf1f-46f1-4d48-9470-feb26ae936cc}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[MinDosingWeight := _MinDosingWeight;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{fbfa7f40-27fb-401f-a559-ecba4a62f315}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_MinDosingWeight := MinDosingWeight;
+Root.OnPropertyChangedLReal(THIS^, 53, _MinDosingWeight);]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="OnInitMemory" Id="{1f67e57b-9a03-4bce-b0ae-b97b8513f052}">
+      <Declaration><![CDATA[METHOD OnInitMemory
+VAR_INPUT
+	root : IACVariobatch;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[RegisterProperty(root, 52, GCL.cSizeTIME); //MaxDosingTime
+RegisterProperty(root, 53, GCL.cSizeLREAL); //MinDosingWeight
+RegisterProperty(root, 54, GCL.cSizeTIME); //RegistrationTime
+RegisterProperty(root, 55, GCL.cSizeTIME); //FollowOnDosingImpulsTime
+RegisterProperty(root, 56, GCL.cSizeLREAL); //DesiredWeight
+RegisterProperty(root, 57, GCL.cSizeLREAL); //ActualWeight
+RegisterProperty(root, 58, GCL.cSizeINT); //StateScale
+RegisterProperty(root, 59, GCL.cSizeBYTE); //FaultAckScale
+RegisterProperty(root, 60, GCL.cSizeINT); //StateTolerance
+RegisterProperty(root, 61, GCL.cSizeBYTE); //FaultAckTolerance
+RegisterProperty(root, 62, GCL.cSizeINT); //StateLackOfMaterial
+RegisterProperty(root, 63, GCL.cSizeBYTE); //FaultAckLackOfMaterial
+RegisterProperty(root, 64, GCL.cSizeTIME); //StateDosingTime
+RegisterProperty(root, 65, GCL.cSizeBYTE); //FaultAckDosingTime
+RegisterProperty(root, 66, GCL.cSizeBYTE); //IsDosing
+RegisterProperty(root, 67, GCL.cSizeBYTE); //IsRough
+RegisterProperty(root, 68, GCL.cSizeBYTE); //IsFine
+SUPER^.OnInitMemory(root);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnSetStateDosingTime" Id="{8113090d-7768-4ab7-a667-e22727f03ac9}">
+      <Declaration><![CDATA[METHOD PUBLIC OnSetStateDosingTime
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnSetStateLackOfMaterial" Id="{94e662e1-06c4-4d06-b188-6ce5b447ad98}">
+      <Declaration><![CDATA[METHOD PUBLIC OnSetStateLackOfMaterial
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnSetStateScale" Id="{ed9ada92-f6da-4623-80d4-b23eba1273bc}">
+      <Declaration><![CDATA[METHOD PUBLIC OnSetStateScale
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnSetStateTolerance" Id="{bc91969c-663a-4af6-ac8d-7a961d2544a3}">
+      <Declaration><![CDATA[METHOD PUBLIC OnSetStateTolerance
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="PAEScaleBase" Id="{a1de0ae9-faa9-4013-8ddb-5dbfa99db440}">
+      <Declaration><![CDATA[METHOD PUBLIC PAEScaleBase
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="RegistrationTime" Id="{9166c668-58a9-42d9-b217-98bcd376d936}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+//{attribute 'TcRpcEnable'}
+PROPERTY PUBLIC RegistrationTime : TIME]]></Declaration>
+      <Get Name="Get" Id="{00919143-d949-40fc-bdff-70f9b893f66d}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[RegistrationTime := _RegistrationTime;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{2629a265-1397-4df5-8f1f-e6ebdfca2f0d}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_RegistrationTime := RegistrationTime;
+Root.OnPropertyChangedTime(THIS^, 54, _RegistrationTime);]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="StateDosingTime" Id="{ccf91393-89d2-452c-a13f-128048861f56}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+//{attribute 'TcRpcEnable'}
+PROPERTY PUBLIC StateDosingTime : PANotifyState]]></Declaration>
+      <Get Name="Get" Id="{228bd4da-cf04-4e1b-9824-f0f35f34710c}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[StateDosingTime := _StateDosingTime;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{df7e4c4b-1b5e-4b29-944c-3f6360d9671e}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_StateDosingTime := StateDosingTime;
+Root.OnPropertyChangedInt(THIS^, 64, _StateDosingTime);]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="StateDosingTime_PropertyChanged" Id="{404cf7be-e58b-457a-98a3-98ef7d216e59}">
+      <Declaration><![CDATA[METHOD PUBLIC StateDosingTime_PropertyChanged
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="StateLackOfMaterial" Id="{5724cfd5-b090-4a06-b754-4553619ef190}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+//{attribute 'TcRpcEnable'}
+PROPERTY PUBLIC StateLackOfMaterial : PANotifyState]]></Declaration>
+      <Get Name="Get" Id="{c892893f-477d-458e-8805-a310a9f42758}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[StateLackOfMaterial := _StateLackOfMaterial;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{3fa243e2-d97d-4aae-811d-2a45c91d65bc}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_StateLackOfMaterial := StateLackOfMaterial;
+Root.OnPropertyChangedInt(THIS^, 62, _StateLackOfMaterial);]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="StateLackOfMaterial_PropertyChanged" Id="{1f670343-6ff6-439d-ab70-70219a4af8b0}">
+      <Declaration><![CDATA[METHOD StateLackOfMaterial_PropertyChanged
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="StateScale" Id="{88f636b1-3928-48da-842a-e96ba9ec5545}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+//{attribute 'TcRpcEnable'}
+PROPERTY PUBLIC StateScale : PANotifyState]]></Declaration>
+      <Get Name="Get" Id="{28dd85d0-4b97-441d-867b-57b37d9147bf}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[StateScale := _StateScale;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{2608da02-4c1b-441e-918c-1e2363b8da28}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_StateScale := StateScale;
+Root.OnPropertyChangedInt(THIS^, 58, _StateScale);]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="StateScale_PropertyChanged" Id="{42020a65-0d95-46a5-be26-46c53ae6693c}">
+      <Declaration><![CDATA[METHOD StateScale_PropertyChanged
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="StateTolerance" Id="{1b438e7f-1c85-40dc-b08e-5c7317615c0d}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+//{attribute 'TcRpcEnable'}
+PROPERTY PUBLIC StateTolerance : PANotifyState]]></Declaration>
+      <Get Name="Get" Id="{a0d09fca-7c7d-453d-ae88-4d23c8007a45}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[StateTolerance := _StateTolerance;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{46c8ac25-da2d-455e-a20d-040a71d8992d}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_StateTolerance := StateTolerance;
+Root.OnPropertyChangedInt(THIS^, 60, _StateTolerance);]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="StateTolerance_PropertyChanged" Id="{4755eb92-7afa-4b03-8f64-4b8d499d61c2}">
+      <Declaration><![CDATA[METHOD StateTolerance_PropertyChanged
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <LineIds Name="PAEScaleBase">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEScaleBase.ActualWeight.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEScaleBase.ActualWeight.Set">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEScaleBase.DesiredWeight.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEScaleBase.DesiredWeight.Set">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEScaleBase.FaultAckDosingTime.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEScaleBase.FaultAckDosingTime.Set">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEScaleBase.FaultAckLackOfMaterial.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEScaleBase.FaultAckLackOfMaterial.Set">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEScaleBase.FaultAckScale.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEScaleBase.FaultAckScale.Set">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEScaleBase.FaultAckTolerance.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEScaleBase.FaultAckTolerance.Set">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEScaleBase.FB_postinit">
+      <LineId Id="24" Count="0" />
+      <LineId Id="29" Count="4" />
+      <LineId Id="8" Count="0" />
+      <LineId Id="34" Count="6" />
+      <LineId Id="10" Count="0" />
+      <LineId Id="15" Count="0" />
+      <LineId Id="41" Count="0" />
+      <LineId Id="16" Count="0" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEScaleBase.FollowOnDosingImpulsTime.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEScaleBase.FollowOnDosingImpulsTime.Set">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEScaleBase.InvokeSetterBool">
+      <LineId Id="8" Count="15" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEScaleBase.InvokeSetterEnum">
+      <LineId Id="23" Count="0" />
+      <LineId Id="22" Count="0" />
+      <LineId Id="10" Count="6" />
+      <LineId Id="9" Count="0" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEScaleBase.InvokeSetterLReal">
+      <LineId Id="8" Count="7" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEScaleBase.InvokeSetterTime">
+      <LineId Id="8" Count="0" />
+      <LineId Id="20" Count="0" />
+      <LineId Id="10" Count="4" />
+      <LineId Id="9" Count="0" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEScaleBase.IsDosing.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEScaleBase.IsDosing.Set">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEScaleBase.IsEnabledAcknowledgeAlarms">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEScaleBase.IsFine.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEScaleBase.IsFine.Set">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEScaleBase.IsRough.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEScaleBase.IsRough.Set">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEScaleBase.MaxDosingTime.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEScaleBase.MaxDosingTime.Set">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEScaleBase.MinDosingWeight.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEScaleBase.MinDosingWeight.Set">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEScaleBase.OnInitMemory">
+      <LineId Id="42" Count="2" />
+      <LineId Id="40" Count="0" />
+      <LineId Id="32" Count="0" />
+      <LineId Id="8" Count="0" />
+      <LineId Id="33" Count="4" />
+      <LineId Id="11" Count="0" />
+      <LineId Id="38" Count="1" />
+      <LineId Id="19" Count="0" />
+      <LineId Id="41" Count="0" />
+      <LineId Id="20" Count="0" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEScaleBase.OnSetStateDosingTime">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEScaleBase.OnSetStateLackOfMaterial">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEScaleBase.OnSetStateScale">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEScaleBase.OnSetStateTolerance">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEScaleBase.PAEScaleBase">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEScaleBase.RegistrationTime.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEScaleBase.RegistrationTime.Set">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEScaleBase.StateDosingTime.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEScaleBase.StateDosingTime.Set">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEScaleBase.StateDosingTime_PropertyChanged">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEScaleBase.StateLackOfMaterial.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEScaleBase.StateLackOfMaterial.Set">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEScaleBase.StateLackOfMaterial_PropertyChanged">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEScaleBase.StateScale.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEScaleBase.StateScale.Set">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEScaleBase.StateScale_PropertyChanged">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEScaleBase.StateTolerance.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEScaleBase.StateTolerance.Set">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEScaleBase.StateTolerance_PropertyChanged">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

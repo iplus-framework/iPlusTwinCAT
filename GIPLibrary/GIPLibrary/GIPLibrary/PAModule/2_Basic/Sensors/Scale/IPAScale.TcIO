@@ -1,0 +1,7 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4020.12">
+  <Itf Name="IPAScale" Id="{990f2d21-6f1a-4b74-9f5e-d50565462be6}">
+    <Declaration><![CDATA[INTERFACE IPAScale EXTENDS IACComponent
+]]></Declaration>
+  </Itf>
+</TcPlcObject>

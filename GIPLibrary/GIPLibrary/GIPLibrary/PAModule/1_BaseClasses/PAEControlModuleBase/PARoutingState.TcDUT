@@ -1,0 +1,47 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4020.12">
+  <DUT Name="PARoutingState" Id="{de7fa0c2-fbcf-45a6-82fb-11f4712f3bdf}">
+    <Declaration><![CDATA[{attribute 'qualified_only'}
+{attribute 'strict'}
+TYPE PARoutingState :
+(
+	// Untätig, Kein Routing aktiv
+	Idle := 0,
+	
+	// Warte auf den Nachfolger, bis dieser den Status RoutePlaced erreicht hat
+	WaitOnSuccessor := 1,
+
+    // Nachfolger haben Ihre Route gestellt
+	SuccessorsPlaced := 2,
+	
+	// Einschaltverzögerungszeit läuft ab
+	TurnOnElapsing := 3,
+	
+	// Modul angesteuert um Zielposition zu erreichen
+	MovingOrTurningOn := 4,
+	
+	// Zielposition erreicht, jedoch haben Nachfolgerelemente Ihre Zielpositionen nicht erreicht
+	ReachedOnPosition := 5,
+	
+	// Route ist gestellt: Zielposition erreicht + Nachfolger haben auch Zielposition erreicht (Alle Nachfolger sind im Status RoutePlaced)
+	RoutePlaced := 6,
+	
+	// Warte auf den Vorgänger, bis dieser den Status TurnOffElapsed erreicht hat
+	WaitOnPredecessors := 7,
+
+    // Vorgänger haben den Status TurnOffElapsed erreicht (Ihre ASV-Zeiten sind alle abgelaufen)
+	PredecessorsFinished := 8,
+	
+	// Modul wartet seine eigene Ausschaltverzögerungszeit ab
+	TurnOffElapsing := 9,
+	
+	// Modul ausschalten um Grundposition zu erreichen
+	MovingOrTurningOff := 10,	
+	
+	// Grundposition erreicht nach Ausschaltvorgang
+	ReachedOffPosition := 11
+);
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

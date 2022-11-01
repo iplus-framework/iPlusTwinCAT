@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4020.12">
+  <DUT Name="ACRMemoryByteEvent" Id="{da86ebe1-e9d9-48e3-9507-98f38d9804cd}">
+    <Declaration><![CDATA[TYPE ACRMemoryByteEvent EXTENDS ACRMemoryEvent :
+STRUCT
+	_Value : BYTE;
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

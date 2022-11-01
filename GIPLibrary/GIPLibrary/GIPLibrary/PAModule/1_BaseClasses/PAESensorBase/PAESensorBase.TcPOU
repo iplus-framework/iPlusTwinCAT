@@ -1,0 +1,98 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.6">
+  <POU Name="PAESensorBase" Id="{2dc5aea2-76a9-461c-85c2-a64f7833ddf5}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK PUBLIC PAESensorBase EXTENDS PAModule
+VAR_INPUT
+END_VAR
+VAR_OUTPUT
+END_VAR
+VAR
+	_InputAddress : STRING;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Method Name="FB_postinit" Id="{553449be-dad7-480b-9299-9061532627a5}">
+      <Declaration><![CDATA[METHOD FB_postinit
+VAR_INPUT
+	root : IACVariobatch;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SUPER^.FB_postinit(root);
+root.OnPropertyChangedString(THIS^, 19, _InputAddress);]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="InputAddress" Id="{867c6579-09a3-4b24-9574-c2c54618edc1}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+//{attribute 'TcRpcEnable'}
+PROPERTY PUBLIC InputAddress : STRING]]></Declaration>
+      <Get Name="Get" Id="{4607d98b-ade6-458e-963e-009532d99776}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[InputAddress := _InputAddress;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{0bf2c584-7a17-4de3-8b24-ca840e988d89}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_InputAddress := InputAddress;
+Root.OnPropertyChangedString(THIS^, 19, _InputAddress);]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="InvokeSetterString" Id="{b6c2ef65-66b7-4541-bb15-d8bd1304478f}">
+      <Declaration><![CDATA[METHOD PUBLIC InvokeSetterString
+VAR_INPUT
+	PropertyID : INT;
+	PropertyValue : STRING;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SUPER^.InvokeSetterString(PropertyID, PropertyValue);
+IF PropertyID = 19 THEN
+	InputAddress := PropertyValue;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnInitMemory" Id="{b8cfcfc9-155f-4f95-a41a-f400427a7f82}">
+      <Declaration><![CDATA[METHOD OnInitMemory
+VAR_INPUT
+	root : IACVariobatch;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[RegisterProperty(root, 19, GCL.cSizeSTRING); // InputAddress
+SUPER^.OnInitMemory(root);]]></ST>
+      </Implementation>
+    </Method>
+    <LineIds Name="PAESensorBase">
+      <LineId Id="9" Count="0" />
+    </LineIds>
+    <LineIds Name="PAESensorBase.FB_postinit">
+      <LineId Id="7" Count="0" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="PAESensorBase.InputAddress.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAESensorBase.InputAddress.Set">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAESensorBase.InvokeSetterString">
+      <LineId Id="9" Count="2" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="PAESensorBase.OnInitMemory">
+      <LineId Id="7" Count="0" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

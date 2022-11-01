@@ -1,0 +1,31 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4020.12">
+  <POU Name="PAEActValve_3pos" Id="{eb3052ef-90bd-4b86-8aa5-b004af49add2}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK PAEActValve_3pos EXTENDS PAEActuator1way_3pos
+VAR_INPUT
+END_VAR
+VAR_OUTPUT
+END_VAR
+VAR
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Method Name="PAEActValve_3pos" Id="{b3719bdf-5bd1-498f-8466-22ba5f5fb939}">
+      <Declaration><![CDATA[METHOD PUBLIC PAEActValve_3pos
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <LineIds Name="PAEActValve_3pos">
+      <LineId Id="9" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEActValve_3pos.PAEActValve_3pos">
+      <LineId Id="5" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

@@ -1,0 +1,100 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.6">
+  <POU Name="PAERotationControl" Id="{84bf60f1-2966-478d-a948-ae21a0430704}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK PUBLIC PAERotationControl EXTENDS PAESensorDigital
+VAR_INPUT
+END_VAR
+VAR_OUTPUT
+END_VAR
+VAR
+	_SignalIsImpulse : BOOL;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Method Name="FB_postinit" Id="{07681089-ed89-4e22-ab59-77968c6433ea}">
+      <Declaration><![CDATA[METHOD FB_postinit
+VAR_INPUT
+	root : IACVariobatch;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SUPER^.FB_postinit(root);
+root.OnPropertyChangedBool(THIS^, 36, _SignalIsImpulse);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="InvokeSetterBool" Id="{14e10b05-17a0-4858-a1a2-e191546db07a}">
+      <Declaration><![CDATA[METHOD PUBLIC InvokeSetterBool
+VAR_INPUT
+	PropertyID : INT;
+	PropertyValue : BOOL;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SUPER^.InvokeSetterBool(PropertyID, PropertyValue);
+IF PropertyID = 36 THEN
+	SignalIsImpulse := PropertyValue;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnInitMemory" Id="{f8e08591-2f20-4557-8fda-98aedea31809}">
+      <Declaration><![CDATA[METHOD OnInitMemory
+VAR_INPUT
+	root : IACVariobatch;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[RegisterProperty(root, 36, GCL.cSizeBYTE); //SignalIsImpulse
+SUPER^.OnInitMemory(root);]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="SignalIsImpulse" Id="{7251a4c7-52f9-46c8-91cd-4393fcbd4979}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+//{attribute 'TcRpcEnable'}
+PROPERTY PUBLIC SignalIsImpulse : BOOL]]></Declaration>
+      <Get Name="Get" Id="{974f5c70-5cf4-46fe-97fe-979891477eb7}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[SignalIsImpulse := _SignalIsImpulse;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{950df7db-b8a5-440f-83ef-56eac21587c9}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_SignalIsImpulse := SignalIsImpulse;
+Root.OnPropertyChangedBool(THIS^, 36, _SignalIsImpulse);]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <LineIds Name="PAERotationControl">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAERotationControl.FB_postinit">
+      <LineId Id="7" Count="1" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="PAERotationControl.InvokeSetterBool">
+      <LineId Id="8" Count="2" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="PAERotationControl.OnInitMemory">
+      <LineId Id="7" Count="0" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="PAERotationControl.SignalIsImpulse.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAERotationControl.SignalIsImpulse.Set">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

@@ -1,0 +1,340 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4022.7">
+  <POU Name="PARoutingFunction" Id="{5720e065-4c06-4434-88ae-d17ad4e83640}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK PARoutingFunction EXTENDS PAProcessFunction IMPLEMENTS IRouteableComponent
+VAR_INPUT
+END_VAR
+VAR_OUTPUT
+END_VAR
+VAR
+	_Points : ARRAY [1..GCL.cPointMAX] OF IACPoint;
+	_PAPointMatIn1 : PAPoint(THIS^);
+	_PAPointMatOut1 : PAPoint(THIS^);
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Folder Name="Routing" Id="{a42f1ec1-22db-42b5-9c32-6ca7f38b1fce}" />
+    <Folder Name="StateMethods" Id="{d9bc5c2d-9283-4931-993b-bbcd2a63129c}" />
+    <Method Name="AddPoint" Id="{ed3f587b-2679-4903-8fa5-d2dcea533bb4}">
+      <Declaration><![CDATA[METHOD AddPoint : BOOL
+VAR_INPUT
+	point : IACPoint;
+END_VAR
+VAR
+	i: INT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF point = 0 THEN
+	Addpoint := FALSE;
+	RETURN;
+END_IF
+// 1. Check if point already exists in the array because of online change
+FOR i:=1 TO GCL.cPointMAX BY 1
+  DO
+    IF _points[i] <> 0 THEN
+		IF _points[i].ACUrl = point.ACUrl THEN
+			AddPoint := FALSE;
+			RETURN;			
+		END_IF
+	ELSE
+		EXIT;
+	END_IF
+END_FOR;
+// 2. If the point doesn't exist, add to _points-List
+FOR i:=1 TO GCL.cPointMAX BY 1
+  DO
+    IF _points[i] = 0 THEN
+		AddPoint := TRUE;
+		_points[i] := point;
+		EXIT;
+	END_IF
+END_FOR;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="FB_init" Id="{7480ef91-96bc-4fa8-a8eb-2712adb45988}">
+      <Declaration><![CDATA[METHOD FB_init : BOOL
+VAR_INPUT
+	bInitRetains : BOOL; // if TRUE, the retain variables are initialized (warm start / cold start)
+	bInCopyCode : BOOL;  // if TRUE, the instance afterwards gets moved into the copy code (online change)
+	parent : IACComponent;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[AddPoint(_PAPointMatIn1);
+AddPoint(_PAPointMatOut1);]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="IsRouteStarted" Id="{929a2d8e-8761-45d6-a947-2f6b4ae1b6c0}" FolderPath="Routing\">
+      <Declaration><![CDATA[PROPERTY PUBLIC IsRouteStarted : BOOL]]></Declaration>
+      <Get Name="Get" Id="{cfb94747-52c2-4c9b-bcf2-7ecdbae75b43}">
+        <Declaration><![CDATA[VAR
+	iACMethodRoute : IACMethodRouteBase;
+	iControlModule : IPAControlModule;
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[IF __QUERYINTERFACE(ACMethod, iACMethodRoute) THEN
+	iControlModule := iACMethodRoute.FirstCModuleInRoute;
+	IF NOT (iControlModule = 0) THEN
+		IF iControlModule.RoutingStateToTarget = PARoutingState.RoutePlaced THEN
+			IsRouteStarted := TRUE;
+			RETURN;
+		END_IF		
+	END_IF
+END_IF
+IsRouteStarted := FALSE;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="IsRouteStopped" Id="{e7a231ad-afd9-45ff-9a4f-b0efe3e454a1}" FolderPath="Routing\">
+      <Declaration><![CDATA[PROPERTY PUBLIC IsRouteStopped : BOOL]]></Declaration>
+      <Get Name="Get" Id="{6b5c214f-0b50-4031-b5ff-594a31d01996}">
+        <Declaration><![CDATA[VAR
+	iACMethodRoute : IACMethodRouteBase;
+	iControlModule : IPAControlModule;
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[IF __QUERYINTERFACE(ACMethod, iACMethodRoute) THEN
+	iControlModule := iACMethodRoute.LastCModuleInRoute;
+	IF NOT (iControlModule = 0) THEN
+		IF iControlModule.RoutingStateFromSource = PARoutingState.ReachedOffPosition THEN
+			IsRouteStopped := TRUE;
+			RETURN;
+		END_IF		
+	END_IF
+END_IF
+IsRouteStopped := FALSE;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="PAPointMatIn1" Id="{23743bf8-5b12-4f0a-bcca-02491bb9ff9d}">
+      <Declaration><![CDATA[PROPERTY PUBLIC PAPointMatIn1 : IACPoint]]></Declaration>
+      <Get Name="Get" Id="{40c530e2-e0e4-440a-8a7c-d26b7c890805}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[PAPointMatIn1 := _PAPointMatIn1;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="PAPointMatOut1" Id="{8ea604cb-07ab-47b3-b19f-993275c1b91a}">
+      <Declaration><![CDATA[PROPERTY PUBLIC PAPointMatOut1 : IACPoint]]></Declaration>
+      <Get Name="Get" Id="{6ab608b9-d208-4467-bf45-20371cf49e48}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[PAPointMatOut1 := _PAPointMatOut1;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="Points" Id="{272733e5-7a64-482c-8776-f6a8520a4521}">
+      <Declaration><![CDATA[PROPERTY PUBLIC Points : ARRAY [1..GCL.cPointMAX] OF IACPoint]]></Declaration>
+      <Get Name="Get" Id="{498a4eb1-34cf-458a-9493-3b1116cd4629}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Points := _Points;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="SMAborting" Id="{315e57f2-5654-460d-811d-4a4da64aa5a1}" FolderPath="StateMethods\">
+      <Declaration><![CDATA[METHOD PROTECTED SMAborting
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SUPER^.SMAborting();
+IF IsRouteStopped THEN
+	ACState := ACStateEnum.SMAborted;
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SMHolding" Id="{2c6846d6-14b3-4a14-93b0-b600435cfdc2}" FolderPath="StateMethods\">
+      <Declaration><![CDATA[METHOD PROTECTED SMHolding
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SUPER^.SMHolding();
+IF IsRouteStopped THEN
+	ACState := ACStateEnum.SMHeld;
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SMIdle" Id="{a7067a4a-7321-4df8-8868-c7e10989599a}" FolderPath="StateMethods\">
+      <Declaration><![CDATA[METHOD PROTECTED SMIdle
+VAR_INPUT
+END_VAR
+VAR
+	iACMethodRoute : IACMethodRouteBase;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF  NOT(ACMethod = 0) AND __QUERYINTERFACE(ACMethod, iACMethodRoute) THEN
+	iACMethodRoute.ResetRoute();
+END_IF
+SUPER^.SMIdle();]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SMPausing" Id="{b679e7fa-738e-45f3-9a25-86bc4d1796f8}" FolderPath="StateMethods\">
+      <Declaration><![CDATA[METHOD PROTECTED SMPausing
+VAR_INPUT
+END_VAR
+VAR
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SUPER^.SMPausing();
+IF IsRouteStopped THEN
+	ACState := ACStateEnum.SMPaused;
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SMRestarting" Id="{cd0e496d-086c-4ff9-9d6b-220d2018f35e}" FolderPath="StateMethods\">
+      <Declaration><![CDATA[METHOD PROTECTED SMRestarting
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SUPER^.SMRestarting();
+IF IsRouteStarted THEN
+	ACState := ACStateEnum.SMRunning;
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SMResuming" Id="{f69a5f65-a51b-4fbb-b813-28fd68710545}" FolderPath="StateMethods\">
+      <Declaration><![CDATA[METHOD PROTECTED SMResuming
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SUPER^.SMResuming();
+IF IsRouteStarted THEN
+	ACState := ACStateEnum.SMRunning;
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SMRunning" Id="{3a5e7e5a-47f4-41e9-b0da-c66f308c5330}">
+      <Declaration><![CDATA[METHOD PROTECTED SMRunning
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SMStarting" Id="{cf0c1bbd-2a5d-45fb-b1e5-09032a438737}" FolderPath="StateMethods\">
+      <Declaration><![CDATA[METHOD PROTECTED SMStarting
+VAR_INPUT
+END_VAR
+VAR
+	iACMethodRoute : IACMethodRouteBase;
+	route : PARoute;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF __QUERYINTERFACE(ACMethod, iACMethodRoute) THEN
+	
+	//IF NOT iACMethodRoute.Route._IsAssigned THEN
+	//	IF NOT iACMethodRoute.AssignRoute(THIS^) THEN
+	//		RETURN;
+	//	END_IF
+	//END_IF
+
+	route := iACMethodRoute.Route;
+	IF NOT route._IsAssigned THEN
+		IF NOT iACMethodRoute.AssignRoute(THIS^) THEN
+			RETURN;
+		END_IF
+	END_IF
+	
+END_IF
+SUPER^.SMStarting();]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SMStopping" Id="{26aafd55-f14e-4a6b-9efb-6c907c1add54}" FolderPath="StateMethods\">
+      <Declaration><![CDATA[METHOD PROTECTED SMStopping
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SUPER^.SMStopping();
+IF IsRouteStopped THEN
+	ACState := ACStateEnum.SMStopped;
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <LineIds Name="PARoutingFunction">
+      <LineId Id="9" Count="0" />
+    </LineIds>
+    <LineIds Name="PARoutingFunction.AddPoint">
+      <LineId Id="9" Count="23" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="PARoutingFunction.FB_init">
+      <LineId Id="8" Count="0" />
+      <LineId Id="7" Count="0" />
+    </LineIds>
+    <LineIds Name="PARoutingFunction.IsRouteStarted.Get">
+      <LineId Id="3" Count="8" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PARoutingFunction.IsRouteStopped.Get">
+      <LineId Id="3" Count="8" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PARoutingFunction.PAPointMatIn1.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PARoutingFunction.PAPointMatOut1.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PARoutingFunction.Points.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PARoutingFunction.SMAborting">
+      <LineId Id="3" Count="3" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PARoutingFunction.SMHolding">
+      <LineId Id="3" Count="3" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PARoutingFunction.SMIdle">
+      <LineId Id="3" Count="2" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PARoutingFunction.SMPausing">
+      <LineId Id="3" Count="3" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PARoutingFunction.SMRestarting">
+      <LineId Id="3" Count="3" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PARoutingFunction.SMResuming">
+      <LineId Id="3" Count="3" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PARoutingFunction.SMRunning">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PARoutingFunction.SMStarting">
+      <LineId Id="3" Count="15" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PARoutingFunction.SMStopping">
+      <LineId Id="3" Count="3" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

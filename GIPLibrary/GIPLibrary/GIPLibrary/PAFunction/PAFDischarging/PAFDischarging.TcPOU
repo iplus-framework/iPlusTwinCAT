@@ -1,0 +1,249 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4020.12">
+  <POU Name="PAFDischarging" Id="{a9a63cc6-1b38-45da-bfd0-ac924af755fc}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK PAFDischarging EXTENDS PARoutingFunction IMPLEMENTS IPAFDischarging
+VAR_INPUT
+END_VAR
+VAR_OUTPUT
+END_VAR
+VAR
+	_ACMethod : ACMethodDischarging;
+	_StateTolerance : PANotifyState;	
+	_FaultAckTolerance : BOOL;
+	_StateDestinationFull : PANotifyState;	
+	_FaultAckDestinationFull : BOOL;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Folder Name="Properties" Id="{2cc58cb4-1fd8-4b64-ba31-eb91854a6033}" />
+    <Folder Name="StateMethods" Id="{a80b371d-1c0a-474f-8200-0cd4a82be6ce}" />
+    <Property Name="ACMethod" Id="{de3f4728-a635-4105-bfe8-bafbf47552eb}">
+      <Declaration><![CDATA[PROPERTY ACMethod : IACMethod]]></Declaration>
+      <Get Name="Get" Id="{7d6165ab-1a01-4caa-87ff-9cd02cc71721}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[ACMethod := _ACMethod;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="FaultAckDestinationFull" Id="{818ed8ec-9a07-4603-8862-dfae7a6309ff}" FolderPath="Properties\">
+      <Declaration><![CDATA[{attribute 'TcRpcEnable'}
+PROPERTY PUBLIC FaultAckDestinationFull : BOOL]]></Declaration>
+      <Get Name="Get" Id="{6ee456d7-4a72-4bac-b0d6-1c47ebe39323}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[FaultAckDestinationFull := _FaultAckDestinationFull;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{668546a6-a464-441b-a059-12f02b57bfd0}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_FaultAckDestinationFull := FaultAckDestinationFull;
+Root.OnPropertyChangedBool(THIS^, 22, _FaultAckDestinationFull);]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="FaultAckTolerance" Id="{4142ad06-2d2c-40cc-bb68-0e0b7d493607}" FolderPath="Properties\">
+      <Declaration><![CDATA[{attribute 'TcRpcEnable'}
+PROPERTY PUBLIC FaultAckTolerance : BOOL]]></Declaration>
+      <Get Name="Get" Id="{f3eb2ac2-8b8c-4f42-88eb-245d0adb9a7e}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[FaultAckTolerance := _FaultAckTolerance;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{2991023f-42ec-4ecc-8bbb-81dc0258d7b3}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_FaultAckTolerance := FaultAckTolerance;
+Root.OnPropertyChangedBool(THIS^, 20, _FaultAckTolerance);]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="FB_postinit" Id="{4d7c2572-5675-460c-a274-0cc99e2ef780}">
+      <Declaration><![CDATA[METHOD PUBLIC FB_postinit
+VAR_INPUT
+	root : IACVariobatch;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SUPER^.FB_postinit(root);
+root.OnPropertyChangedInt(THIS^, 19, _StateTolerance);
+root.OnPropertyChangedBool(THIS^, 20, _FaultAckTolerance);
+root.OnPropertyChangedInt(THIS^, 21, _StateDestinationFull);
+root.OnPropertyChangedBool(THIS^, 22, _FaultAckDestinationFull);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnInitMemory" Id="{b6f3cf6e-0ab7-4073-a8ce-f1fd8c22add2}">
+      <Declaration><![CDATA[METHOD OnInitMemory
+VAR_INPUT
+		root : IACVariobatch;	
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[RegisterProperty(root, 19, GCL.cSizeINT); //_StateTolerance)
+RegisterProperty(root, 20, GCL.cSizeBYTE); //_FaultAckTolerance);
+RegisterProperty(root, 21, GCL.cSizeINT); //_StateDestinationFull)
+RegisterProperty(root, 22, GCL.cSizeBYTE); //_FaultAckDestinationFull);
+SUPER^.OnInitMemory(root);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="InvokeSetterEnum" Id="{786f492b-1112-4d0a-a754-1fe1e5d34a72}">
+      <Declaration><![CDATA[METHOD PUBLIC InvokeSetterEnum
+VAR_INPUT
+	PropertyID : INT;
+	PropertyValue : INT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SUPER^.InvokeSetterEnum(PropertyID, PropertyValue);
+IF PropertyID = 19 THEN
+	THIS^.StateTolerance := PropertyValue;
+ELSIF PropertyID = 21 THEN	
+	THIS^.StateDestinationFull := PropertyValue;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SMIdle" Id="{d3b38740-7db4-47b8-b20d-093a85d38892}" FolderPath="StateMethods\">
+      <Declaration><![CDATA[METHOD PROTECTED SMIdle
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SUPER^.SMIdle();]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="StartWithP" Id="{06ebd9f0-e50c-4825-a347-2082481c3436}">
+      <Declaration><![CDATA[METHOD PUBLIC StartWithP : BOOL
+VAR_INPUT
+	parameter : ACMethodDischargingP;
+END_VAR
+VAR
+	acMethod : ACMethodDischarging;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[acMethod.Parameter := parameter;
+_ACMethod.ResolveRoutePointers(parameter._Route, THIS^);
+IF NOT acMethod.IsValid THEN
+		StartWithP := FALSE;
+	RETURN;
+END_IF
+_ACMethod.Parameter := parameter;
+StartWithP := Start();]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="StateDestinationFull" Id="{dfa58686-0e6e-490b-934d-77131c61ef8c}" FolderPath="Properties\">
+      <Declaration><![CDATA[PROPERTY PUBLIC StateDestinationFull : PANotifyState]]></Declaration>
+      <Get Name="Get" Id="{43198cb6-6b53-4160-a987-b3544be3d883}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[StateDestinationFull := _StateDestinationFull;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{72fdb225-759b-4077-b038-3fb23bb15799}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_StateDestinationFull := StateDestinationFull;
+Root.OnPropertyChangedInt(THIS^, 21, _StateDestinationFull);]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="StateTolerance" Id="{1ceb5c08-ae26-4d4f-9252-6e006db56d7d}" FolderPath="Properties\">
+      <Declaration><![CDATA[PROPERTY PUBLIC StateTolerance : PANotifyState]]></Declaration>
+      <Get Name="Get" Id="{933d39ba-83f3-4a07-8e2e-8316510d3a33}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[StateTolerance := _StateTolerance;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{fcfbfe38-7165-4cbd-a9dd-e71da2b352b0}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_StateTolerance := StateTolerance;
+Root.OnPropertyChangedInt(THIS^, 19, _StateTolerance);]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <LineIds Name="PAFDischarging">
+      <LineId Id="9" Count="0" />
+    </LineIds>
+    <LineIds Name="PAFDischarging.ACMethod.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAFDischarging.FaultAckDestinationFull.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAFDischarging.FaultAckDestinationFull.Set">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAFDischarging.FaultAckTolerance.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAFDischarging.FaultAckTolerance.Set">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAFDischarging.FB_postinit">
+      <LineId Id="6" Count="4" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="PAFDischarging.OnInitMemory">
+      <LineId Id="7" Count="3" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="PAFDischarging.InvokeSetterEnum">
+      <LineId Id="17" Count="0" />
+      <LineId Id="8" Count="3" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="PAFDischarging.SMIdle">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAFDischarging.StartWithP">
+      <LineId Id="7" Count="0" />
+      <LineId Id="24" Count="0" />
+      <LineId Id="8" Count="0" />
+      <LineId Id="10" Count="1" />
+      <LineId Id="16" Count="0" />
+      <LineId Id="9" Count="0" />
+      <LineId Id="6" Count="0" />
+    </LineIds>
+    <LineIds Name="PAFDischarging.StateDestinationFull.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAFDischarging.StateDestinationFull.Set">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAFDischarging.StateTolerance.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAFDischarging.StateTolerance.Set">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

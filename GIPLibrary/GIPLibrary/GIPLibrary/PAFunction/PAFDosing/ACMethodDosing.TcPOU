@@ -1,0 +1,90 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4022.7">
+  <POU Name="ACMethodDosing" Id="{235e2d7a-13fd-4736-b943-188ffb5e542c}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK PUBLIC ACMethodDosing EXTENDS ACMethodRouteBase
+VAR_INPUT
+END_VAR
+VAR_OUTPUT
+END_VAR
+VAR PERSISTENT
+	_Parameter : ACMethodDosingP;
+	_Result : ACMethodDosingR;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Property Name="IsValid" Id="{c1cdc37e-c84c-45fe-8cf6-fcd5c5bfbf32}">
+      <Declaration><![CDATA[PROPERTY IsValid : BOOL
+]]></Declaration>
+      <Get Name="Get" Id="{58684e82-97cf-4c8d-acf5-fa08c5d8fb50}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[IsValid := TRUE;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="Parameter" Id="{fdacd091-5cb1-42e7-8739-78ae4fe6efba}">
+      <Declaration><![CDATA[PROPERTY Parameter : ACMethodDosingP
+]]></Declaration>
+      <Get Name="Get" Id="{96313523-9707-4dec-90d8-90b8199f8463}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Parameter := _Parameter;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{99fb96e7-ea1a-4b96-8ea5-9d9cf5267075}">
+        <Declaration><![CDATA[PUBLIC 
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_Parameter := Parameter;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="Result" Id="{357ad5ae-ea13-43fc-b207-8ddbb18c1544}">
+      <Declaration><![CDATA[PROPERTY Result : ACMethodDosingR
+]]></Declaration>
+      <Get Name="Get" Id="{9a291287-c3c0-4547-a5c8-e4204ddae193}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Result := _Result;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{4ba5b330-4d01-4946-94fe-3881401ee31f}">
+        <Declaration><![CDATA[PUBLIC 
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_Result := Result;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <LineIds Name="ACMethodDosing">
+      <LineId Id="9" Count="0" />
+    </LineIds>
+    <LineIds Name="ACMethodDosing.IsValid.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="ACMethodDosing.Parameter.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="ACMethodDosing.Parameter.Set">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="ACMethodDosing.Result.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="ACMethodDosing.Result.Set">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

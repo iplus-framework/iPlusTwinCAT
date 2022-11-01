@@ -1,0 +1,42 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4020.12">
+  <Itf Name="IACEdge" Id="{275672f9-5da1-4662-9ceb-1a8c0a230248}">
+    <Declaration><![CDATA[INTERFACE IACEdge EXTENDS IACObject
+]]></Declaration>
+    <Property Name="AllocatedByFunction" Id="{b23122c8-d680-4243-9824-8c73c3ca439b}">
+      <Declaration><![CDATA[PROPERTY AllocatedByFunction : IPAProcessFunction]]></Declaration>
+      <Get Name="Get" Id="{ffc248f3-0ab8-4ba1-b745-b135991e3db1}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+      <Set Name="Set" Id="{d516871a-8a02-4aaa-b31b-6ac8fe18a37a}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Set>
+    </Property>
+    <Method Name="Compare" Id="{8f599827-1d85-4b21-97c1-d4d3d442b8de}">
+      <Declaration><![CDATA[// Compares if ACUrl of Source and Target are identical
+METHOD Compare : BOOL
+VAR_INPUT
+	edge : IACEdge;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Property Name="ConnectionType" Id="{97f6f5f6-5d9d-4ea2-af64-cf31eba61941}">
+      <Declaration><![CDATA[PROPERTY ConnectionType : ConnectionTypesEnum]]></Declaration>
+      <Get Name="Get" Id="{14101126-fc95-4728-aceb-95b4f283449e}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Property Name="Source" Id="{76887e3e-2c6f-4e57-ac22-d10b745bfb29}">
+      <Declaration><![CDATA[PROPERTY Source : IACPoint]]></Declaration>
+      <Get Name="Get" Id="{f97f4c70-786d-4662-922f-b232a32bca28}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Property Name="Target" Id="{734ec446-9d1d-444c-9e50-7bb21def4724}">
+      <Declaration><![CDATA[PROPERTY Target : IACPoint]]></Declaration>
+      <Get Name="Get" Id="{b35b772c-15ef-4a32-8481-f5c24c0c02ec}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+  </Itf>
+</TcPlcObject>

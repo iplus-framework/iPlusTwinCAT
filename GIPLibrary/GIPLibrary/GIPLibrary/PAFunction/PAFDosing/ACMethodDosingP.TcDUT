@@ -1,0 +1,106 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4020.12">
+  <DUT Name="ACMethodDosingP" Id="{b83d13c1-ab94-4c86-b34a-78f43a828f47}">
+    <Declaration><![CDATA[{attribute 'pack_mode' := '0'}
+TYPE ACMethodDosingP EXTENDS ACMethodBaseP : 
+STRUCT
+	// Sollmenge
+	_TargetQuantity : LREAL;
+	// Dosierstufe 1
+	_FlowRate1 : INT;
+	// Material
+	_Material : STRING;
+	// Auftragsposition
+	_PLPosRelation : STRING;
+	// Route
+	_Route : PARoutePointers;
+	// Quelle 
+	_Source : INT;
+	// Ziel 
+	_Destination : INT;	
+	// Dosierstufe 2
+	_FlowRate2 : INT;
+	// Dosierstufe 3
+	_FlowRate3 : INT;
+	// Dosierstufe 4
+	_FlowRate4 : INT;
+	// Dosierstufe 5
+	_FlowRate5 : INT;
+	// Dosierstufe 6
+	_FlowRate6 : INT;
+	// Dosierstufe 7
+	_FlowRate7 : INT;
+	// Dosierstufe 8
+	_FlowRate8 : INT;
+	// Dosierstufe 9
+	_FlowRate9 : INT;
+	// Umschaltpunkt 1 
+	_FlowSwitching1 : LREAL;
+	// Umschaltpunkt 2
+	_FlowSwitching2 : LREAL;
+	// Umschaltpunkt 3
+	_FlowSwitching3 : LREAL;
+	// Umschaltpunkt 4
+	_FlowSwitching4 : LREAL;
+	// Umschaltpunkt 5
+	_FlowSwitching5 : LREAL;
+	// Umschaltpunkt 6
+	_FlowSwitching6 : LREAL;
+	// Umschaltpunkt 7
+	_FlowSwitching7 : LREAL;
+	// Umschaltpunkt 8
+	_FlowSwitching8 : LREAL;
+	// Umschaltpunkt 9
+	_FlowSwitching9 : LREAL;
+	// Umschalpunkt Grob/Fein
+	_RoughFineSwitching : LREAL;
+	// Dosierleistung Grobstufe
+	_FlowRateRough : INT;
+	// Dosierleistung Feinstufe
+	_FlowRateFine : INT;
+	// Toleranz +
+	_TolerancePlus : LREAL;
+	// Toleranz - 
+	_ToleranceMinus : LREAL;
+	// Nachlauf 
+	_Afterflow : LREAL;
+	// Nachlauf Max. 
+	_AfterflowMAX : LREAL;
+	//Materialmangel Prüfgewicht
+	_LackOfMatCheckWeight : LREAL;
+	// Materialmangel Prüfzeit 
+	_LackOfMatCheckTime : TIME;
+	// Pulszeit 
+	_PulsationTime : TIME;
+	// Puls-Pause-Zeit 
+	_PulsationPauseTime : TIME;
+	// Nachdosierimpulszeit 
+	_AdjustmentTime : TIME;
+	// Beruhigungszeit 
+	_CalmingTime : TIME;
+	// Stillstandszeit 
+	_StandstillTime : TIME;
+	// Stillstandsgewicht 
+	_StandstillWeight : LREAL;
+	// Temperatur 
+	_Temperature : LREAL;
+	// Letzter Batch 
+	_LastBatch : INT;
+	// Sprühdüsen 
+	_SprayNozzle : INT;
+	// Impuls pro Liter 
+	_ImpulsePerLiter : LREAL;
+	// Dichte 
+	_Density : LREAL;
+	// Maximale Dosierzeit 
+	_MaxDosingTime : TIME;
+	// Dosierstufe in Nachdosierung 
+	_AdjustmentFlowRate : INT;
+	// Endlose Dosierung 
+	_EndlessDosing : BOOL;
+		
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

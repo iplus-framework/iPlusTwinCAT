@@ -1,0 +1,249 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4022.7">
+  <POU Name="PAPoint" Id="{cf190ec0-0be4-41a4-be77-f8eeefca0242}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK PUBLIC PAPoint EXTENDS ACObject IMPLEMENTS IACPoint
+VAR_INPUT
+END_VAR
+VAR_OUTPUT
+END_VAR
+VAR
+	_PAEdges : ARRAY [1..GCL.cEdgeMAX] OF IACEdge;
+	_Parent : IACComponent;	
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Method Name="AddEdge" Id="{02f5fa6b-3258-4ee4-94c5-89972ed0c28f}">
+      <Declaration><![CDATA[METHOD AddEdge : BOOL
+VAR_INPUT
+	edge : IACEdge;
+END_VAR
+VAR
+	i: INT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF edge = 0 THEN
+	AddEdge := FALSE;
+	RETURN;
+END_IF
+
+// 1. Check if edge already exists in the array because of online change
+FOR i:=1 TO GCL.cEdgeMAX BY 1
+  DO
+    IF _PAEdges[i] <> 0 THEN
+		IF _PAEdges[i] = edge THEN
+			AddEdge := FALSE;
+			RETURN;						
+		END_IF
+		(*IF _PAEdges[i].Compare(edge) THEN
+			AddEdge := FALSE;
+			RETURN;						
+		END_IF*)
+	ELSE
+		EXIT;
+	END_IF
+END_FOR;
+// 2. If the child doesn't exist, add to _Childs-List
+FOR i:=1 TO GCL.cEdgeMAX BY 1
+  DO
+    IF _PAEdges[i] = 0 THEN
+		AddEdge := TRUE;
+		_PAEdges[i] := edge;
+		EXIT;
+	END_IF
+END_FOR;
+]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="ConnectionList" Id="{514c623b-23da-442d-98fb-3b1f89528ee9}">
+      <Declaration><![CDATA[PROPERTY ConnectionList : ARRAY [1..GCL.cEdgeMAX] OF IACEdge
+]]></Declaration>
+      <Get Name="Get" Id="{87203c66-6133-4bcf-b4ef-4775346c2995}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[ConnectionList := _PAEdges;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="FB_init" Id="{786d5e53-ad5c-4778-9604-f0ca0b25d3d9}">
+      <Declaration><![CDATA[METHOD FB_init : BOOL
+VAR_INPUT
+	bInitRetains : BOOL; // if TRUE, the retain variables are initialized (warm start / cold start)
+	bInCopyCode : BOOL;  // if TRUE, the instance afterwards gets moved into the copy code (online change)
+	parent : IACComponent;
+END_VAR
+
+VAR
+	isValidRef: BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF parent <> 0 THEN
+	_Parent := parent;
+END_IF
+IncFBInitCount();]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="FB_postinit" Id="{b846993c-3769-4e27-8453-066b1c284f57}">
+      <Declaration><![CDATA[METHOD PUBLIC FB_postinit
+VAR_INPUT
+		root : IACVariobatch;
+END_VAR
+VAR
+	i: INT;
+	thisPoint : IACPoint;
+	iPoint : IACPoint;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SUPER^.FB_postinit(root);
+thisPoint := THIS^;
+FOR i:=1 TO GCL.cEdgeMAX BY 1
+  DO
+    IF _PAEdges[i] <> 0 THEN
+		iPoint := _PAEdges[i].Source;
+		IF iPoint = thisPoint THEN
+			_PAEdges[i].FB_postinit(root);			
+		END_IF
+	ELSE
+		EXIT;
+	END_IF
+END_FOR;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="FindObjectInChilds" Id="{002a08a5-09ff-4cdb-b62c-71ddb81c35a1}">
+      <Declaration><![CDATA[METHOD FindObjectInChilds : IACObject
+VAR_INPUT
+	instanceID	: UDINT;
+END_VAR
+VAR
+	i: INT;
+	currentEdge : IACEdge;	
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[FOR i:=1 TO GCL.cEdgeMAX BY 1
+  DO
+    IF _PAEdges[i] <> 0 THEN
+		currentEdge := _PAEdges[i];
+		IF currentEdge.InstanceID = instanceID THEN
+			FindObjectInChilds := currentEdge;
+			RETURN;
+		END_IF
+	ELSE
+		EXIT;
+	END_IF
+END_FOR;
+FindObjectInChilds := 0;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="GetAllocatedEdge" Id="{5ae7f375-98ad-4a6e-a43d-d860347cc161}">
+      <Declaration><![CDATA[METHOD PUBLIC GetAllocatedEdge : IACEdge
+VAR_INPUT
+	paFunction : IPAProcessFunction;
+END_VAR
+VAR
+	i: INT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[//IPAProcessFunction
+IF paFunction = 0 THEN
+	GetAllocatedEdge := 0;
+	RETURN;
+END_IF
+// 1. Check if edge already exists in the array because of online change
+FOR i:=1 TO GCL.cEdgeMAX BY 1
+  DO
+    IF _PAEdges[i] <> 0 THEN
+		IF _PAEdges[i].AllocatedByFunction = 0 THEN
+			GetAllocatedEdge := 0;
+			RETURN;
+		END_IF
+		IF _PAEdges[i].AllocatedByFunction = paFunction THEN
+			GetAllocatedEdge := _PAEdges[i];
+			RETURN;			
+		END_IF
+	ELSE
+		EXIT;
+	END_IF
+END_FOR;
+GetAllocatedEdge := 0;]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="Parent" Id="{73fa2ae6-20b3-4e9d-9852-bb2cdb3252bb}">
+      <Declaration><![CDATA[PROPERTY Parent : IACComponent
+]]></Declaration>
+      <Get Name="Get" Id="{f9de2fbd-ebec-46eb-9843-07dc977bc203}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Parent := _Parent;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="TypeOfACObject" Id="{8289de43-5b68-4d46-8afd-1c39b6fcb123}">
+      <Declaration><![CDATA[PROPERTY TypeOfACObject : TypeOfACObjectEnum]]></Declaration>
+      <Get Name="Get" Id="{f37f76d0-fdd8-4831-baa3-b7f2c307c423}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[TypeOfACObject := TypeOfACObjectEnum.Point;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <LineIds Name="PAPoint">
+      <LineId Id="9" Count="0" />
+    </LineIds>
+    <LineIds Name="PAPoint.AddEdge">
+      <LineId Id="10" Count="2" />
+      <LineId Id="40" Count="0" />
+      <LineId Id="13" Count="3" />
+      <LineId Id="43" Count="0" />
+      <LineId Id="45" Count="0" />
+      <LineId Id="47" Count="0" />
+      <LineId Id="46" Count="0" />
+      <LineId Id="48" Count="4" />
+      <LineId Id="22" Count="11" />
+      <LineId Id="42" Count="0" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="PAPoint.ConnectionList.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAPoint.FB_init">
+      <LineId Id="12" Count="1" />
+      <LineId Id="23" Count="0" />
+      <LineId Id="7" Count="0" />
+    </LineIds>
+    <LineIds Name="PAPoint.FB_postinit">
+      <LineId Id="4" Count="0" />
+      <LineId Id="26" Count="0" />
+      <LineId Id="5" Count="1" />
+      <LineId Id="19" Count="1" />
+      <LineId Id="15" Count="1" />
+      <LineId Id="7" Count="0" />
+      <LineId Id="9" Count="2" />
+      <LineId Id="3" Count="0" />
+    </LineIds>
+    <LineIds Name="PAPoint.FindObjectInChilds">
+      <LineId Id="16" Count="3" />
+      <LineId Id="65" Count="3" />
+      <LineId Id="34" Count="3" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="PAPoint.GetAllocatedEdge">
+      <LineId Id="6" Count="4" />
+      <LineId Id="36" Count="14" />
+      <LineId Id="25" Count="0" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="PAPoint.Parent.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAPoint.TypeOfACObject.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

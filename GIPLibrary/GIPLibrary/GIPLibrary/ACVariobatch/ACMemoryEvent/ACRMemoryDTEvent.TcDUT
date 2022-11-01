@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4020.12">
+  <DUT Name="ACRMemoryDTEvent" Id="{ab317fee-3009-49c9-b24d-cc810bbf7ef7}">
+    <Declaration><![CDATA[TYPE ACRMemoryDTEvent EXTENDS ACRMemoryEvent :
+STRUCT
+		_Value : DATE_AND_TIME;
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

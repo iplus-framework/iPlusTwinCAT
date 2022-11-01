@@ -1,0 +1,73 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4020.12">
+  <POU Name="PAFVacuum" Id="{0e3dbe99-e373-4b59-b22e-d1788ed030c3}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK PAFVacuum EXTENDS PARoutingFunction
+VAR_INPUT
+END_VAR
+VAR_OUTPUT
+END_VAR
+VAR
+	_ACMethod : ACMethodVacuum;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Folder Name="StateMethods" Id="{cd26c9e5-c611-465e-8039-686fb403b360}" />
+    <Property Name="ACMethod" Id="{d41734cd-4d01-4f1a-a1c2-083f4de9732a}">
+      <Declaration><![CDATA[PROPERTY ACMethod : IACMethod]]></Declaration>
+      <Get Name="Get" Id="{eb327ea5-5c2f-4c5d-8e86-b85987c58e85}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[ACMethod := _ACMethod;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="SMIdle" Id="{c9b2db63-53b5-40b2-82dc-e1e7e4f128bd}" FolderPath="StateMethods\">
+      <Declaration><![CDATA[METHOD PROTECTED SMIdle
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SUPER^.SMIdle();]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="StartWithP" Id="{648ecb53-1949-469a-a3ab-4b48df1bd9b6}">
+      <Declaration><![CDATA[METHOD PUBLIC StartWithP : BOOL
+VAR_INPUT
+	parameter : ACMethodVacuumP;
+END_VAR
+VAR
+	acMethod : ACMethodVacuum;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[acMethod.Parameter := parameter;
+IF NOT acMethod.IsValid THEN
+		StartWithP := FALSE;
+	RETURN;
+END_IF
+_ACMethod.Parameter := parameter;
+StartWithP := Start();]]></ST>
+      </Implementation>
+    </Method>
+    <LineIds Name="PAFVacuum">
+      <LineId Id="9" Count="0" />
+    </LineIds>
+    <LineIds Name="PAFVacuum.ACMethod.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAFVacuum.SMIdle">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAFVacuum.StartWithP">
+      <LineId Id="7" Count="1" />
+      <LineId Id="10" Count="1" />
+      <LineId Id="16" Count="0" />
+      <LineId Id="9" Count="0" />
+      <LineId Id="6" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

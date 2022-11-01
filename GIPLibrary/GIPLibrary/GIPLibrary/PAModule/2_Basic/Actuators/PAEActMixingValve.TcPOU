@@ -1,0 +1,31 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4020.12">
+  <POU Name="PAEActMixingValve" Id="{fd1cd2b8-5582-4c3f-8213-b0d131d14be4}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK PAEActMixingValve EXTENDS PAEActuator2way_Analog
+VAR_INPUT
+END_VAR
+VAR_OUTPUT
+END_VAR
+VAR
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Method Name="PAEActMixingValve" Id="{4607e9a4-e8f4-42e1-bd0c-e29111fcb1f1}">
+      <Declaration><![CDATA[METHOD PUBLIC PAEActMixingValve
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <LineIds Name="PAEActMixingValve">
+      <LineId Id="9" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEActMixingValve.PAEActMixingValve">
+      <LineId Id="5" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

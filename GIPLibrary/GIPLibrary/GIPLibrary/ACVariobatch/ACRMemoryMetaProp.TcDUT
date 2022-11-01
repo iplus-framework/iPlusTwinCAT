@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4020.12">
+  <DUT Name="ACRMemoryMetaProp" Id="{f1e03465-3687-4e03-80db-c952b33bd908}">
+    <Declaration><![CDATA[TYPE ACRMemoryMetaProp :
+STRUCT
+	_Offset : UDINT;
+	_Length : UINT;
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

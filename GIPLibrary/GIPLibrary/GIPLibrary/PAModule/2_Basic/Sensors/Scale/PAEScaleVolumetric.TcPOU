@@ -1,0 +1,176 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.6">
+  <POU Name="PAEScaleVolumetric" Id="{83836b8a-704f-4eaa-a9ec-a1e64b0b9e24}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK PUBLIC PAEScaleVolumetric EXTENDS PAEScaleBase IMPLEMENTS IPAScaleVolumetric
+VAR_INPUT
+END_VAR
+VAR_OUTPUT
+END_VAR
+VAR
+	_ActualRateOfFlow : LREAL;
+	_DesiredRateOfFlow : LREAL;
+	_PulsePerLiter : LREAL;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Property Name="ActualRateOfFlow" Id="{d8ccbdce-25bd-4256-a88d-b15f8eb2f522}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+//{attribute 'TcRpcEnable'}
+PROPERTY PUBLIC ActualRateOfFlow : LREAL]]></Declaration>
+      <Get Name="Get" Id="{850aefcc-1410-4db1-a540-959ea5404ef8}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[ActualRateOfFlow := _ActualRateOfFlow;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{96748b67-23e8-4849-a45f-bd0aaa3067c9}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_ActualRateOfFlow := ActualRateOfFlow;
+Root.OnPropertyChangedLReal(THIS^, 74, _ActualRateOfFlow);]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="DesiredRateOfFlow" Id="{83692ccd-28d1-481e-83bd-e2f17d57a5c0}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+//{attribute 'TcRpcEnable'}
+PROPERTY PUBLIC DesiredRateOfFlow : LREAL]]></Declaration>
+      <Get Name="Get" Id="{2b6ba631-3c7f-4dfb-991a-312a1c63c762}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[DesiredRateOfFlow := _DesiredRateOfFlow;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{7963925c-e7b1-4c26-8ea2-0347e542c038}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_DesiredRateOfFlow := DesiredRateOfFlow;
+Root.OnPropertyChangedLReal(THIS^, 73, _DesiredRateOfFlow);]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="FB_postinit" Id="{9a5d8845-6b33-48cd-bade-6d6c22c6b8a6}">
+      <Declaration><![CDATA[METHOD FB_postinit
+VAR_INPUT
+	root : IACVariobatch;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SUPER^.FB_postinit(root);
+root.OnPropertyChangedLReal(THIS^, 72, _PulsePerLiter);
+root.OnPropertyChangedLReal(THIS^, 73, _DesiredRateOfFlow);
+root.OnPropertyChangedLReal(THIS^, 74, _ActualRateOfFlow);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="InvokeSetterLReal" Id="{fd8f53b3-37fc-4a60-b3fb-8a16e442e782}">
+      <Declaration><![CDATA[METHOD PUBLIC InvokeSetterLReal
+VAR_INPUT
+	PropertyID : INT;
+	PropertyValue : LREAL;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SUPER^.InvokeSetterLReal(PropertyID, PropertyValue);
+CASE PropertyID OF
+	72:
+		PulsePerLiter := PropertyValue;
+	73:
+		DesiredRateOfFlow := PropertyValue;
+	74:
+		ActualRateOfFlow := PropertyValue;
+END_CASE]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnInitMemory" Id="{329fca44-4fca-4cf1-85af-85838d56b6a3}">
+      <Declaration><![CDATA[METHOD OnInitMemory
+VAR_INPUT
+	root : IACVariobatch;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[RegisterProperty(root, 72, GCL.cSizeLREAL); //PulsePerLiter
+RegisterProperty(root, 73, GCL.cSizeLREAL); //DesiredRateOfFlow
+RegisterProperty(root, 74, GCL.cSizeLREAL); //ActualRateOfFlow
+SUPER^.OnInitMemory(root);]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="PulsePerLiter" Id="{d901797c-6a7e-406d-8592-412afddd99f6}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+//{attribute 'TcRpcEnable'}
+PROPERTY PUBLIC PulsePerLiter : LREAL]]></Declaration>
+      <Get Name="Get" Id="{32edcbc3-73a2-4824-b953-fb92fb5d0af5}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[PulsePerLiter := _PulsePerLiter;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{afd697c1-e06f-420b-acc5-ce1d147bc005}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_PulsePerLiter := PulsePerLiter;
+Root.OnPropertyChangedLReal(THIS^, 72, _PulsePerLiter);]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <LineIds Name="PAEScaleVolumetric">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEScaleVolumetric.ActualRateOfFlow.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEScaleVolumetric.ActualRateOfFlow.Set">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEScaleVolumetric.DesiredRateOfFlow.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEScaleVolumetric.DesiredRateOfFlow.Set">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEScaleVolumetric.FB_postinit">
+      <LineId Id="7" Count="0" />
+      <LineId Id="15" Count="1" />
+      <LineId Id="8" Count="0" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEScaleVolumetric.InvokeSetterLReal">
+      <LineId Id="8" Count="7" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEScaleVolumetric.OnInitMemory">
+      <LineId Id="14" Count="1" />
+      <LineId Id="8" Count="0" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEScaleVolumetric.PulsePerLiter.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEScaleVolumetric.PulsePerLiter.Set">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4020.12">
+  <DUT Name="ACMethodVacuumP" Id="{4f23e717-fd9e-4bcd-a22e-cc680165d461}">
+    <Declaration><![CDATA[{attribute 'pack_mode' := '0'}
+TYPE ACMethodVacuumP EXTENDS ACMethodBaseP : 
+STRUCT
+	//Modus
+	_Mode : PAFVacuumModeEnum;
+	//Druck
+	_Pressure : LREAL;
+	//Druck halten
+	_HoldPressure : BOOL;
+	//Dauer
+	_Duration : TIME;
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

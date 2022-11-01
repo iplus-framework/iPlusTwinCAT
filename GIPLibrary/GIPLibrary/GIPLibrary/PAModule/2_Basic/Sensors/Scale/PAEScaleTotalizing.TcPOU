@@ -1,0 +1,231 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.6">
+  <POU Name="PAEScaleTotalizing" Id="{a9ca8691-6ed6-48b1-98f6-5baa3f5d4144}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK PUBLIC PAEScaleTotalizing EXTENDS PAEScaleGravimetric IMPLEMENTS IPAScaleTotalizing
+VAR_INPUT
+END_VAR
+VAR_OUTPUT
+END_VAR
+VAR
+	_IsFlow : BOOL;
+	_IsPresignal : BOOL;
+	_TotalActualWeight : LREAL;
+	_TotalDesiredWeight : LREAL;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Method Name="FB_postinit" Id="{c1e1d5ec-d137-469f-beee-ca90cf47ac68}">
+      <Declaration><![CDATA[METHOD FB_postinit
+VAR_INPUT
+	root : IACVariobatch;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SUPER^.FB_postinit(root);
+root.OnPropertyChangedLReal(THIS^, 86, _TotalDesiredWeight);
+root.OnPropertyChangedLReal(THIS^, 87, _TotalActualWeight);
+root.OnPropertyChangedBool(THIS^, 88, _IsPresignal);
+root.OnPropertyChangedBool(THIS^, 89, _IsFlow);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="InvokeSetterBool" Id="{6c71a670-db73-43e1-a473-ec3e0e294366}">
+      <Declaration><![CDATA[METHOD PUBLIC InvokeSetterBool
+VAR_INPUT
+	PropertyID : INT;
+	PropertyValue : BOOL;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SUPER^.InvokeSetterBool(PropertyID, PropertyValue);
+CASE PropertyID OF
+	88:
+		IsPresignal := PropertyValue;
+	89:
+		IsFlow := PropertyValue;
+END_CASE]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="InvokeSetterLReal" Id="{82aac350-8ba4-468f-8abb-1e9f55edcaca}">
+      <Declaration><![CDATA[METHOD PUBLIC InvokeSetterLReal
+VAR_INPUT
+	PropertyID : INT;
+	PropertyValue : LREAL;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SUPER^.InvokeSetterLReal(PropertyID, PropertyValue);
+CASE PropertyID OF
+	86:
+		TotalDesiredWeight := PropertyValue;
+	87:
+		TotalActualWeight := PropertyValue;
+END_CASE]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="IsFlow" Id="{5171db51-d421-44ad-9266-ac7b8380d43c}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+//{attribute 'TcRpcEnable'}
+PROPERTY PUBLIC IsFlow : BOOL]]></Declaration>
+      <Get Name="Get" Id="{5ac95594-0695-4a0b-af47-6f453740fff7}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[IsFlow := _IsFlow;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{f5f2c0bb-bd1e-4836-820a-fde6b3e29893}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_IsFlow := IsFlow;
+Root.OnPropertyChangedBool(THIS^, 89, _IsFlow);]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="IsPresignal" Id="{087e34b6-7f2c-4f3c-b484-1e92535cf8d2}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+//{attribute 'TcRpcEnable'}
+PROPERTY PUBLIC IsPresignal : BOOL]]></Declaration>
+      <Get Name="Get" Id="{0fed6fbe-2f1f-41fa-8e23-02f885514806}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[IsPresignal := _IsPresignal;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{1da5fb6c-bb72-4833-bac9-7043683991e6}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_IsPresignal := IsPresignal;
+Root.OnPropertyChangedBool(THIS^, 88, _IsPresignal);]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="OnInitMemory" Id="{97cbbab0-e2b4-4cdc-9783-1918016ffebf}">
+      <Declaration><![CDATA[METHOD OnInitMemory
+VAR_INPUT
+	root : IACVariobatch;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[RegisterProperty(root, 86, GCL.cSizeLREAL); //TotalDesiredWeight
+RegisterProperty(root, 87, GCL.cSizeLREAL); //TotalActualWeight
+RegisterProperty(root, 88, GCL.cSizeBYTE); //IsPresignal
+RegisterProperty(root, 89, GCL.cSizeBYTE); //IsFlow
+SUPER^.OnInitMemory(root);]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="TotalActualWeight" Id="{6ae8eb58-1efd-4c2a-b16f-c707d2eeb87d}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+//{attribute 'TcRpcEnable'}
+PROPERTY PUBLIC TotalActualWeight : LREAL]]></Declaration>
+      <Get Name="Get" Id="{fd1c32e4-fca7-41b9-995b-b21cd9860cb8}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[TotalActualWeight := _TotalActualWeight;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{93e3ed51-d8db-4d53-bc44-ee63ddada043}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_TotalActualWeight := TotalActualWeight;
+Root.OnPropertyChangedLReal(THIS^, 87, _TotalActualWeight);]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="TotalDesiredWeight" Id="{bed5e69d-1480-4c9b-acb5-eea6798acba1}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+//{attribute 'TcRpcEnable'}
+PROPERTY PUBLIC TotalDesiredWeight : LREAL]]></Declaration>
+      <Get Name="Get" Id="{de1ee27c-0bb9-463d-83d4-248242583844}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[TotalDesiredWeight := _TotalDesiredWeight;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{1c5e0f7d-2194-4c84-b082-960b16e0cfbb}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_TotalDesiredWeight := TotalDesiredWeight;
+Root.OnPropertyChangedLReal(THIS^, 86, _TotalDesiredWeight);]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <LineIds Name="PAEScaleTotalizing">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEScaleTotalizing.FB_postinit">
+      <LineId Id="7" Count="0" />
+      <LineId Id="16" Count="2" />
+      <LineId Id="8" Count="0" />
+      <LineId Id="6" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEScaleTotalizing.InvokeSetterBool">
+      <LineId Id="8" Count="5" />
+      <LineId Id="7" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEScaleTotalizing.InvokeSetterLReal">
+      <LineId Id="8" Count="5" />
+      <LineId Id="7" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEScaleTotalizing.IsFlow.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEScaleTotalizing.IsFlow.Set">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEScaleTotalizing.IsPresignal.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEScaleTotalizing.IsPresignal.Set">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEScaleTotalizing.OnInitMemory">
+      <LineId Id="17" Count="0" />
+      <LineId Id="16" Count="0" />
+      <LineId Id="15" Count="0" />
+      <LineId Id="8" Count="0" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEScaleTotalizing.TotalActualWeight.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEScaleTotalizing.TotalActualWeight.Set">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEScaleTotalizing.TotalDesiredWeight.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEScaleTotalizing.TotalDesiredWeight.Set">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

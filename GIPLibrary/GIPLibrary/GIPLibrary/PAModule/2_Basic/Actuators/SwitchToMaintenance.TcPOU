@@ -1,0 +1,35 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4020.12">
+  <POU Name="SwitchToMaintenance" Id="{60d55301-fa8c-4a1a-8833-0db841841e56}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK SwitchToMaintenance
+VAR_INPUT
+END_VAR
+VAR_OUTPUT
+END_VAR
+VAR
+	SwitchToMaintenance : BOOL;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[IF SwitchToMaintenance THEN 
+	GoToBasicPosition();
+END_IF]]></ST>
+    </Implementation>
+    <Method Name="GoToBasicPosition" Id="{716b087d-1bc5-440d-a3f4-f48b1f107be7}">
+      <Declaration><![CDATA[METHOD PUBLIC GoToBasicPosition : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[GoToBasicPosition := 0;]]></ST>
+      </Implementation>
+    </Method>
+    <LineIds Name="SwitchToMaintenance">
+      <LineId Id="11" Count="1" />
+      <LineId Id="9" Count="0" />
+    </LineIds>
+    <LineIds Name="SwitchToMaintenance.GoToBasicPosition">
+      <LineId Id="5" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

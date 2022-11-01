@@ -1,0 +1,76 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.6">
+  <Itf Name="IACComponent" Id="{aa5db2de-8e30-44bc-a2ed-e07801df9b40}">
+    <Declaration><![CDATA[INTERFACE IACComponent EXTENDS IACObject
+]]></Declaration>
+    <Property Name="ACIdentifier" Id="{4a6a2e30-067c-412e-a072-129bdd94b48c}">
+      <Declaration><![CDATA[PROPERTY ACIdentifier : STRING]]></Declaration>
+      <Get Name="Get" Id="{8169ae38-840f-42fb-ba55-225e10fd2986}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Property Name="Childs" Id="{5e0de931-5dcf-4a48-b8de-988e6265bfad}">
+      <Declaration><![CDATA[PROPERTY Childs : ARRAY [1..GCL.cChildsMAX] OF IACComponent]]></Declaration>
+      <Get Name="Get" Id="{0067385c-aec5-46e0-9861-5598154b513b}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Method Name="FB_childinit" Id="{943c996b-1b40-428b-9a8a-7fed8d62eefc}">
+      <Declaration><![CDATA[METHOD FB_childinit
+VAR_INPUT
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="FindChildOfTypeAt" Id="{3bc8339f-b19a-41c0-8a8b-12a6e18a9419}">
+      <Declaration><![CDATA[METHOD FindChildOfTypeAt : IACComponent
+VAR_INPUT
+	atIndex : INT;
+	objectType : TypeOfACObjectEnum;
+	maxChildDepth : INT;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="FindChildsOfType" Id="{acc1bbbd-abbe-4339-b638-c2c7ccab0c75}">
+      <Declaration><![CDATA[METHOD FindChildsOfType
+VAR_INPUT
+	objectType : TypeOfACObjectEnum;
+	maxChildDepth : INT;
+END_VAR
+VAR_IN_OUT
+	result : ARRAY [0..GCL.cChildsMAX] OF IACComponent;
+END_VAR]]></Declaration>
+    </Method>
+    <Method Name="FindObjectByID" Id="{4b83826e-e613-4eb2-9e79-b63bf8b8b54f}">
+      <Declaration><![CDATA[METHOD FindObjectByID : IACObject
+VAR_INPUT
+	instanceID : UDINT;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="FindParentOfType" Id="{e0c02f3b-7a29-4316-8910-aadd9b0e7843}">
+      <Declaration><![CDATA[METHOD FindParentOfType : IACComponent
+VAR_INPUT
+	objectType : TypeOfACObjectEnum;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Property Name="Parent" Id="{64ce908b-a3ca-418e-9949-0ba5b598ca74}">
+      <Declaration><![CDATA[PROPERTY Parent : IACComponent]]></Declaration>
+      <Get Name="Get" Id="{8f59059a-e136-49d9-9df1-b677a13e4981}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Property Name="Root" Id="{4192da07-8975-42a9-b8cd-9be60369dea6}">
+      <Declaration><![CDATA[PROPERTY Root : IACVariobatch]]></Declaration>
+      <Get Name="Get" Id="{848ed9f2-bd8a-400d-9393-11c92b3a092d}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Method Name="RunMain" Id="{c7be0c22-6c28-4b26-8ac8-b59603486301}">
+      <Declaration><![CDATA[METHOD RunMain : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+    </Method>
+  </Itf>
+</TcPlcObject>

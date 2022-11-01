@@ -1,0 +1,347 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.6">
+  <POU Name="PAClassPhysicalBase" Id="{0b90114a-dfa9-486f-a322-a512c18d6ff4}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK PAClassPhysicalBase EXTENDS PAClassAlarmingBase IMPLEMENTS IRouteableComponent
+VAR_INPUT
+END_VAR
+VAR_OUTPUT
+END_VAR
+VAR	
+	_OperatingMode : PAOperatingModeEnum;
+	_ReqOperatingMode : PAOperatingModeEnum;
+	_Points : ARRAY [1..GCL.cPointMAX] OF IACPoint;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Method Name="AddPoint" Id="{71ceecca-2103-4f98-9cb0-27735bf8acad}">
+      <Declaration><![CDATA[METHOD PUBLIC AddPoint : BOOL
+VAR_INPUT
+	point : IACPoint;
+END_VAR
+VAR
+	i: INT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF point = 0 THEN
+	Addpoint := FALSE;
+	RETURN;
+END_IF
+// 1. Check if point already exists in the array because of online change
+FOR i:=1 TO GCL.cPointMAX BY 1
+  DO
+    IF _points[i] <> 0 THEN
+		IF _points[i].ACUrl = point.ACUrl THEN
+			AddPoint := FALSE;
+			RETURN;			
+		END_IF
+	ELSE
+		EXIT;
+	END_IF
+END_FOR;
+// 2. If the point doesn't exist, add to _points-List
+FOR i:=1 TO GCL.cPointMAX BY 1
+  DO
+    IF _points[i] = 0 THEN
+		AddPoint := TRUE;
+		_points[i] := point;
+		EXIT;
+	END_IF
+END_FOR;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="FB_postinit" Id="{3191daa4-ee60-486c-9ccd-9f62810c8551}">
+      <Declaration><![CDATA[METHOD PUBLIC FB_postinit
+VAR_INPUT
+		root : IACVariobatch;
+END_VAR
+VAR
+	i: INT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SUPER^.FB_postinit(root);
+root.OnPropertyChangedInt(THIS^, 10, _OperatingMode);
+root.OnPropertyChangedInt(THIS^, 11, _ReqOperatingMode);
+FOR i:=1 TO GCL.cPointMAX BY 1
+  DO
+    IF _Points[i] <> 0 THEN
+		_Points[i].FB_postinit(root);
+	ELSE
+		EXIT;
+	END_IF
+END_FOR;
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="FindObjectInChilds" Id="{0f40a72e-9cbf-44e3-a02d-69e4a42279d9}">
+      <Declaration><![CDATA[METHOD PUBLIC FindObjectInChilds : IACObject
+VAR_INPUT
+	instanceID	: UDINT;
+END_VAR
+VAR
+	i: INT;
+	foundObject : IACObject;
+	prevPoint : IACPoint;
+	currentPoint : IACPoint;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[foundObject := 0;
+prevPoint := 0;
+currentPoint := 0;
+
+FOR i:=1 TO GCL.cPointMAX BY 1
+  DO
+    IF _Points[i] <> 0 THEN
+		currentPoint := _Points[i];
+		IF currentPoint.InstanceID = instanceID THEN
+			FindObjectInChilds := currentPoint;
+			RETURN;
+		ELSIF currentPoint.InstanceID > instanceID THEN
+			IF prevPoint <> 0 THEN
+				foundObject := prevPoint.FindObjectInChilds(instanceID);
+				EXIT;
+			ELSE
+				foundObject := 0;
+				EXIT;
+			END_IF
+		ELSE
+			prevPoint := currentPoint;
+		END_IF
+	ELSE
+		EXIT;
+	END_IF
+END_FOR;
+
+IF foundObject <> 0 THEN
+	FindObjectInChilds := foundObject;
+	RETURN;
+END_IF
+
+foundObject := SUPER^.FindObjectInChilds(instanceID);
+IF foundObject <> 0 THEN
+	FindObjectInChilds := foundObject;
+	RETURN;
+END_IF
+
+IF prevPoint <> 0 AND prevPoint.InstanceID < instanceID THEN
+	FindObjectInChilds := prevPoint.FindObjectInChilds(instanceID);
+	RETURN;
+END_IF
+
+FindObjectInChilds := 0;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="InvokeSetterEnum" Id="{b8791738-5091-48fb-8dd4-7b282e84bdef}">
+      <Declaration><![CDATA[METHOD PUBLIC InvokeSetterEnum
+VAR_INPUT
+	PropertyID : INT;
+	PropertyValue : INT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SUPER^.InvokeSetterEnum(PropertyID, PropertyValue);
+IF PropertyID = 10 THEN
+	THIS^.OperatingMode := PropertyValue;
+ELSIF PropertyID = 11 THEN	
+	THIS^.ReqOperatingMode := PropertyValue;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="IsEnabledSwitchToAutomatic" Id="{d24fafd1-0c8a-43b3-a3bd-bfebfd529819}">
+      <Declaration><![CDATA[METHOD PUBLIC IsEnabledSwitchToAutomatic : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="IsEnabledSwitchToMaintenance" Id="{b3ebff3a-bf00-439a-84da-7f470e9c2f37}">
+      <Declaration><![CDATA[METHOD PUBLIC IsEnabledSwitchToMaintenance : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="IsEnabledSwitchToManual" Id="{2362c883-2fca-44d6-8dcc-59caad907f40}">
+      <Declaration><![CDATA[METHOD PUBLIC IsEnabledSwitchToManual : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnInitMemory" Id="{5c312e19-b34f-4cde-b412-1863f7b772ba}">
+      <Declaration><![CDATA[METHOD OnInitMemory
+VAR_INPUT
+		root : IACVariobatch;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[RegisterProperty(root, 10, GCL.cSizeINT); // _OperatingMode
+RegisterProperty(root, 11, GCL.cSizeINT); // _ReqOperatingMode
+SUPER^.OnInitMemory(root);]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="OperatingMode" Id="{f1860551-a3b4-461f-b5d6-b4a01adbbc60}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+//{attribute 'TcRpcEnable'}
+PROPERTY PUBLIC OperatingMode : PAOperatingModeEnum]]></Declaration>
+      <Get Name="Get" Id="{d2c2da21-6ee4-4a31-b03e-1ee9196d8f95}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[OperatingMode := _OperatingMode;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{2c66f92e-620f-4048-9b0d-faa6cb0371af}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_OperatingMode := OperatingMode;
+Root.OnPropertyChangedInt(THIS^, 10, _OperatingMode);]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="Points" Id="{81a6501a-4cc4-4196-9876-5f06ca44bbe5}">
+      <Declaration><![CDATA[PROPERTY PUBLIC Points : ARRAY [1..GCL.cPointMAX] OF IACPoint]]></Declaration>
+      <Get Name="Get" Id="{255f661d-8bab-47c6-b1dd-100ded474bae}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Points := _Points;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="ReqOperatingMode" Id="{c49f4ded-1e96-4972-904d-53bb183b601c}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+//{attribute 'TcRpcEnable'}
+PROPERTY PUBLIC ReqOperatingMode : PAOperatingModeEnum]]></Declaration>
+      <Get Name="Get" Id="{11e46c0b-4d69-45ee-9d52-8722aa9e6a89}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[ReqOperatingMode := _ReqOperatingMode;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{6dc10bdd-5685-495b-a3d7-125f95dec2ed}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_ReqOperatingMode := ReqOperatingMode;
+Root.OnPropertyChangedInt(THIS^, 11, _ReqOperatingMode);
+OperatingMode := _ReqOperatingMode;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="SwitchToAutomatic" Id="{3b64ded2-e2f1-4697-8ed0-a318a5286948}">
+      <Declaration><![CDATA[METHOD PUBLIC SwitchToAutomatic
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_OperatingMode := PAOperatingModeEnum.Automatic;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SwitchToMaintenance" Id="{55968c0c-1abe-431b-b890-ba725f2f4417}">
+      <Declaration><![CDATA[METHOD PUBLIC SwitchToMaintenance
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_OperatingMode := PAOperatingModeEnum.Maintenance;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SwitchToManual" Id="{4c46cb75-5ccb-4759-ae89-fc5aaa8951c6}">
+      <Declaration><![CDATA[METHOD PUBLIC SwitchToManual
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_OperatingMode := PAOperatingModeEnum.Manual;]]></ST>
+      </Implementation>
+    </Method>
+    <LineIds Name="PAClassPhysicalBase">
+      <LineId Id="9" Count="0" />
+    </LineIds>
+    <LineIds Name="PAClassPhysicalBase.AddPoint">
+      <LineId Id="9" Count="23" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="PAClassPhysicalBase.FB_postinit">
+      <LineId Id="29" Count="1" />
+      <LineId Id="8" Count="7" />
+      <LineId Id="22" Count="0" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="PAClassPhysicalBase.FindObjectInChilds">
+      <LineId Id="55" Count="0" />
+      <LineId Id="12" Count="0" />
+      <LineId Id="54" Count="0" />
+      <LineId Id="45" Count="0" />
+      <LineId Id="15" Count="8" />
+      <LineId Id="53" Count="0" />
+      <LineId Id="24" Count="0" />
+      <LineId Id="26" Count="9" />
+      <LineId Id="56" Count="2" />
+      <LineId Id="60" Count="0" />
+      <LineId Id="59" Count="0" />
+      <LineId Id="61" Count="1" />
+      <LineId Id="36" Count="0" />
+      <LineId Id="63" Count="3" />
+      <LineId Id="37" Count="5" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="PAClassPhysicalBase.InvokeSetterEnum">
+      <LineId Id="8" Count="4" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="PAClassPhysicalBase.IsEnabledSwitchToAutomatic">
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="PAClassPhysicalBase.IsEnabledSwitchToMaintenance">
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="PAClassPhysicalBase.IsEnabledSwitchToManual">
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="PAClassPhysicalBase.OnInitMemory">
+      <LineId Id="8" Count="1" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="PAClassPhysicalBase.OperatingMode.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAClassPhysicalBase.OperatingMode.Set">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAClassPhysicalBase.Points.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAClassPhysicalBase.ReqOperatingMode.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAClassPhysicalBase.ReqOperatingMode.Set">
+      <LineId Id="3" Count="1" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAClassPhysicalBase.SwitchToAutomatic">
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="PAClassPhysicalBase.SwitchToMaintenance">
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="PAClassPhysicalBase.SwitchToManual">
+      <LineId Id="5" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>
