@@ -1,0 +1,1257 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.6">
+  <POU Name="PAESensorAnalog" Id="{94b8ea30-db6c-4d72-920b-3b65a6203388}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK PAESensorAnalog EXTENDS PAESensorBase
+VAR_INPUT
+END_VAR
+VAR_OUTPUT
+END_VAR
+VAR
+	_ActualValue : LREAL;
+	_FaultAckLL1 : BOOL;
+	_FaultAckLL2 : BOOL;
+	_FaultAckUL1 : BOOL;
+	_FaultAckUL2 : BOOL;
+	_FaultDelayTimeLL1 : TIME;
+	_FaultDelayTimeLL2 : TIME;
+	_FaultDelayTimeUL1 : TIME;
+	_FaultDelayTimeUL2 : TIME;
+	_ForcedSensorValue : LREAL;
+	_ForceSensorValue : BOOL;
+	_LowerLimit1 : LREAL;
+	_LowerLimit2 : LREAL;
+	_LowerScaleValue : LREAL;
+	_StateLL1 : PANotifyState;
+	_StateLL2 : PANotifyState;
+	_StateUL1 : PANotifyState;
+	_StateUL2 : PANotifyState;
+	_UpperLimit1 : LREAL;
+	_UpperLimit1Role : PANotifyState;
+	_UpperLimit2 : LREAL;
+	_UpperLimit2Role : PANotifyState;
+	_UpperScaleValue : LREAL;
+	_ValueOffset : LREAL;
+	_LowerLimit1Role : PAESensorRole;
+	_LowerLimit2Role : PAESensorRole;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Property Name="ActualValue" Id="{0caf50f3-e2fa-4463-8b05-e1ab93f3cf6d}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+//{attribute 'TcRpcEnable'}
+PROPERTY PUBLIC ActualValue : LREAL]]></Declaration>
+      <Get Name="Get" Id="{32394500-ff71-47a7-b9aa-cf8b3444caa6}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[ActualValue := _ActualValue;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{0d6ba7b1-c6de-44ea-b65d-14de2f7819a7}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_ActualValue := ActualValue;
+Root.OnPropertyChangedLReal(THIS^, 40, _ActualValue);]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="FaultAckLL1" Id="{37ac2df0-e3b3-4e93-ba0e-2f9bc976e345}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+//{attribute 'TcRpcEnable'}
+PROPERTY PUBLIC FaultAckLL1 : BOOL]]></Declaration>
+      <Get Name="Get" Id="{2da072a4-d361-487c-9518-54d68c13be8e}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[FaultAckLL1 := _FaultAckLL1;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{8547b351-195e-4c92-b3a1-b96c4ff7c7e2}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_FaultAckLL1 := FaultAckLL1;
+Root.OnPropertyChangedBool(THIS^, 47, _FaultAckLL1);]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="FaultAckLL2" Id="{5e7e8f9c-3a42-4d06-90f2-13919a3b2098}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+//{attribute 'TcRpcEnable'}
+PROPERTY PUBLIC FaultAckLL2 : BOOL]]></Declaration>
+      <Get Name="Get" Id="{e374b049-874f-4cc4-b6e7-eddf5ff54a0d}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[FaultAckLL2 := _FaultAckLL2;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{98107545-aa14-4b29-b981-d5de29d61ca6}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_FaultAckLL2 := FaultAckLL2;
+Root.OnPropertyChangedBool(THIS^, 48, _FaultAckLL2);]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="FaultAckUL1" Id="{31ed7923-1b79-4b3e-b5d3-0788d282e274}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+//{attribute 'TcRpcEnable'}
+PROPERTY PUBLIC FaultAckUL1 : BOOL]]></Declaration>
+      <Get Name="Get" Id="{a33cb09c-eb99-4823-88df-ab511cf97a43}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[FaultAckUL1 := _FaultAckUL1;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{ff9399de-46ce-4092-8134-d27bd7cf3656}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_FaultAckUL1 := FaultAckUL1;
+Root.OnPropertyChangedBool(THIS^, 45, _FaultAckUL1);]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="FaultAckUL2" Id="{d6ae1e1e-de20-4dc7-9c8c-2018a576c7ae}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+//{attribute 'TcRpcEnable'}
+PROPERTY PUBLIC FaultAckUL2 : BOOL]]></Declaration>
+      <Get Name="Get" Id="{6ed1c7b0-eed4-4067-8826-8d67f681bccd}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[FaultAckUL2 := _FaultAckUL2;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{ee5afb6c-d2ad-47b5-8578-27b8e7afc56c}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_FaultAckUL2 := FaultAckUL2;
+Root.OnPropertyChangedBool(THIS^, 46, _FaultAckUL2);]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="FaultDelayTimeLL1" Id="{d46771c0-ab3b-4f0c-9c6f-55f93864196f}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+//{attribute 'TcRpcEnable'}
+PROPERTY PUBLIC FaultDelayTimeLL1 : TIME]]></Declaration>
+      <Get Name="Get" Id="{18f3e3a5-c97d-4a93-bc4a-61fef93ca5bd}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[FaultDelayTimeLL1 := _FaultDelayTimeLL1;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{832c09b8-99a4-4360-be06-5196b52a9f16}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_FaultDelayTimeLL1 := FaultDelayTimeLL1;
+Root.OnPropertyChangedTime(THIS^, 31, _FaultDelayTimeLL1);]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="FaultDelayTimeLL2" Id="{5a9cab5c-6a8a-4862-a936-a3be2f74efba}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+//{attribute 'TcRpcEnable'}
+PROPERTY PUBLIC FaultDelayTimeLL2 : TIME]]></Declaration>
+      <Get Name="Get" Id="{721180a9-f89e-4537-bbf9-06b95631c34c}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[FaultDelayTimeLL2 := _FaultDelayTimeLL2;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{408dd4b3-81ea-4f85-a9e6-ddfa4daec4b5}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_FaultDelayTimeLL2 := FaultDelayTimeLL2;
+Root.OnPropertyChangedTime(THIS^, 34, _FaultDelayTimeLL2);]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="FaultDelayTimeUL1" Id="{a5bba629-110c-4dc7-a2c9-80f306e657c7}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+//{attribute 'TcRpcEnable'}
+PROPERTY PUBLIC FaultDelayTimeUL1 : TIME]]></Declaration>
+      <Get Name="Get" Id="{fb832f11-6fc4-4255-87dc-f1ffe006dc84}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[FaultDelayTimeUL1 := _FaultDelayTimeUL1;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{2060c70f-4cdb-4c08-83b0-29f7ed11170e}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_FaultDelayTimeUL1 := FaultDelayTimeUL1;
+Root.OnPropertyChangedTime(THIS^, 25, _FaultDelayTimeUL1);]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="FaultDelayTimeUL2" Id="{1efbe7dd-2672-4818-8a85-76ee7b1cc3d5}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+//{attribute 'TcRpcEnable'}
+PROPERTY PUBLIC FaultDelayTimeUL2 : TIME]]></Declaration>
+      <Get Name="Get" Id="{d2575855-dfe1-4257-8f36-a16ba57ccf53}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[FaultDelayTimeUL2 := _FaultDelayTimeUL2;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{153f5850-85be-49a1-ae87-0f6f0ade1a39}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_FaultDelayTimeUL2 := FaultDelayTimeUL2;	
+Root.OnPropertyChangedTime(THIS^, 28, _FaultDelayTimeUL2);]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="FB_postinit" Id="{e204d4af-cbbc-482f-8bcc-63a07d84218e}">
+      <Declaration><![CDATA[METHOD FB_postinit
+VAR_INPUT
+	root : IACVariobatch;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SUPER^.FB_postinit(root);
+root.OnPropertyChangedLReal(THIS^, 23, _UpperLimit1);
+root.OnPropertyChangedInt(THIS^, 24, _UpperLimit1Role);
+root.OnPropertyChangedTime(THIS^, 25, _FaultDelayTimeUL1);
+root.OnPropertyChangedLReal(THIS^, 26, _UpperLimit2);
+root.OnPropertyChangedInt(THIS^, 27, _UpperLimit2Role);
+root.OnPropertyChangedTime(THIS^, 28, _FaultDelayTimeUL2);
+root.OnPropertyChangedLReal(THIS^, 29, _LowerLimit1);
+root.OnPropertyChangedInt(THIS^, 30, _LowerLimit1Role);
+root.OnPropertyChangedTime(THIS^, 31, _FaultDelayTimeLL1);
+root.OnPropertyChangedLReal(THIS^, 32, _LowerLimit2);
+root.OnPropertyChangedInt(THIS^, 33, _LowerLimit2Role);
+root.OnPropertyChangedTime(THIS^, 34, _FaultDelayTimeLL2);
+root.OnPropertyChangedLReal(THIS^, 35, _UpperScaleValue);
+root.OnPropertyChangedLReal(THIS^, 36, _LowerScaleValue);
+root.OnPropertyChangedLReal(THIS^, 37, _ValueOffset);
+root.OnPropertyChangedBool(THIS^, 38, _ForceSensorValue);
+root.OnPropertyChangedLReal(THIS^, 39, _ForcedSensorValue);
+root.OnPropertyChangedLReal(THIS^, 40, _ActualValue);
+root.OnPropertyChangedInt(THIS^, 41, _StateUL1);
+root.OnPropertyChangedInt(THIS^, 42, _StateUL2);
+root.OnPropertyChangedInt(THIS^, 43, _StateLL1);
+root.OnPropertyChangedInt(THIS^, 44, _StateLL2);
+root.OnPropertyChangedBool(THIS^, 45, _FaultAckUL1);
+root.OnPropertyChangedBool(THIS^, 46, _FaultAckUL2);
+root.OnPropertyChangedBool(THIS^, 47, _FaultAckLL1);
+root.OnPropertyChangedBool(THIS^, 48, _FaultAckLL2);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="ForcedSensorValue" Id="{43289bd4-9be2-4d98-b0fd-d1421fd0e3ef}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+//{attribute 'TcRpcEnable'}
+PROPERTY PUBLIC ForcedSensorValue : LREAL]]></Declaration>
+      <Get Name="Get" Id="{29c5ebc8-82f4-44e9-82b2-35e0d34c77b9}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[ForcedSensorValue := _ForcedSensorValue;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{78bd5c38-f5bf-49b4-b0e0-819493a75880}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_ForcedSensorValue := ForcedSensorValue;
+Root.OnPropertyChangedLReal(THIS^, 39, _ForcedSensorValue);]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="ForceSensorValue" Id="{85f68740-b81e-4970-a07c-318fd114d695}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+//{attribute 'TcRpcEnable'}
+PROPERTY PUBLIC ForceSensorValue : BOOL]]></Declaration>
+      <Get Name="Get" Id="{2e6455ff-cb9a-49a3-9063-3ae9d235ab70}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[ForceSensorValue := _ForceSensorValue;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{bb2acca3-6eb4-42c6-be10-9e4bfaa9ee2d}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_ForceSensorValue := ForceSensorValue;
+Root.OnPropertyChangedBool(THIS^, 38, _ForceSensorValue);]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="ForceValue" Id="{07bdbaa0-c794-4716-8d9a-3cf4ee43f92f}">
+      <Declaration><![CDATA[METHOD PUBLIC ForceValue
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="InvokeSetterBool" Id="{1db5267f-c17c-492d-889c-e204803c0f4b}">
+      <Declaration><![CDATA[METHOD PUBLIC InvokeSetterBool
+VAR_INPUT
+	PropertyID : INT;
+	PropertyValue : BOOL;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SUPER^.InvokeSetterBool(PropertyID, PropertyValue);
+CASE PropertyID OF
+	38:
+		ForceSensorValue := PropertyValue;
+	45:
+		FaultAckUL1 := PropertyValue;
+	46:
+		FaultAckUL2 := PropertyValue;
+	47:
+		FaultAckLL1 := PropertyValue;
+	48:
+		FaultAckLL2 := PropertyValue;
+END_CASE]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="InvokeSetterEnum" Id="{b6963973-157a-40ca-98fa-37c7f0dcfcea}">
+      <Declaration><![CDATA[METHOD PUBLIC InvokeSetterEnum
+VAR_INPUT
+	PropertyID : INT;
+	PropertyValue : INT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SUPER^.InvokeSetterEnum(PropertyID, PropertyValue);
+CASE PropertyID OF
+	30:
+		THIS^.LowerLimit1Role := PropertyValue;
+	33:
+		THIS^.LowerLimit2Role := PropertyValue;
+	43:
+		THIS^.StateLL1 := PropertyValue;
+	44:
+		THIS^.StateLL2 := PropertyValue;
+	41:
+		THIS^.StateUL1 := PropertyValue;
+	42:
+		THIS^.StateUL2 := PropertyValue;
+	24:
+		THIS^.UpperLimit1Role := PropertyValue;	
+	27:
+		THIS^.UpperLimit2Role := PropertyValue;
+END_CASE
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="InvokeSetterLReal" Id="{c47f0698-9baf-454f-b674-f1690743cdac}">
+      <Declaration><![CDATA[METHOD PUBLIC InvokeSetterLReal
+VAR_INPUT
+	PropertyID : INT;
+	PropertyValue : LREAL;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SUPER^.InvokeSetterLReal(PropertyID, PropertyValue);
+CASE PropertyID OF
+	23:
+		UpperLimit1 := PropertyValue;
+	26:
+		UpperLimit2 := PropertyValue;
+	29:
+		LowerLimit1 := PropertyValue;
+	32:
+		LowerLimit2 := PropertyValue;
+	35:
+		UpperScaleValue := PropertyValue;
+	36:
+		LowerScaleValue := PropertyValue;
+	37:
+		ValueOffset := PropertyValue;
+	39:
+		ForcedSensorValue := PropertyValue;
+	40:
+		ActualValue := PropertyValue;
+END_CASE]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="InvokeSetterTime" Id="{17188ee8-923d-47a9-b7de-304d37441be0}">
+      <Declaration><![CDATA[METHOD PUBLIC InvokeSetterTime
+VAR_INPUT
+	PropertyID : INT;
+	PropertyValue : DINT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SUPER^.InvokeSetterTime(PropertyID, PropertyValue);
+CASE PropertyID OF
+	25:
+		FaultDelayTimeUL1 := TO_TIME(PropertyValue);
+	28:
+		FaultDelayTimeUL2 := TO_TIME(PropertyValue);
+	31:
+		FaultDelayTimeLL1 := TO_TIME(PropertyValue);
+	34:
+		FaultDelayTimeLL2 := TO_TIME(PropertyValue);	
+END_CASE]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="IsEnabledAcknowledgeAlarms" Id="{6712f1d9-5e31-45a1-9f2e-12bb65237f93}">
+      <Declaration><![CDATA[METHOD PUBLIC IsEnabledAcknowledgeAlarms : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="IsEnabledForceValue" Id="{1ecef7ba-fc54-4fd8-beb5-0037d810d853}">
+      <Declaration><![CDATA[METHOD PUBLIC IsEnabledForceValue : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="IsEnabledResetValue" Id="{46cc8f7e-f427-4657-868f-4683cd78c666}">
+      <Declaration><![CDATA[METHOD PUBLIC IsEnabledResetValue : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="LowerLimit1" Id="{604c12c0-45d7-433d-85ef-4ad80545d590}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+//{attribute 'TcRpcEnable'}
+PROPERTY PUBLIC LowerLimit1 : LREAL]]></Declaration>
+      <Get Name="Get" Id="{fcfb3723-7a09-4c0a-a711-c1692a94536b}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[LowerLimit1:=_LowerLimit1;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{f7499f1b-1e7b-49b5-98d8-0defde4ad95c}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_LowerLimit1 := LowerLimit1;
+Root.OnPropertyChangedLReal(THIS^, 29, _LowerLimit1);]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="LowerLimit1Role" Id="{1dc216a6-54c1-4fa0-85fd-d50c2f304a3d}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+//{attribute 'TcRpcEnable'}
+PROPERTY PUBLIC LowerLimit1Role : PAESensorRole]]></Declaration>
+      <Get Name="Get" Id="{6abae84b-b3c5-457b-b850-f7e89019292e}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[LowerLimit1Role := _LowerLimit1Role;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{dba687d9-9462-4e34-adbc-d642719b7696}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_LowerLimit1Role := LowerLimit1Role;
+Root.OnPropertyChangedInt(THIS^, 30, _LowerLimit1Role);]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="LowerLimit2" Id="{f965f486-4d23-418a-be89-155824e88d13}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+//{attribute 'TcRpcEnable'}
+PROPERTY PUBLIC LowerLimit2 : LREAL]]></Declaration>
+      <Get Name="Get" Id="{8e5cead0-3c20-4969-a120-2fbf5bb3a01a}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[LowerLimit2 := _LowerLimit2;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{7bc7a352-b653-4514-a3f7-e4d9f730d6a1}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_LowerLimit2 := LowerLimit2;
+Root.OnPropertyChangedLReal(THIS^, 32, _LowerLimit2);]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="LowerLimit2Role" Id="{fd53466d-74ff-4579-b1e3-1d2b2c80e58f}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+//{attribute 'TcRpcEnable'}
+PROPERTY PUBLIC LowerLimit2Role : PAESensorRole]]></Declaration>
+      <Get Name="Get" Id="{4ccfce3e-10aa-48f5-9123-58b7fd34f5a3}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[LowerLimit2Role := _LowerLimit2Role;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{0609f35d-9cb0-4017-bd01-e9e81ae5b78c}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_LowerLimit2Role := LowerLimit2Role;
+Root.OnPropertyChangedInt(THIS^, 33, _LowerLimit2Role);]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="LowerScaleValue" Id="{6e049d43-3d0b-495f-91a5-371a55a236dd}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+//{attribute 'TcRpcEnable'}
+PROPERTY PUBLIC LowerScaleValue : LREAL]]></Declaration>
+      <Get Name="Get" Id="{d265cb53-e71d-4449-9a99-2ae482e8fbe8}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[LowerScaleValue := _LowerScaleValue;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{b5943a91-3789-4913-99ee-f176d0078bfd}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_LowerScaleValue := LowerScaleValue;
+Root.OnPropertyChangedLReal(THIS^, 36, _LowerScaleValue);]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="OnInitMemory" Id="{44f578e5-ae8e-42d4-b89b-30ccbd3325c5}">
+      <Declaration><![CDATA[METHOD OnInitMemory
+VAR_INPUT
+	root : IACVariobatch;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[RegisterProperty(root, 23, GCL.cSizeLREAL); //UpperLimit1
+RegisterProperty(root, 24, GCL.cSizeINT); //UpperLimit1Role
+RegisterProperty(root, 25, GCL.cSizeTIME); //FaultDelayTimeUL1
+RegisterProperty(root, 26, GCL.cSizeLREAL); //UpperLimit2
+RegisterProperty(root, 27, GCL.cSizeINT); //UpperLimit2Role
+RegisterProperty(root, 28, GCL.cSizeTIME); //FaultDelayTimeUL2
+RegisterProperty(root, 29, GCL.cSizeLREAL); //LowerLimit1
+RegisterProperty(root, 30, GCL.cSizeINT); //LowerLimit1Role
+RegisterProperty(root, 31, GCL.cSizeTIME); //FaultDelayTimeLL1
+RegisterProperty(root, 32, GCL.cSizeLREAL); //LowerLimit2
+RegisterProperty(root, 33, GCL.cSizeINT); //LowerLimit2Role
+RegisterProperty(root, 34, GCL.cSizeTIME); //FaultDelayTimeLL2
+RegisterProperty(root, 35, GCL.cSizeLREAL); //UpperScaleValue
+RegisterProperty(root, 36, GCL.cSizeLREAL); //LowerScaleValue
+RegisterProperty(root, 37, GCL.cSizeLREAL); //ValueOffset
+RegisterProperty(root, 38, GCL.cSizeBYTE); //ForceSensorvalue
+RegisterProperty(root, 39, GCL.cSizeLREAL); //ForcedSensorValue
+RegisterProperty(root, 40, GCL.cSizeLREAL); //ActualValue
+RegisterProperty(root, 41, GCL.cSizeINT); //StateUL1
+RegisterProperty(root, 42, GCL.cSizeINT); //StateUL2
+RegisterProperty(root, 43, GCL.cSizeINT); //StateLL1
+RegisterProperty(root, 44, GCL.cSizeINT); //StateLL2
+RegisterProperty(root, 45, GCL.cSizeBYTE); //FaultAckUL1
+RegisterProperty(root, 46, GCL.cSizeBYTE); //FaultAckUL2
+RegisterProperty(root, 47, GCL.cSizeBYTE); //FaultAckLL1
+RegisterProperty(root, 48, GCL.cSizeBYTE); //FaultAckLL2
+SUPER^.OnInitMemory(root);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnSetStateLL1" Id="{6e88bceb-368f-4daf-a814-dbd1481f1e78}">
+      <Declaration><![CDATA[METHOD PUBLIC OnSetStateLL1
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnSetStateLL2" Id="{6fe795ce-b074-4e80-87aa-dd7224de9d8c}">
+      <Declaration><![CDATA[METHOD PUBLIC OnSetStateLL2
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnSetStateUL1" Id="{9ed249f3-945b-4748-bff2-6d225bc638d6}">
+      <Declaration><![CDATA[METHOD PUBLIC OnSetStateUL1
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnSetStateUL2" Id="{0a804a32-7358-40c2-a36d-3d2dfc26d8ef}">
+      <Declaration><![CDATA[METHOD PUBLIC OnSetStateUL2
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="PAESensorAnalog" Id="{270ba104-13b4-41b3-ac95-ea419776e93d}">
+      <Declaration><![CDATA[METHOD PUBLIC PAESensorAnalog
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ResetValue" Id="{255da4a5-8311-4068-ada0-8f6b99bace08}">
+      <Declaration><![CDATA[METHOD PUBLIC ResetValue
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="StateLL1" Id="{43fc4e96-4d6c-40d6-93df-4638e49f3e2d}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+//{attribute 'TcRpcEnable'}
+PROPERTY PUBLIC StateLL1 : PANotifyState]]></Declaration>
+      <Get Name="Get" Id="{eb2e4d1a-d0af-41ce-a560-ab19c8cd3084}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[StateLL1 := _StateLL1;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{c9f52310-4970-499e-9574-a23947c9c087}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_StateLL1 := StateLL1;
+Root.OnPropertyChangedInt(THIS^, 43, _StateLL1);]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="StateLL1_PropertyChanged" Id="{5a004be5-de93-4ded-9ccb-6261ee09f5df}">
+      <Declaration><![CDATA[METHOD StateLL1_PropertyChanged
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="StateLL2" Id="{bde90643-1e63-4425-bfb8-407c31f2dfc5}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+//{attribute 'TcRpcEnable'}
+PROPERTY PUBLIC StateLL2 : PANotifyState]]></Declaration>
+      <Get Name="Get" Id="{96592b01-e159-472e-995c-0315ce60da7b}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[StateLL2 := _StateLL2;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{2f087758-4c14-4a37-b71b-0fce3b1b0cb0}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_StateLL2 := StateLL2;
+Root.OnPropertyChangedInt(THIS^, 44, _StateLL2);]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="StateLL2_PropertyChanged" Id="{bb08b218-8539-40de-9f20-42596efe7a0e}">
+      <Declaration><![CDATA[METHOD StateLL2_PropertyChanged
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="StateUL1" Id="{371c491a-26c0-4ae9-b3b9-9d7dae4372d4}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+//{attribute 'TcRpcEnable'}
+PROPERTY PUBLIC StateUL1 : PANotifyState]]></Declaration>
+      <Get Name="Get" Id="{bb38e161-00d8-4e72-bc88-92320adf35e4}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[StateUL1 := _StateUL1;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{3be0be1a-b436-4fcf-9c53-fd12a12edd6b}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_StateUL1 := StateUL1;
+Root.OnPropertyChangedInt(THIS^, 41, _StateUL1);]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="StateUL1_PropertyChanged" Id="{b281e056-5d6a-4ec8-baae-9afb209a8529}">
+      <Declaration><![CDATA[METHOD StateUL1_PropertyChanged
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="StateUL2" Id="{ba167bdb-6306-4e0f-8ccd-4b615643acf6}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+//{attribute 'TcRpcEnable'}
+PROPERTY PUBLIC StateUL2 : PANotifyState]]></Declaration>
+      <Get Name="Get" Id="{7a2b71a5-f561-466b-9597-d6ea0ce4415a}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[StateUL2 := _StateUL2;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{6615c7fc-74c2-475d-9eef-a1f6ed85cb4b}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_StateUL2 := StateUL2;
+Root.OnPropertyChangedInt(THIS^, 42, _StateUL2);]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="StateUL2_PropertyChanged" Id="{8b66b88c-53fd-4d1b-82f0-e3a9d1c5b8b5}">
+      <Declaration><![CDATA[METHOD StateUL2_PropertyChanged
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="UpperLimit1" Id="{c2a87e39-3fdd-4c21-b4d5-b3ee70a0b9cf}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+//{attribute 'TcRpcEnable'}
+PROPERTY PUBLIC UpperLimit1 : LREAL]]></Declaration>
+      <Get Name="Get" Id="{6ee94690-f536-48a5-b7b1-0f15aa914b2c}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[UpperLimit1 := _UpperLimit1;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{d1a61991-60a8-4340-987b-37279afb6897}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_UpperLimit1 := UpperLimit1;
+Root.OnPropertyChangedLReal(THIS^, 23, _UpperLimit1);]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="UpperLimit1Role" Id="{ea4ffaa1-033b-4f15-9272-35493cb77e8b}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+//{attribute 'TcRpcEnable'}
+PROPERTY PUBLIC UpperLimit1Role : PANotifyState]]></Declaration>
+      <Get Name="Get" Id="{739285e6-282b-499a-ab25-ba9b08528f6a}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[UpperLimit1Role := _UpperLimit1Role;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{43cdcce5-b3f6-4056-bec9-de009560d307}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_UpperLimit1Role := UpperLimit1Role;
+Root.OnPropertyChangedInt(THIS^, 24, _UpperLimit1Role);]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="UpperLimit2" Id="{f9b5d045-acc2-43bc-9747-36cca3ce78cc}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+//{attribute 'TcRpcEnable'}
+PROPERTY PUBLIC UpperLimit2 : LREAL]]></Declaration>
+      <Get Name="Get" Id="{f26b0ea8-6dae-48ba-b82a-a543d84b8c41}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[UpperLimit2 := _UpperLimit2;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{3216360b-4627-47ee-b5c0-bc035f14f1dc}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_UpperLimit2 := UpperLimit2;
+Root.OnPropertyChangedLReal(THIS^, 26, _UpperLimit2);]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="UpperLimit2Role" Id="{1dc75716-529a-40cf-b30e-27b4e79c23a5}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+//{attribute 'TcRpcEnable'}
+PROPERTY PUBLIC UpperLimit2Role : PANotifyState]]></Declaration>
+      <Get Name="Get" Id="{0ff78972-eee7-444e-8033-1f31fcc1cdc5}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[UpperLimit2Role := _UpperLimit2Role;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{ca37f434-766f-4f95-8804-4d5569ab15c1}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_UpperLimit2Role := UpperLimit2Role;
+Root.OnPropertyChangedInt(THIS^, 27, _UpperLimit2Role);]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="UpperScaleValue" Id="{07e630f8-8263-452f-b944-9a6e8a9b4f72}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+//{attribute 'TcRpcEnable'}
+PROPERTY PUBLIC UpperScaleValue : LREAL]]></Declaration>
+      <Get Name="Get" Id="{c4be7d71-b1d4-4bff-88ea-c1f5b8636c73}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[UpperScaleValue := _UpperScaleValue;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{5d6f852c-7d43-477d-850e-0b3b1b7b4ce0}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_UpperScaleValue := UpperScaleValue;
+Root.OnPropertyChangedLReal(THIS^, 35, _UpperScaleValue);]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="ValueOffset" Id="{752a1df6-bbae-4a95-8158-af8f56765fef}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+//{attribute 'TcRpcEnable'}
+PROPERTY PUBLIC ValueOffset : LREAL]]></Declaration>
+      <Get Name="Get" Id="{ea90bd66-8250-4082-8b9c-09558bc9ceaa}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[ValueOffset := _ValueOffset;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{c88f1de6-af65-4501-892b-748af4cb4380}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_ValueOffset := ValueOffset;
+Root.OnPropertyChangedLReal(THIS^, 37, _ValueOffset);]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <LineIds Name="PAESensorAnalog">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAESensorAnalog.ActualValue.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAESensorAnalog.ActualValue.Set">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAESensorAnalog.FaultAckLL1.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAESensorAnalog.FaultAckLL1.Set">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAESensorAnalog.FaultAckLL2.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAESensorAnalog.FaultAckLL2.Set">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAESensorAnalog.FaultAckUL1.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAESensorAnalog.FaultAckUL1.Set">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAESensorAnalog.FaultAckUL2.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAESensorAnalog.FaultAckUL2.Set">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAESensorAnalog.FaultDelayTimeLL1.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAESensorAnalog.FaultDelayTimeLL1.Set">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAESensorAnalog.FaultDelayTimeLL2.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAESensorAnalog.FaultDelayTimeLL2.Set">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAESensorAnalog.FaultDelayTimeUL1.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAESensorAnalog.FaultDelayTimeUL1.Set">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAESensorAnalog.FaultDelayTimeUL2.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAESensorAnalog.FaultDelayTimeUL2.Set">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAESensorAnalog.FB_postinit">
+      <LineId Id="7" Count="0" />
+      <LineId Id="39" Count="1" />
+      <LineId Id="45" Count="0" />
+      <LineId Id="41" Count="1" />
+      <LineId Id="46" Count="0" />
+      <LineId Id="34" Count="1" />
+      <LineId Id="47" Count="0" />
+      <LineId Id="36" Count="1" />
+      <LineId Id="48" Count="0" />
+      <LineId Id="43" Count="0" />
+      <LineId Id="38" Count="0" />
+      <LineId Id="44" Count="0" />
+      <LineId Id="49" Count="1" />
+      <LineId Id="8" Count="0" />
+      <LineId Id="51" Count="5" />
+      <LineId Id="9" Count="1" />
+      <LineId Id="6" Count="0" />
+    </LineIds>
+    <LineIds Name="PAESensorAnalog.ForcedSensorValue.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAESensorAnalog.ForcedSensorValue.Set">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAESensorAnalog.ForceSensorValue.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAESensorAnalog.ForceSensorValue.Set">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAESensorAnalog.ForceValue">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAESensorAnalog.InvokeSetterBool">
+      <LineId Id="5" Count="0" />
+      <LineId Id="9" Count="10" />
+      <LineId Id="8" Count="0" />
+    </LineIds>
+    <LineIds Name="PAESensorAnalog.InvokeSetterEnum">
+      <LineId Id="42" Count="0" />
+      <LineId Id="20" Count="0" />
+      <LineId Id="22" Count="5" />
+      <LineId Id="29" Count="0" />
+      <LineId Id="28" Count="0" />
+      <LineId Id="30" Count="6" />
+      <LineId Id="21" Count="0" />
+      <LineId Id="16" Count="0" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="PAESensorAnalog.InvokeSetterLReal">
+      <LineId Id="8" Count="19" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="PAESensorAnalog.InvokeSetterTime">
+      <LineId Id="26" Count="0" />
+      <LineId Id="12" Count="2" />
+      <LineId Id="16" Count="4" />
+      <LineId Id="15" Count="0" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="PAESensorAnalog.IsEnabledAcknowledgeAlarms">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAESensorAnalog.IsEnabledForceValue">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAESensorAnalog.IsEnabledResetValue">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAESensorAnalog.LowerLimit1.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAESensorAnalog.LowerLimit1.Set">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAESensorAnalog.LowerLimit1Role.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAESensorAnalog.LowerLimit1Role.Set">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAESensorAnalog.LowerLimit2.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAESensorAnalog.LowerLimit2.Set">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAESensorAnalog.LowerLimit2Role.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAESensorAnalog.LowerLimit2Role.Set">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAESensorAnalog.LowerScaleValue.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAESensorAnalog.LowerScaleValue.Set">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAESensorAnalog.OnInitMemory">
+      <LineId Id="37" Count="1" />
+      <LineId Id="43" Count="0" />
+      <LineId Id="39" Count="1" />
+      <LineId Id="42" Count="0" />
+      <LineId Id="44" Count="1" />
+      <LineId Id="48" Count="0" />
+      <LineId Id="46" Count="1" />
+      <LineId Id="49" Count="5" />
+      <LineId Id="8" Count="0" />
+      <LineId Id="55" Count="5" />
+      <LineId Id="9" Count="1" />
+      <LineId Id="6" Count="0" />
+    </LineIds>
+    <LineIds Name="PAESensorAnalog.OnSetStateLL1">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAESensorAnalog.OnSetStateLL2">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAESensorAnalog.OnSetStateUL1">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAESensorAnalog.OnSetStateUL2">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAESensorAnalog.PAESensorAnalog">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAESensorAnalog.ResetValue">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAESensorAnalog.StateLL1.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAESensorAnalog.StateLL1.Set">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAESensorAnalog.StateLL1_PropertyChanged">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAESensorAnalog.StateLL2.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAESensorAnalog.StateLL2.Set">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAESensorAnalog.StateLL2_PropertyChanged">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAESensorAnalog.StateUL1.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAESensorAnalog.StateUL1.Set">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAESensorAnalog.StateUL1_PropertyChanged">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAESensorAnalog.StateUL2.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAESensorAnalog.StateUL2.Set">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAESensorAnalog.StateUL2_PropertyChanged">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAESensorAnalog.UpperLimit1.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAESensorAnalog.UpperLimit1.Set">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAESensorAnalog.UpperLimit1Role.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAESensorAnalog.UpperLimit1Role.Set">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAESensorAnalog.UpperLimit2.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAESensorAnalog.UpperLimit2.Set">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAESensorAnalog.UpperLimit2Role.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAESensorAnalog.UpperLimit2Role.Set">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAESensorAnalog.UpperScaleValue.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAESensorAnalog.UpperScaleValue.Set">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAESensorAnalog.ValueOffset.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAESensorAnalog.ValueOffset.Set">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

@@ -1,0 +1,262 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4022.7">
+  <POU Name="PAEdge" Id="{b1628018-e515-4bd3-bf50-33e399f22b02}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK PUBLIC PAEdge EXTENDS ACObject IMPLEMENTS IACEdge
+VAR_INPUT
+END_VAR
+VAR_OUTPUT
+END_VAR
+VAR
+	_Source : IACPoint;	
+	_Target : IACPoint;	
+	_ConnectionType : ConnectionTypesEnum;	
+	
+	// Gibt an, dass dieser Weg gerade von einer Funktion verwendet wird
+	_AllocatedByFunction : IPAProcessFunction;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Property Name="ACUrlS" Id="{13194f77-f58f-4414-82df-f2ea33e2a4aa}">
+      <Declaration><![CDATA[PROPERTY ACUrlS : STRING]]></Declaration>
+      <Get Name="Get" Id="{b38d25c4-a4ac-47d4-8bf9-6538682f1938}">
+        <Declaration><![CDATA[VAR
+	str : STRING(200);
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[str := CONCAT(Source.ACUrlS, + '|');
+str := CONCAT(str, + Target.ACUrlS);
+ACUrlS := str;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="AllocatedByFunction" Id="{436ab8e0-6a7e-4a19-b2be-b5fa77f7f2f8}">
+      <Declaration><![CDATA[PROPERTY AllocatedByFunction : IPAProcessFunction
+]]></Declaration>
+      <Get Name="Get" Id="{f8b8b2ed-c789-477b-8390-eaff26fdf05e}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[AllocatedByFunction := _AllocatedByFunction;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{2e0760ab-18bf-48f1-bafe-541c4dbd38ef}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_AllocatedByFunction := AllocatedByFunction;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="Compare" Id="{1c7455bb-39d7-42dd-89e4-8cb9d9f0fa09}">
+      <Declaration><![CDATA[// Compares if ACUrl of Source and Target are identical
+METHOD Compare : BOOL
+VAR_INPUT
+	edge : IACEdge;	
+END_VAR
+VAR
+	// Explizite Deklaration notwendig, weil Properties nicht verglichen werden können :-(
+	sourceP1 : IACPoint;
+	targetP1 : IACPoint;
+	sourceC1 : IACComponent;
+	targetC1 : IACComponent;
+	sourceP2 : IACPoint;
+	targetP2 : IACPoint;
+	sourceC2 : IACComponent;
+	targetC2 : IACComponent;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF edge = 0 THEN
+	Compare := FALSE;
+	RETURN;
+END_IF
+
+sourceP1 := Source;
+targetP1 := Target;
+IF 	   sourceP1 = 0 OR targetP1 = 0 THEN
+	Compare := FALSE;
+	RETURN;	
+END_IF
+
+sourceP2 := edge.Source;
+targetP2 := edge.Target;
+IF 	   sourceP2 = 0 OR targetP2 = 0 THEN
+	Compare := FALSE;
+	RETURN;	
+END_IF
+
+
+sourceC1 := sourceP1.Parent;
+targetC1 := targetP1.Parent;
+IF 	   sourceC1 = 0 OR targetC1 = 0 THEN
+	Compare := FALSE;
+	RETURN;	
+END_IF
+
+sourceC2 := sourceP2.Parent;
+targetC2 := targetP2.Parent;
+IF 	   sourceC2 = 0 OR targetC2 = 0 THEN
+	Compare := FALSE;
+	RETURN;	
+END_IF
+
+IF (sourceC1.ACUrl = sourceC2.ACUrl AND targetC1.ACUrl = targetC2.ACUrl) THEN
+	Compare := TRUE;
+	RETURN;			
+END_IF
+
+Compare := FALSE;]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="ConnectionType" Id="{bb87e033-ce4f-4de4-9bcd-20215dc5ec3d}">
+      <Declaration><![CDATA[PROPERTY ConnectionType : ConnectionTypesEnum]]></Declaration>
+      <Get Name="Get" Id="{e1f1277b-7e1c-43cf-88ef-1a4d0f6ec209}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[ConnectionType := _ConnectionType;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="FB_init" Id="{969e98d1-950b-4913-b198-648678ef9fc0}">
+      <Declaration><![CDATA[METHOD FB_init : BOOL
+VAR_INPUT
+	bInitRetains : BOOL; // if TRUE, the retain variables are initialized (warm start / cold start)
+	bInCopyCode : BOOL;  // if TRUE, the instance afterwards gets moved into the copy code (online change)
+	source : IACPoint;
+	target : IACPoint;
+	connectionType : ConnectionTypesEnum;
+END_VAR
+
+VAR
+	isValidRef: BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF source <> 0 AND target <> 0 THEN
+	_Source := source;
+	_Target := target;
+END_IF
+_ConnectionType := connectionType;
+IncFBInitCount();]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="FB_postinit" Id="{ace20de9-c8e2-4a93-af46-712625169229}">
+      <Declaration><![CDATA[METHOD FB_postinit
+VAR_INPUT
+		root : IACVariobatch;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SUPER^.FB_postinit(root);]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="Source" Id="{dec7f72d-15f2-4d11-b348-e24e0be90e83}">
+      <Declaration><![CDATA[PROPERTY Source : IACPoint
+]]></Declaration>
+      <Get Name="Get" Id="{7c2ae090-5470-440c-8376-8c790a0efa4b}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Source := _Source;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="Target" Id="{fc0d937b-58c0-49fc-ab35-2f33d352117f}">
+      <Declaration><![CDATA[PROPERTY Target : IACPoint
+]]></Declaration>
+      <Get Name="Get" Id="{75dbb33a-9784-4b32-9035-f68bdafbf2f8}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Target := _Target;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="TypeOfACObject" Id="{c631f490-5f1c-45a4-994d-18fa8461cba4}">
+      <Declaration><![CDATA[PROPERTY TypeOfACObject : TypeOfACObjectEnum]]></Declaration>
+      <Get Name="Get" Id="{eb3604fd-5b22-4a7d-ac18-a618296d5340}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[TypeOfACObject := TypeOfACObjectEnum.Edge;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <LineIds Name="PAEdge">
+      <LineId Id="9" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEdge.ACUrlS.Get">
+      <LineId Id="7" Count="0" />
+      <LineId Id="5" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEdge.AllocatedByFunction.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEdge.AllocatedByFunction.Set">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEdge.Compare">
+      <LineId Id="7" Count="0" />
+      <LineId Id="9" Count="0" />
+      <LineId Id="8" Count="0" />
+      <LineId Id="10" Count="0" />
+      <LineId Id="62" Count="2" />
+      <LineId Id="17" Count="0" />
+      <LineId Id="16" Count="0" />
+      <LineId Id="15" Count="0" />
+      <LineId Id="12" Count="0" />
+      <LineId Id="18" Count="0" />
+      <LineId Id="65" Count="1" />
+      <LineId Id="19" Count="0" />
+      <LineId Id="21" Count="1" />
+      <LineId Id="24" Count="0" />
+      <LineId Id="71" Count="0" />
+      <LineId Id="67" Count="0" />
+      <LineId Id="25" Count="0" />
+      <LineId Id="68" Count="0" />
+      <LineId Id="26" Count="0" />
+      <LineId Id="28" Count="1" />
+      <LineId Id="23" Count="0" />
+      <LineId Id="30" Count="0" />
+      <LineId Id="69" Count="1" />
+      <LineId Id="31" Count="0" />
+      <LineId Id="33" Count="1" />
+      <LineId Id="36" Count="4" />
+      <LineId Id="35" Count="0" />
+      <LineId Id="11" Count="0" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEdge.ConnectionType.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEdge.FB_init">
+      <LineId Id="19" Count="0" />
+      <LineId Id="21" Count="0" />
+      <LineId Id="20" Count="0" />
+      <LineId Id="44" Count="0" />
+      <LineId Id="32" Count="0" />
+      <LineId Id="7" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEdge.FB_postinit">
+      <LineId Id="3" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEdge.Source.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEdge.Target.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEdge.TypeOfACObject.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

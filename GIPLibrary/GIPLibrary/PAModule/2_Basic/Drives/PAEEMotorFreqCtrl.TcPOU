@@ -1,0 +1,317 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.6">
+  <POU Name="PAEEMotorFreqCtrl" Id="{c342ae5a-5ba3-49e2-9272-90e4166617b1}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK PUBLIC PAEEMotorFreqCtrl EXTENDS PAEEMotorBase
+VAR_INPUT
+END_VAR
+VAR_OUTPUT
+END_VAR
+VAR
+	_DesiredSpeed : LREAL;
+	_ReqSpeed : LREAL;
+	_Speed : LREAL;
+	_VFDState : PANotifyState;
+	_VFDStateACK : BOOL;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Property Name="DesiredSpeed" Id="{ab266219-1df8-449c-9d3d-874ccb915e38}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+//{attribute 'TcRpcEnable'}
+PROPERTY PUBLIC DesiredSpeed : LREAL]]></Declaration>
+      <Get Name="Get" Id="{c105c40a-cde8-46a9-97e1-2c8db9468512}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[DesiredSpeed := _DesiredSpeed;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{817509e2-67db-4555-82d9-db5b9e7bf58c}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_DesiredSpeed := DesiredSpeed;
+Root.OnPropertyChangedLReal(THIS^, 43, _DesiredSpeed);]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="FB_postinit" Id="{af7cc024-fb07-4644-b43a-52585d101b9b}">
+      <Declaration><![CDATA[METHOD PUBLIC FB_postinit
+VAR_INPUT
+		root : IACVariobatch;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SUPER^.FB_postinit(root);  
+root.OnPropertyChangedLReal(THIS^, 42, _Speed);
+root.OnPropertyChangedLReal(THIS^, 43, _DesiredSpeed);
+root.OnPropertyChangedInt(THIS^, 44, _VFDState);
+root.OnPropertyChangedLReal(THIS^, 45, _ReqSpeed);
+root.OnPropertyChangedBool(THIS^, 46, _VFDStateACK);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="InvokeSetterBool" Id="{18667681-41ef-4d5c-bd2d-ecc9f0ed9eac}">
+      <Declaration><![CDATA[METHOD PUBLIC InvokeSetterBool
+VAR_INPUT
+	PropertyID : INT;
+	PropertyValue : BOOL;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SUPER^.InvokeSetterBool(PropertyID, PropertyValue);
+CASE PropertyID OF
+	46:
+		VFDStateACK := PropertyValue;
+END_CASE]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="InvokeSetterEnum" Id="{0dfd4823-267b-4d23-a9c8-28f19ebf302b}">
+      <Declaration><![CDATA[METHOD PUBLIC InvokeSetterEnum
+VAR_INPUT
+	PropertyID : INT;
+	PropertyValue : INT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SUPER^.InvokeSetterEnum(PropertyID, PropertyValue);
+IF PropertyID = 44 THEN
+	THIS^.VFDState := PropertyValue;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="InvokeSetterLReal" Id="{89ab80f7-996d-4e37-9f96-1a691c4abba8}">
+      <Declaration><![CDATA[METHOD PUBLIC InvokeSetterLReal
+VAR_INPUT
+	PropertyID : INT;
+	PropertyValue : LREAL;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SUPER^.InvokeSetterLReal(PropertyID, PropertyValue);
+CASE PropertyID OF
+	42:
+		Speed := PropertyValue;
+	43:
+		DesiredSpeed := PropertyValue;
+	45:
+		ReqSpeed := PropertyValue;
+END_CASE]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="IsEnabledAcknowledgeAlarms" Id="{e4c41664-360a-4cdc-81c4-037be6f90cd6}">
+      <Declaration><![CDATA[METHOD PUBLIC IsEnabledAcknowledgeAlarms : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnInitMemory" Id="{c706f7bf-e796-4956-9233-2ca06ca2970b}">
+      <Declaration><![CDATA[METHOD OnInitMemory
+VAR_INPUT
+		root : IACVariobatch;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[RegisterProperty(root, 42, GCL.cSizeLREAL); //Speed
+RegisterProperty(root, 43, GCL.cSizeLREAL); //DesiredSpeed
+RegisterProperty(root, 44, GCL.cSizeINT); //VFDState
+RegisterProperty(root, 45, GCL.cSizeLREAL); //ReqSpeed
+RegisterProperty(root, 46, GCL.cSizeBYTE); //VFDStateACK
+SUPER^.OnInitMemory(root);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnSetVFDState" Id="{b996de8f-33d7-4d18-97b7-527ace2871fe}">
+      <Declaration><![CDATA[METHOD PUBLIC OnSetVFDState
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="ReqSpeed" Id="{3c801cdd-a6ce-4d7a-84ee-ff18852be388}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+//{attribute 'TcRpcEnable'}
+PROPERTY PUBLIC ReqSpeed : LREAL]]></Declaration>
+      <Get Name="Get" Id="{58bdcbaa-2cbd-4e3f-bbe8-5101baf5dcf6}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[ReqSpeed := _ReqSpeed;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{070b4b93-935c-46e8-9ad8-89c775c59ce9}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+	_ReqPosition: LREAL;
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_ReqSpeed := ReqSpeed;
+Root.OnPropertyChangedLReal(THIS^, 45, _ReqSpeed);
+IF Root.InSimulation THEN
+	Speed := _ReqSpeed;
+END_IF]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="Speed" Id="{a15ae79a-83ba-455e-ba16-20a1af495cfe}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+//{attribute 'TcRpcEnable'}
+PROPERTY PUBLIC Speed : LREAL]]></Declaration>
+      <Get Name="Get" Id="{b86f61b0-8153-4b28-9866-89bb3381b96e}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Speed := _Speed;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{f1c6e1bb-0737-4442-9a74-18cdad3ab454}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_Speed := Speed;
+Root.OnPropertyChangedLReal(THIS^, 42, _Speed);]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="VFDState" Id="{8a91674c-e034-4200-8217-3a25e7a08444}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+//{attribute 'TcRpcEnable'}
+PROPERTY PUBLIC VFDState : PANotifyState]]></Declaration>
+      <Get Name="Get" Id="{bb1ab23d-30d3-4d25-a6a1-205fc358dfed}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[VFDState := _VFDState;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{1a73b3c2-1649-4b3a-83f9-867b9fbb17e9}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_VFDState := VFDState;
+Root.OnPropertyChangedInt(THIS^, 44, _VFDState);]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="VFDStateACK" Id="{8973d916-6413-4ede-b69c-e3587de65687}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+//{attribute 'TcRpcEnable'}
+PROPERTY PUBLIC VFDStateACK : BOOL]]></Declaration>
+      <Get Name="Get" Id="{58e48fa3-d05c-4a39-91c9-899eea8e6464}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[VFDStateACK := _VFDStateACK;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{be10bc28-ff5a-4d11-8c3e-6b5b26a0314b}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_VFDStateACK := VFDStateACK;
+Root.OnPropertyChangedBool(THIS^, 46, _VFDStateACK);]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <LineIds Name="PAEEMotorFreqCtrl">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEEMotorFreqCtrl.DesiredSpeed.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEEMotorFreqCtrl.DesiredSpeed.Set">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEEMotorFreqCtrl.FB_postinit">
+      <LineId Id="12" Count="1" />
+      <LineId Id="7" Count="0" />
+      <LineId Id="14" Count="0" />
+      <LineId Id="8" Count="0" />
+      <LineId Id="11" Count="0" />
+      <LineId Id="6" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEEMotorFreqCtrl.InvokeSetterBool">
+      <LineId Id="8" Count="3" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEEMotorFreqCtrl.InvokeSetterEnum">
+      <LineId Id="17" Count="0" />
+      <LineId Id="8" Count="0" />
+      <LineId Id="11" Count="0" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEEMotorFreqCtrl.InvokeSetterLReal">
+      <LineId Id="8" Count="7" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEEMotorFreqCtrl.IsEnabledAcknowledgeAlarms">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEEMotorFreqCtrl.OnInitMemory">
+      <LineId Id="16" Count="0" />
+      <LineId Id="6" Count="0" />
+      <LineId Id="15" Count="0" />
+      <LineId Id="7" Count="0" />
+      <LineId Id="11" Count="0" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEEMotorFreqCtrl.OnSetVFDState">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEEMotorFreqCtrl.ReqSpeed.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEEMotorFreqCtrl.ReqSpeed.Set">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+      <LineId Id="8" Count="1" />
+      <LineId Id="7" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEEMotorFreqCtrl.Speed.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEEMotorFreqCtrl.Speed.Set">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEEMotorFreqCtrl.VFDState.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEEMotorFreqCtrl.VFDState.Set">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEEMotorFreqCtrl.VFDStateACK.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEEMotorFreqCtrl.VFDStateACK.Set">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

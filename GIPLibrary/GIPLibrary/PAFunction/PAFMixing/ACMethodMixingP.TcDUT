@@ -1,0 +1,22 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4020.12">
+  <DUT Name="ACMethodMixingP" Id="{a2a6c75c-c379-49f3-9a67-2efd8c51483a}">
+    <Declaration><![CDATA[{attribute 'pack_mode' := '0'}
+TYPE ACMethodMixingP EXTENDS ACMethodBaseP : 
+STRUCT
+	// Ausschalten 
+	_SwitchOff : BOOL;
+	// Geschwindigkeit 
+	_Speed : INT;
+	// Mindestgewicht 
+	_MinWeight : LREAL;
+	// Dauer 
+	_Duration : TIME;
+	// Temperatur 
+	_Temperature : LREAL;
+	
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

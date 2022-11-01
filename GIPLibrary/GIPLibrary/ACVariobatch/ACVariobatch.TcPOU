@@ -1,0 +1,865 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4022.7">
+  <POU Name="ACVariobatch" Id="{7f8371af-ea2e-4d7b-b646-a4060fb5ca8e}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK ACVariobatch EXTENDS ACComponent IMPLEMENTS IACVariobatch
+VAR_INPUT
+END_VAR
+VAR_OUTPUT
+	// Metadata about Memory-Structure, Index in Array represents Instance-ID
+	_Metadata : ARRAY [1..GCL.cMetaObjMAX] OF ACRMemoryMetaObj;
+	// Copy of Memory
+	_Memory : ARRAY [0..GCL.cMemorySizeMAX] OF BYTE;
+	_MemorySizeUsed : UDINT;
+
+	// Property-Changed-Notifications
+	_EventsByte : ACRMemoryByteEvents;
+	_EventsUInt : ACRMemoryUIntEvents;
+	_EventsInt : ACRMemoryIntEvents;
+	_EventsUDInt : ACRMemoryUDIntEvents;
+	_EventsDInt : ACRMemoryDIntEvents;
+	_EventsReal : ACRMemoryRealEvents;
+	_EventsLReal : ACRMemoryLRealEvents;
+	_EventsString : ACRMemoryStringEvents;
+	_EventsTime : ACRMemoryTimeEvents;
+	_EventsDT : ACRMemoryDTEvents;
+	_EventCycleInfo : ACREventCycleInfo; 
+	_MemPropEventCycle : ARRAY [1..GCL.cMetaObjMAX, 1..GCL.cMetaPropMAX] OF ACREventCycleProp;
+	
+	_InSimulation : BOOL;
+	END_VAR
+VAR
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Method Name="FB_postinit" Id="{a5b017b7-3729-4798-ad4b-68e0e9ad0b9c}">
+      <Declaration><![CDATA[METHOD PUBLIC FB_postinit
+VAR_INPUT
+		root : IACVariobatch;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[ResetMemory();
+SUPER^.FB_postinit(root);]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="InSimulation" Id="{193e4ead-fa0f-4c63-9189-3ffaf504a0ef}">
+      <Declaration><![CDATA[PROPERTY InSimulation : BOOL]]></Declaration>
+      <Get Name="Get" Id="{fd5609e9-c948-40bc-8cc0-adcfaea76a01}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[InSimulation := _InSimulation;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="OnObjectMetaBuilded" Id="{699a95d3-ba50-4fcc-8b80-9f9023265d60}">
+      <Declaration><![CDATA[METHOD OnObjectMetaBuilded
+VAR_INPUT
+	iObject : IACObject;
+END_VAR
+VAR
+	instanceID : UDINT;
+	memorySizeToObject : UDINT;
+	i : UINT;
+	offset : WORD;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[instanceID := iObject.InstanceID;
+offset := 0;
+
+IF instanceID > 1 THEN
+	_Metadata[instanceID]._OffsetInMemory := _Metadata[instanceID-1]._MetaPropSize + _Metadata[instanceID-1]._OffsetInMemory;
+END_IF
+
+IF iObject.MaxPropertyID >= 1 THEN
+	FOR i:=1 TO iObject.MaxPropertyID BY 1
+	  DO
+		IF (_Metadata[instanceID]._MetaProp[i]._Length > 0) THEN
+			_Metadata[instanceID]._MetaProp[i]._Offset := offset;
+			offset := offset + _Metadata[instanceID]._MetaProp[i]._Length;
+		//ELSE
+			//EXIT;
+		END_IF
+	END_FOR;
+END_IF
+
+_Metadata[instanceID]._MaxPropertyID := iObject.MaxPropertyID;
+_Metadata[instanceID]._MetaPropSize := offset;
+memorySizeToObject := _Metadata[instanceID]._OffsetInMemory + offset;
+
+IF _MemorySizeUsed < memorySizeToObject THEN
+	_MemorySizeUsed := memorySizeToObject;
+END_IF
+
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnPropertyChangedBool" Id="{20747f1d-e5ae-4f9c-87ef-66214f330c31}">
+      <Declaration><![CDATA[METHOD PUBLIC OnPropertyChangedBool
+VAR_INPUT
+	object : IACObject;
+	propertyID : UINT;
+	value : BOOL;
+END_VAR
+VAR
+	instanceID : UDINT;
+	memAdr : UDINT;
+	eventIndex : DINT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[instanceID := object.InstanceID;
+// 1. Copy to memory
+memAdr := _Metadata[instanceID]._OffsetInMemory + _Metadata[instanceID]._MetaProp[propertyID]._Offset;
+IF value THEN
+	_Memory[memAdr] := 1;
+ELSE
+	_Memory[memAdr] := 0;
+END_IF
+
+// 2. Add to Eventlist
+IF _EventCycleInfo._MemReadCycle = _EventCycleInfo._MemWriteCycle THEN
+	IF _EventCycleInfo._MemWriteCycle > GCL.cMemoryEventCycleMAX THEN
+		_EventCycleInfo._MemWriteCycle := 0;
+	END_IF
+	_EventCycleInfo._MemWriteCycle := _EventCycleInfo._MemWriteCycle + 1;
+END_IF
+
+IF _MemPropEventCycle[instanceID, propertyID]._MemWriteCycle = _EventCycleInfo._MemWriteCycle THEN
+	eventIndex := _MemPropEventCycle[instanceID, propertyID]._MemEventPos;
+ELSE
+	eventIndex := _EventCycleInfo._NextByteEventIndex;
+	IF eventIndex < 0 OR eventIndex > GCL.cMemoryEventsMAX THEN
+		eventIndex := 0;
+	END_IF	
+	_MemPropEventCycle[instanceID, propertyID]._MemEventPos := eventIndex;
+	_MemPropEventCycle[instanceID, propertyID]._MemWriteCycle := _EventCycleInfo._MemWriteCycle;
+	_EventCycleInfo._NextByteEventIndex := eventIndex + 1;
+END_IF
+
+_EventsByte._Values[eventIndex]._InstanceID := instanceID;
+_EventsByte._Values[eventIndex]._PropertyID := propertyID;
+_EventsByte._Values[eventIndex]._Value := _Memory[memAdr];
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnPropertyChangedByte" Id="{7c9b4f3c-326b-467a-9381-eeef07921337}">
+      <Declaration><![CDATA[METHOD PUBLIC OnPropertyChangedByte
+VAR_INPUT
+	object : IACObject;
+	propertyID : UINT;
+	value : BYTE;
+END_VAR
+VAR
+	instanceID : UDINT;
+	memAdr : UDINT;
+	eventIndex : DINT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[instanceID := object.InstanceID;
+
+// 1. Copy to memory
+memAdr := _Metadata[instanceID]._OffsetInMemory + _Metadata[instanceID]._MetaProp[propertyID]._Offset;
+_Memory[memAdr] := value;
+
+// 2. Add to Eventlist
+IF _EventCycleInfo._MemReadCycle = _EventCycleInfo._MemWriteCycle THEN
+	IF _EventCycleInfo._MemWriteCycle > GCL.cMemoryEventCycleMAX THEN
+		_EventCycleInfo._MemWriteCycle := 0;
+	END_IF
+	_EventCycleInfo._MemWriteCycle := _EventCycleInfo._MemWriteCycle + 1;
+END_IF
+
+IF _MemPropEventCycle[instanceID, propertyID]._MemWriteCycle = _EventCycleInfo._MemWriteCycle THEN
+	eventIndex := _MemPropEventCycle[instanceID, propertyID]._MemEventPos;
+ELSE
+	eventIndex := _EventCycleInfo._NextByteEventIndex;
+	IF eventIndex < 0 OR eventIndex > GCL.cMemoryEventsMAX THEN
+		eventIndex := 0;
+	END_IF	
+	_MemPropEventCycle[instanceID, propertyID]._MemEventPos := eventIndex;
+	_MemPropEventCycle[instanceID, propertyID]._MemWriteCycle := _EventCycleInfo._MemWriteCycle;
+	_EventCycleInfo._NextByteEventIndex := eventIndex + 1;
+END_IF
+
+_EventsByte._Values[eventIndex]._InstanceID := instanceID;
+_EventsByte._Values[eventIndex]._PropertyID := propertyID;
+_EventsByte._Values[eventIndex]._Value := value;
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnPropertyChangedDInt" Id="{c0c87217-11d2-4fd9-8b72-07d6398d67a3}">
+      <Declaration><![CDATA[METHOD PUBLIC OnPropertyChangedDInt
+VAR_INPUT
+	object : IACObject;
+	propertyID : UINT;
+	value : DINT;
+END_VAR
+VAR
+	instanceID : UDINT;
+	memAdr : UDINT;
+	eventIndex : DINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[instanceID := object.InstanceID;
+
+// 1. Copy to memory
+memAdr := _Metadata[instanceID]._OffsetInMemory + _Metadata[instanceID]._MetaProp[propertyID]._Offset;
+MEMCPY(ADR(_Memory[memAdr]), ADR(value), GCL.cSizeDINT);
+
+// 2. Add to Eventlist
+IF _EventCycleInfo._MemReadCycle = _EventCycleInfo._MemWriteCycle THEN
+	IF _EventCycleInfo._MemWriteCycle > GCL.cMemoryEventCycleMAX THEN
+		_EventCycleInfo._MemWriteCycle := 0;
+	END_IF
+	_EventCycleInfo._MemWriteCycle := _EventCycleInfo._MemWriteCycle + 1;
+END_IF
+
+IF _MemPropEventCycle[instanceID, propertyID]._MemWriteCycle = _EventCycleInfo._MemWriteCycle THEN
+	eventIndex := _MemPropEventCycle[instanceID, propertyID]._MemEventPos;
+ELSE
+	eventIndex := _EventCycleInfo._NextDIntEventIndex;
+	IF eventIndex < 0 OR eventIndex > GCL.cMemoryEventsMAX THEN
+		eventIndex := 0;
+	END_IF	
+	_MemPropEventCycle[instanceID, propertyID]._MemEventPos := eventIndex;
+	_MemPropEventCycle[instanceID, propertyID]._MemWriteCycle := _EventCycleInfo._MemWriteCycle;
+	_EventCycleInfo._NextDIntEventIndex := eventIndex + 1;
+END_IF
+
+_EventsDInt._Values[eventIndex]._InstanceID := instanceID;
+_EventsDInt._Values[eventIndex]._PropertyID := propertyID;
+_EventsDInt._Values[eventIndex]._Value := value;
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnPropertyChangedDT" Id="{7f04dc80-8108-42a0-8cc6-825c9fb51a99}">
+      <Declaration><![CDATA[METHOD PUBLIC OnPropertyChangedDT
+VAR_INPUT
+	object : IACObject;
+	propertyID : UINT;
+	value : DATE_AND_TIME;
+END_VAR
+VAR
+	instanceID : UDINT;
+	memAdr : UDINT;
+	eventIndex : DINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[instanceID := object.InstanceID;
+
+// 1. Copy to memory
+memAdr := _Metadata[instanceID]._OffsetInMemory + _Metadata[instanceID]._MetaProp[propertyID]._Offset;
+MEMCPY(ADR(_Memory[memAdr]), ADR(value), GCL.cSizeDT);
+
+// 2. Add to Eventlist
+IF _EventCycleInfo._MemReadCycle = _EventCycleInfo._MemWriteCycle THEN
+	IF _EventCycleInfo._MemWriteCycle > GCL.cMemoryEventCycleMAX THEN
+		_EventCycleInfo._MemWriteCycle := 0;
+	END_IF
+	_EventCycleInfo._MemWriteCycle := _EventCycleInfo._MemWriteCycle + 1;
+END_IF
+
+IF _MemPropEventCycle[instanceID, propertyID]._MemWriteCycle = _EventCycleInfo._MemWriteCycle THEN
+	eventIndex := _MemPropEventCycle[instanceID, propertyID]._MemEventPos;
+ELSE
+	eventIndex := _EventCycleInfo._NextDTEventIndex;
+	IF eventIndex < 0 OR eventIndex > GCL.cMemoryEventsMidMAX THEN
+		eventIndex := 0;
+	END_IF	
+	_MemPropEventCycle[instanceID, propertyID]._MemEventPos := eventIndex;
+	_MemPropEventCycle[instanceID, propertyID]._MemWriteCycle := _EventCycleInfo._MemWriteCycle;
+	_EventCycleInfo._NextDTEventIndex := eventIndex + 1;
+END_IF
+
+_EventsDT._Values[eventIndex]._InstanceID := instanceID;
+_EventsDT._Values[eventIndex]._PropertyID := propertyID;
+_EventsDT._Values[eventIndex]._Value := value;
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnPropertyChangedInt" Id="{d2794bf4-c324-4e3b-a381-63ecad48aa08}">
+      <Declaration><![CDATA[METHOD PUBLIC OnPropertyChangedInt
+VAR_INPUT
+	object : IACObject;
+	propertyID : UINT;
+	value : INT;
+END_VAR
+VAR
+	instanceID : UDINT;
+	memAdr : UDINT;
+	eventIndex : DINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[instanceID := object.InstanceID;
+
+// 1. Copy to memory
+memAdr := _Metadata[instanceID]._OffsetInMemory + _Metadata[instanceID]._MetaProp[propertyID]._Offset;
+MEMCPY(ADR(_Memory[memAdr]), ADR(value), GCL.cSizeINT);
+
+// 2. Add to Eventlist
+IF _EventCycleInfo._MemReadCycle = _EventCycleInfo._MemWriteCycle THEN
+	IF _EventCycleInfo._MemWriteCycle > GCL.cMemoryEventCycleMAX THEN
+		_EventCycleInfo._MemWriteCycle := 0;
+	END_IF
+	_EventCycleInfo._MemWriteCycle := _EventCycleInfo._MemWriteCycle + 1;
+END_IF
+
+IF _MemPropEventCycle[instanceID, propertyID]._MemWriteCycle = _EventCycleInfo._MemWriteCycle THEN
+	eventIndex := _MemPropEventCycle[instanceID, propertyID]._MemEventPos;
+ELSE
+	eventIndex := _EventCycleInfo._NextIntEventIndex;
+	IF eventIndex < 0 OR eventIndex > GCL.cMemoryEventsMAX THEN
+		eventIndex := 0;
+	END_IF	
+	_MemPropEventCycle[instanceID, propertyID]._MemEventPos := eventIndex;
+	_MemPropEventCycle[instanceID, propertyID]._MemWriteCycle := _EventCycleInfo._MemWriteCycle;
+	_EventCycleInfo._NextIntEventIndex := eventIndex + 1;
+END_IF
+
+_EventsInt._Values[eventIndex]._InstanceID := instanceID;
+_EventsInt._Values[eventIndex]._PropertyID := propertyID;
+_EventsInt._Values[eventIndex]._Value := value;
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnPropertyChangedLReal" Id="{e3eafae1-71ce-4881-8862-ce3909504fd0}">
+      <Declaration><![CDATA[METHOD PUBLIC OnPropertyChangedLReal
+VAR_INPUT
+	object : IACObject;
+	propertyID : UINT;
+	value : LREAL;
+END_VAR
+VAR
+	instanceID : UDINT;
+	memAdr : UDINT;
+	eventIndex : DINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[instanceID := object.InstanceID;
+
+// 1. Copy to memory
+memAdr := _Metadata[instanceID]._OffsetInMemory + _Metadata[instanceID]._MetaProp[propertyID]._Offset;
+MEMCPY(ADR(_Memory[memAdr]), ADR(value), GCL.cSizeLREAL);
+
+// 2. Add to Eventlist
+IF _EventCycleInfo._MemReadCycle = _EventCycleInfo._MemWriteCycle THEN
+	IF _EventCycleInfo._MemWriteCycle > GCL.cMemoryEventCycleMAX THEN
+		_EventCycleInfo._MemWriteCycle := 0;
+	END_IF
+	_EventCycleInfo._MemWriteCycle := _EventCycleInfo._MemWriteCycle + 1;
+END_IF
+
+IF _MemPropEventCycle[instanceID, propertyID]._MemWriteCycle = _EventCycleInfo._MemWriteCycle THEN
+	eventIndex := _MemPropEventCycle[instanceID, propertyID]._MemEventPos;
+ELSE
+	eventIndex := _EventCycleInfo._NextLRealEventIndex;
+	IF eventIndex < 0 OR eventIndex > GCL.cMemoryEventsMAX THEN
+		eventIndex := 0;
+	END_IF	
+	_MemPropEventCycle[instanceID, propertyID]._MemEventPos := eventIndex;
+	_MemPropEventCycle[instanceID, propertyID]._MemWriteCycle := _EventCycleInfo._MemWriteCycle;
+	_EventCycleInfo._NextLRealEventIndex := eventIndex + 1;
+END_IF
+
+_EventsLReal._Values[eventIndex]._InstanceID := instanceID;
+_EventsLReal._Values[eventIndex]._PropertyID := propertyID;
+_EventsLReal._Values[eventIndex]._Value := value;
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnPropertyChangedReal" Id="{2ca7d0af-3283-4c26-a6db-d965870c9e74}">
+      <Declaration><![CDATA[METHOD PUBLIC OnPropertyChangedReal
+VAR_INPUT
+	object : IACObject;
+	propertyID : UINT;
+	value : REAL;
+END_VAR
+VAR
+	instanceID : UDINT;
+	memAdr : UDINT;
+	eventIndex : DINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[instanceID := object.InstanceID;
+
+// 1. Copy to memory
+memAdr := _Metadata[instanceID]._OffsetInMemory + _Metadata[instanceID]._MetaProp[propertyID]._Offset;
+MEMCPY(ADR(_Memory[memAdr]), ADR(value), GCL.cSizeREAL);
+
+// 2. Add to Eventlist
+IF _EventCycleInfo._MemReadCycle = _EventCycleInfo._MemWriteCycle THEN
+	IF _EventCycleInfo._MemWriteCycle > GCL.cMemoryEventCycleMAX THEN
+		_EventCycleInfo._MemWriteCycle := 0;
+	END_IF
+	_EventCycleInfo._MemWriteCycle := _EventCycleInfo._MemWriteCycle + 1;
+END_IF
+
+IF _MemPropEventCycle[instanceID, propertyID]._MemWriteCycle = _EventCycleInfo._MemWriteCycle THEN
+	eventIndex := _MemPropEventCycle[instanceID, propertyID]._MemEventPos;
+ELSE
+	eventIndex := _EventCycleInfo._NextRealEventIndex;
+	IF eventIndex < 0 OR eventIndex > GCL.cMemoryEventsMAX THEN
+		eventIndex := 0;
+	END_IF	
+	_MemPropEventCycle[instanceID, propertyID]._MemEventPos := eventIndex;
+	_MemPropEventCycle[instanceID, propertyID]._MemWriteCycle := _EventCycleInfo._MemWriteCycle;
+	_EventCycleInfo._NextRealEventIndex := eventIndex + 1;
+END_IF
+
+_EventsReal._Values[eventIndex]._InstanceID := instanceID;
+_EventsReal._Values[eventIndex]._PropertyID := propertyID;
+_EventsReal._Values[eventIndex]._Value := value;
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnPropertyChangedString" Id="{87de1059-8957-4e97-b6a7-ed8c77a3958c}">
+      <Declaration><![CDATA[METHOD PUBLIC OnPropertyChangedString
+VAR_INPUT
+	object : IACObject;
+	propertyID : UINT;
+	value : STRING(255);
+END_VAR
+VAR
+	instanceID : UDINT;
+	memAdr : UDINT;
+	eventIndex : DINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[instanceID := object.InstanceID;
+
+// 1. Copy to memory
+memAdr := _Metadata[instanceID]._OffsetInMemory + _Metadata[instanceID]._MetaProp[propertyID]._Offset;
+MEMCPY(ADR(_Memory[memAdr]), ADR(value), GCL.cSizeINT);
+
+// 2. Add to Eventlist
+IF _EventCycleInfo._MemReadCycle = _EventCycleInfo._MemWriteCycle THEN
+	IF _EventCycleInfo._MemWriteCycle > GCL.cMemoryEventCycleMAX THEN
+		_EventCycleInfo._MemWriteCycle := 0;
+	END_IF
+	_EventCycleInfo._MemWriteCycle := _EventCycleInfo._MemWriteCycle + 1;
+END_IF
+
+IF _MemPropEventCycle[instanceID, propertyID]._MemWriteCycle = _EventCycleInfo._MemWriteCycle THEN
+	eventIndex := _MemPropEventCycle[instanceID, propertyID]._MemEventPos;
+ELSE
+	eventIndex := _EventCycleInfo._NextStringEventIndex;
+	IF eventIndex < 0 OR eventIndex > GCL.cMemoryEventsSmallMAX THEN
+		eventIndex := 0;
+	END_IF	
+	_MemPropEventCycle[instanceID, propertyID]._MemEventPos := eventIndex;
+	_MemPropEventCycle[instanceID, propertyID]._MemWriteCycle := _EventCycleInfo._MemWriteCycle;
+	_EventCycleInfo._NextStringEventIndex := eventIndex + 1;
+END_IF
+
+_EventsString._Values[eventIndex]._InstanceID := instanceID;
+_EventsString._Values[eventIndex]._PropertyID := propertyID;
+_EventsString._Values[eventIndex]._Value := value;
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnPropertyChangedTime" Id="{8a83e0b6-c18c-4fd5-94f3-ee8ad0737790}">
+      <Declaration><![CDATA[METHOD OnPropertyChangedTime
+VAR_INPUT
+	object : IACObject;
+	propertyID : UINT;
+	value : TIME;
+END_VAR
+VAR
+	instanceID : UDINT;
+	memAdr : UDINT;
+	eventIndex : DINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[instanceID := object.InstanceID;
+
+// 1. Copy to memory
+memAdr := _Metadata[instanceID]._OffsetInMemory + _Metadata[instanceID]._MetaProp[propertyID]._Offset;
+MEMCPY(ADR(_Memory[memAdr]), ADR(value), GCL.cSizeTIME);
+
+// 2. Add to Eventlist
+IF _EventCycleInfo._MemReadCycle = _EventCycleInfo._MemWriteCycle THEN
+	IF _EventCycleInfo._MemWriteCycle > GCL.cMemoryEventCycleMAX THEN
+		_EventCycleInfo._MemWriteCycle := 0;
+	END_IF
+	_EventCycleInfo._MemWriteCycle := _EventCycleInfo._MemWriteCycle + 1;
+END_IF
+
+IF _MemPropEventCycle[instanceID, propertyID]._MemWriteCycle = _EventCycleInfo._MemWriteCycle THEN
+	eventIndex := _MemPropEventCycle[instanceID, propertyID]._MemEventPos;
+ELSE
+	eventIndex := _EventCycleInfo._NextTimeEventIndex;
+	IF eventIndex < 0 OR eventIndex > GCL.cMemoryEventsMidMAX THEN
+		eventIndex := 0;
+	END_IF	
+	_MemPropEventCycle[instanceID, propertyID]._MemEventPos := eventIndex;
+	_MemPropEventCycle[instanceID, propertyID]._MemWriteCycle := _EventCycleInfo._MemWriteCycle;
+	_EventCycleInfo._NextTimeEventIndex := eventIndex + 1;
+END_IF
+
+_EventsTime._Values[eventIndex]._InstanceID := instanceID;
+_EventsTime._Values[eventIndex]._PropertyID := propertyID;
+_EventsTime._Values[eventIndex]._Value := value;
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnPropertyChangedUDInt" Id="{773dab02-abd4-4720-9ce8-4285dc5ce1d5}">
+      <Declaration><![CDATA[METHOD PUBLIC OnPropertyChangedUDInt
+VAR_INPUT
+	object : IACObject;
+	propertyID : UINT;
+	value : UDINT;
+END_VAR
+VAR
+	instanceID : UDINT;
+	memAdr : UDINT;
+	eventIndex : DINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[instanceID := object.InstanceID;
+
+// 1. Copy to memory
+memAdr := _Metadata[instanceID]._OffsetInMemory + _Metadata[instanceID]._MetaProp[propertyID]._Offset;
+MEMCPY(ADR(_Memory[memAdr]), ADR(value), GCL.cSizeUDINT);
+
+// 2. Add to Eventlist
+IF _EventCycleInfo._MemReadCycle = _EventCycleInfo._MemWriteCycle THEN
+	IF _EventCycleInfo._MemWriteCycle > GCL.cMemoryEventCycleMAX THEN
+		_EventCycleInfo._MemWriteCycle := 0;
+	END_IF
+	_EventCycleInfo._MemWriteCycle := _EventCycleInfo._MemWriteCycle + 1;
+END_IF
+
+IF _MemPropEventCycle[instanceID, propertyID]._MemWriteCycle = _EventCycleInfo._MemWriteCycle THEN
+	eventIndex := _MemPropEventCycle[instanceID, propertyID]._MemEventPos;
+ELSE
+	eventIndex := _EventCycleInfo._NextUDintEventIndex;
+	IF eventIndex < 0 OR eventIndex > GCL.cMemoryEventsMAX THEN
+		eventIndex := 0;
+	END_IF	
+	_MemPropEventCycle[instanceID, propertyID]._MemEventPos := eventIndex;
+	_MemPropEventCycle[instanceID, propertyID]._MemWriteCycle := _EventCycleInfo._MemWriteCycle;
+	_EventCycleInfo._NextUDintEventIndex := eventIndex + 1;
+END_IF
+
+_EventsUDInt._Values[eventIndex]._InstanceID := instanceID;
+_EventsUDInt._Values[eventIndex]._PropertyID := propertyID;
+_EventsUDInt._Values[eventIndex]._Value := value;
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnPropertyChangedUInt" Id="{66833e0c-c2b0-48ed-b372-794b0a3cc0fe}">
+      <Declaration><![CDATA[METHOD PUBLIC OnPropertyChangedUInt
+VAR_INPUT
+	object : IACObject;
+	propertyID : UINT;
+	value : UINT;
+END_VAR
+VAR
+	instanceID : UDINT;
+	memAdr : UDINT;
+	eventIndex : DINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[instanceID := object.InstanceID;
+
+// 1. Copy to memory
+memAdr := _Metadata[instanceID]._OffsetInMemory + _Metadata[instanceID]._MetaProp[propertyID]._Offset;
+MEMCPY(ADR(_Memory[memAdr]), ADR(value), GCL.cSizeUINT);
+
+// 2. Add to Eventlist
+IF _EventCycleInfo._MemReadCycle = _EventCycleInfo._MemWriteCycle THEN
+	IF _EventCycleInfo._MemWriteCycle > GCL.cMemoryEventCycleMAX THEN
+		_EventCycleInfo._MemWriteCycle := 0;
+	END_IF
+	_EventCycleInfo._MemWriteCycle := _EventCycleInfo._MemWriteCycle + 1;
+END_IF
+
+IF _MemPropEventCycle[instanceID, propertyID]._MemWriteCycle = _EventCycleInfo._MemWriteCycle THEN
+	eventIndex := _MemPropEventCycle[instanceID, propertyID]._MemEventPos;
+ELSE
+	eventIndex := _EventCycleInfo._NextUIntEventIndex;
+	IF eventIndex < 0 OR eventIndex > GCL.cMemoryEventsMAX THEN
+		eventIndex := 0;
+	END_IF	
+	_MemPropEventCycle[instanceID, propertyID]._MemEventPos := eventIndex;
+	_MemPropEventCycle[instanceID, propertyID]._MemWriteCycle := _EventCycleInfo._MemWriteCycle;
+	_EventCycleInfo._NextUIntEventIndex := eventIndex + 1;
+END_IF
+
+_EventsUInt._Values[eventIndex]._InstanceID := instanceID;
+_EventsUInt._Values[eventIndex]._PropertyID := propertyID;
+_EventsUInt._Values[eventIndex]._Value := value;
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ResetMemory" Id="{18add70c-5930-45a2-929c-a87e5cd576c3}">
+      <Declaration><![CDATA[METHOD PROTECTED ResetMemory
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[//MEMSET(ADR(_Memory), 0, GCL.cMemorySizeMAX+1);
+MEMSET(ADR(_Memory), 0, SIZEOF(_Memory));
+MEMSET(ADR(_Metadata), 0, SIZEOF(_Metadata));
+MEMSET(ADR(_MemPropEventCycle), 0, SIZEOF(_MemPropEventCycle));
+_EventCycleInfo._NextByteEventIndex := -1;
+_EventCycleInfo._NextUIntEventIndex := -1;
+_EventCycleInfo._NextIntEventIndex := -1;
+_EventCycleInfo._NextUDIntEventIndex := -1;
+_EventCycleInfo._NextDIntEventIndex := -1;
+_EventCycleInfo._NextRealEventIndex := -1;
+_EventCycleInfo._NextLRealEventIndex := -1;
+_EventCycleInfo._NextStringEventIndex := -1;
+_EventCycleInfo._NextTimeEventIndex := -1;
+_EventCycleInfo._NextDTEventIndex := -1;
+_EventCycleInfo._MemReadCycle := 0;
+_EventCycleInfo._MemWriteCycle := 0;
+
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SetCompMetadata" Id="{a9cb9b8f-e1d5-466a-a3c1-79b3c5fe1bf3}">
+      <Declaration><![CDATA[METHOD SetCompMetadata
+VAR_INPUT
+	iObject : IACObject;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_Metadata[iObject.InstanceID]._ACUrl := iObject.ACUrlS;
+_Metadata[iObject.InstanceID]._TypeOfACObject := iObject.TypeofACObject;
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SetPropMetadata" Id="{fa04dda8-bb96-4132-b850-f807b2b90a29}">
+      <Declaration><![CDATA[METHOD SetPropMetadata
+VAR_INPUT
+	iObject : IACObject;
+	propertyID : UINT;
+	sizeOfPropType : UINT;
+END_VAR
+VAR
+	instanceID : UDINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[instanceID := iObject.InstanceID;
+_Metadata[instanceID]._MetaProp[propertyID]._Length := sizeOfPropType;
+//_Metadata[iObject.InstanceID]._MetaProp[propertyID]._Length := sizeOfPropType;
+]]></ST>
+      </Implementation>
+    </Method>
+    <LineIds Name="ACVariobatch">
+      <LineId Id="9" Count="0" />
+    </LineIds>
+    <LineIds Name="ACVariobatch.FB_postinit">
+      <LineId Id="6" Count="0" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="ACVariobatch.InSimulation.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="ACVariobatch.OnObjectMetaBuilded">
+      <LineId Id="43" Count="0" />
+      <LineId Id="45" Count="2" />
+      <LineId Id="49" Count="0" />
+      <LineId Id="39" Count="0" />
+      <LineId Id="69" Count="0" />
+      <LineId Id="71" Count="0" />
+      <LineId Id="13" Count="1" />
+      <LineId Id="42" Count="0" />
+      <LineId Id="44" Count="0" />
+      <LineId Id="15" Count="0" />
+      <LineId Id="20" Count="2" />
+      <LineId Id="50" Count="0" />
+      <LineId Id="72" Count="1" />
+      <LineId Id="51" Count="0" />
+      <LineId Id="56" Count="0" />
+      <LineId Id="54" Count="0" />
+      <LineId Id="53" Count="0" />
+      <LineId Id="57" Count="1" />
+      <LineId Id="52" Count="0" />
+      <LineId Id="23" Count="0" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="ACVariobatch.OnPropertyChangedBool">
+      <LineId Id="15" Count="0" />
+      <LineId Id="35" Count="0" />
+      <LineId Id="31" Count="0" />
+      <LineId Id="30" Count="0" />
+      <LineId Id="33" Count="1" />
+      <LineId Id="32" Count="0" />
+      <LineId Id="18" Count="0" />
+      <LineId Id="22" Count="0" />
+      <LineId Id="61" Count="0" />
+      <LineId Id="63" Count="0" />
+      <LineId Id="65" Count="2" />
+      <LineId Id="64" Count="0" />
+      <LineId Id="62" Count="0" />
+      <LineId Id="68" Count="0" />
+      <LineId Id="70" Count="0" />
+      <LineId Id="72" Count="4" />
+      <LineId Id="78" Count="0" />
+      <LineId Id="71" Count="0" />
+      <LineId Id="79" Count="0" />
+      <LineId Id="77" Count="0" />
+      <LineId Id="69" Count="0" />
+      <LineId Id="36" Count="0" />
+      <LineId Id="49" Count="0" />
+      <LineId Id="27" Count="1" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="ACVariobatch.OnPropertyChangedByte">
+      <LineId Id="17" Count="0" />
+      <LineId Id="34" Count="0" />
+      <LineId Id="33" Count="0" />
+      <LineId Id="32" Count="0" />
+      <LineId Id="18" Count="0" />
+      <LineId Id="35" Count="0" />
+      <LineId Id="26" Count="0" />
+      <LineId Id="78" Count="7" />
+      <LineId Id="68" Count="5" />
+      <LineId Id="77" Count="0" />
+      <LineId Id="74" Count="2" />
+      <LineId Id="30" Count="0" />
+      <LineId Id="47" Count="1" />
+      <LineId Id="31" Count="0" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="ACVariobatch.OnPropertyChangedDInt">
+      <LineId Id="33" Count="0" />
+      <LineId Id="16" Count="2" />
+      <LineId Id="25" Count="2" />
+      <LineId Id="76" Count="7" />
+      <LineId Id="66" Count="6" />
+      <LineId Id="75" Count="0" />
+      <LineId Id="73" Count="1" />
+      <LineId Id="57" Count="0" />
+      <LineId Id="44" Count="1" />
+      <LineId Id="32" Count="0" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="ACVariobatch.OnPropertyChangedDT">
+      <LineId Id="33" Count="0" />
+      <LineId Id="16" Count="2" />
+      <LineId Id="25" Count="2" />
+      <LineId Id="74" Count="7" />
+      <LineId Id="64" Count="6" />
+      <LineId Id="73" Count="0" />
+      <LineId Id="71" Count="1" />
+      <LineId Id="31" Count="0" />
+      <LineId Id="44" Count="1" />
+      <LineId Id="32" Count="0" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="ACVariobatch.OnPropertyChangedInt">
+      <LineId Id="33" Count="0" />
+      <LineId Id="16" Count="2" />
+      <LineId Id="25" Count="2" />
+      <LineId Id="74" Count="7" />
+      <LineId Id="64" Count="6" />
+      <LineId Id="73" Count="0" />
+      <LineId Id="71" Count="1" />
+      <LineId Id="31" Count="0" />
+      <LineId Id="44" Count="1" />
+      <LineId Id="32" Count="0" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="ACVariobatch.OnPropertyChangedLReal">
+      <LineId Id="33" Count="0" />
+      <LineId Id="16" Count="2" />
+      <LineId Id="25" Count="2" />
+      <LineId Id="74" Count="7" />
+      <LineId Id="64" Count="6" />
+      <LineId Id="73" Count="0" />
+      <LineId Id="71" Count="1" />
+      <LineId Id="31" Count="0" />
+      <LineId Id="44" Count="1" />
+      <LineId Id="32" Count="0" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="ACVariobatch.OnPropertyChangedReal">
+      <LineId Id="33" Count="0" />
+      <LineId Id="16" Count="2" />
+      <LineId Id="25" Count="2" />
+      <LineId Id="74" Count="7" />
+      <LineId Id="64" Count="6" />
+      <LineId Id="73" Count="0" />
+      <LineId Id="71" Count="1" />
+      <LineId Id="31" Count="0" />
+      <LineId Id="44" Count="1" />
+      <LineId Id="32" Count="0" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="ACVariobatch.OnPropertyChangedString">
+      <LineId Id="33" Count="0" />
+      <LineId Id="16" Count="2" />
+      <LineId Id="25" Count="2" />
+      <LineId Id="74" Count="7" />
+      <LineId Id="64" Count="6" />
+      <LineId Id="73" Count="0" />
+      <LineId Id="71" Count="1" />
+      <LineId Id="31" Count="0" />
+      <LineId Id="44" Count="1" />
+      <LineId Id="32" Count="0" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="ACVariobatch.OnPropertyChangedTime">
+      <LineId Id="9" Count="6" />
+      <LineId Id="66" Count="7" />
+      <LineId Id="56" Count="6" />
+      <LineId Id="65" Count="0" />
+      <LineId Id="63" Count="1" />
+      <LineId Id="19" Count="0" />
+      <LineId Id="36" Count="1" />
+      <LineId Id="20" Count="0" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="ACVariobatch.OnPropertyChangedUDInt">
+      <LineId Id="33" Count="0" />
+      <LineId Id="16" Count="2" />
+      <LineId Id="25" Count="2" />
+      <LineId Id="74" Count="7" />
+      <LineId Id="64" Count="6" />
+      <LineId Id="73" Count="0" />
+      <LineId Id="71" Count="1" />
+      <LineId Id="31" Count="0" />
+      <LineId Id="44" Count="1" />
+      <LineId Id="32" Count="0" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="ACVariobatch.OnPropertyChangedUInt">
+      <LineId Id="33" Count="0" />
+      <LineId Id="16" Count="2" />
+      <LineId Id="25" Count="2" />
+      <LineId Id="74" Count="7" />
+      <LineId Id="64" Count="6" />
+      <LineId Id="73" Count="0" />
+      <LineId Id="71" Count="1" />
+      <LineId Id="31" Count="0" />
+      <LineId Id="44" Count="1" />
+      <LineId Id="32" Count="0" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="ACVariobatch.ResetMemory">
+      <LineId Id="9" Count="1" />
+      <LineId Id="14" Count="0" />
+      <LineId Id="28" Count="12" />
+      <LineId Id="24" Count="0" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="ACVariobatch.SetCompMetadata">
+      <LineId Id="12" Count="0" />
+      <LineId Id="7" Count="0" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="ACVariobatch.SetPropMetadata">
+      <LineId Id="21" Count="0" />
+      <LineId Id="12" Count="0" />
+      <LineId Id="22" Count="0" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

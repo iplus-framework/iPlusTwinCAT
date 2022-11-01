@@ -1,0 +1,47 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4020.12">
+  <DUT Name="ACMethodDischargingP" Id="{698f9940-4136-4b8a-87a8-97eab7906c39}">
+    <Declaration><![CDATA[{attribute 'pack_mode' := '0'}
+TYPE ACMethodDischargingP EXTENDS ACMethodBaseP : 
+STRUCT
+	//Quelle
+	_Source : INT;
+	//Route
+	_Route : PARoutePointers;
+	//Ziel
+	_Destination : INT;
+	//Leergewicht
+	_EmptyWeight : LREAL;
+	//Entleerzeit
+	_DischargingTime : TIME;
+	//Pulszeit
+	_PulsationTime : TIME;
+	//Puls-Pause Zeit
+	_PulsationPauseTime : TIME;
+	//Leerlaufstrom
+	_IdleCurrent : LREAL;
+	//Zwischenentleerung
+	_InterDischarging : INT;
+	//Rüttler
+	_Vibrator : INT;
+	//Leistung
+	_Power : LREAL;
+	//Toleranz+
+	_Tolerance : LREAL;
+	//Toleranz-
+	_ToleranceMin : LREAL;
+	//Letzter Batch?
+	_LastBatch : INT;
+	//Sieb
+	_Sieve : INT;
+	//Sollmenge
+	_TargetQuantity : LREAL;
+	//Batchgewicht
+	_ScaleBatchWeight : LREAL;
+	//Waage
+	_Scale : INT;
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4020.12">
+  <Itf Name="IRouteableComponent" Id="{1b544dde-b4cf-4e5c-b560-d8ca28cdf1ad}">
+    <Declaration><![CDATA[INTERFACE IRouteableComponent EXTENDS IACComponent
+]]></Declaration>
+    <Method Name="AddPoint" Id="{3c8aa412-f5f3-4530-94da-866888505000}">
+      <Declaration><![CDATA[METHOD AddPoint : BOOL
+VAR_INPUT
+	point : IACPoint;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Property Name="Points" Id="{44b89c15-a05d-424d-8f11-9c8492448fb4}">
+      <Declaration><![CDATA[PROPERTY Points : ARRAY [1..GCL.cPointMAX] OF IACPoint]]></Declaration>
+      <Get Name="Get" Id="{78ac50a8-605d-4d52-b528-4da5c5de96d1}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+  </Itf>
+</TcPlcObject>

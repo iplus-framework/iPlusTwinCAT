@@ -1,0 +1,330 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.6">
+  <POU Name="PAEActuator1way_Analog" Id="{9f4aa467-3e5c-4724-8908-42f302fc23e2}" SpecialFunc="None">
+    <Declaration><![CDATA[/// <summary>
+/// One-Way-Actuator analog
+/// Ein-Wege-Stellglied analog
+/// </summary>
+FUNCTION_BLOCK PUBLIC PAEActuator1way_Analog EXTENDS PAEActuator1way 
+VAR_INPUT
+END_VAR
+VAR_OUTPUT
+END_VAR
+VAR
+	_OpeningWidth : LREAL;
+	_ReqOpeningWidth : LREAL;
+	_StopAct : BOOL;	
+	_ReqStopAct : BOOL;	
+	_DesiredWidth : LREAL;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Property Name="DesiredWidth" Id="{f255f1ab-6f3f-4c76-b2f2-6573942fea1d}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+//{attribute 'TcRpcEnable'}
+PROPERTY PUBLIC DesiredWidth : LREAL]]></Declaration>
+      <Get Name="Get" Id="{c30478ac-aea2-4d93-b3b0-c32ad898cba5}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[DesiredWidth := _DesiredWidth;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{6e2f38db-5af2-4d9b-a9ed-bc0ab8366efa}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_DesiredWidth := DesiredWidth;
+Root.OnPropertyChangedLReal(THIS^, 45, _DesiredWidth);]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="FB_postinit" Id="{6fee8c1e-f782-4f6b-9de5-758dd17290c9}">
+      <Declaration><![CDATA[METHOD FB_postinit
+VAR_INPUT
+	root : IACVariobatch;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SUPER^.FB_postinit(root);
+root.OnPropertyChangedLReal(THIS^, 41, _OpeningWidth);
+root.OnPropertyChangedLReal(THIS^, 42, _ReqOpeningWidth);
+Root.OnPropertyChangedBool(THIS^, 43, _StopAct);
+Root.OnPropertyChangedBool(THIS^, 44, _ReqStopAct);
+Root.OnPropertyChangedLReal(THIS^, 45, _DesiredWidth);  ]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="HasPointReachedOffPosition" Id="{1b577e68-efcd-4bab-9740-2f3fbb831e6c}">
+      <Declaration><![CDATA[METHOD PUBLIC HasPointReachedOffPosition : BOOL
+VAR_INPUT
+	point : IACPoint;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[HasPointReachedOffPosition := SUPER^.HasPointReachedOffPosition(point);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="HasPointReachedOnPosition" Id="{97e8c3ed-8c24-4b86-adf0-938aef07cee3}">
+      <Declaration><![CDATA[METHOD PUBLIC HasPointReachedOnPosition : BOOL
+VAR_INPUT
+	point : IACPoint;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[HasPointReachedOnPosition := SUPER^.HasPointReachedOnPosition(point);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="InvokeSetterBool" Id="{921d982f-7f5a-4286-94e8-25bc6856a18c}">
+      <Declaration><![CDATA[METHOD PUBLIC InvokeSetterBool
+VAR_INPUT
+	PropertyID : INT;
+	PropertyValue : BOOL;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SUPER^.InvokeSetterBool(PropertyID, PropertyValue);
+CASE PropertyID OF
+	43:
+		StopAct := PropertyValue;
+	44:
+		ReqStopAct := PropertyValue;
+END_CASE]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="InvokeSetterLReal" Id="{68359854-89a7-487e-87cb-1a0c77b912d6}">
+      <Declaration><![CDATA[METHOD PUBLIC InvokeSetterLReal
+VAR_INPUT
+	PropertyID : INT;
+	PropertyValue : LREAL;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SUPER^.InvokeSetterLReal(PropertyID, PropertyValue);
+CASE PropertyID OF
+	41:
+		OpeningWidth := PropertyValue;
+	42:
+		ReqOpeningWidth := PropertyValue;
+	45:
+		DesiredWidth := PropertyValue;
+END_CASE]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="IsEnabledOpen" Id="{e033e756-19e0-45c0-b5a1-713b82d6ea69}">
+      <Declaration><![CDATA[METHOD PUBLIC IsEnabledOpen : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnInitMemory" Id="{ea7846dc-1544-40b8-b0f5-4dbd286352eb}">
+      <Declaration><![CDATA[METHOD OnInitMemory
+VAR_INPUT
+	root : IACVariobatch;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[RegisterProperty(root, 41, GCL.cSizeLREAL); // OpeningWidth
+RegisterProperty(root, 42, GCL.cSizeLREAL); // ReqOpeningWidth
+RegisterProperty(root, 43, GCL.cSizeBYTE); // StopAct
+RegisterProperty(root, 44, GCL.cSizeBYTE); // ReqStopAct
+RegisterProperty(root, 45, GCL.cSizeLREAL); // DesiredWidth
+SUPER^.OnInitMemory(root);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnMainEnter" Id="{eecd11ac-3a77-42b8-9667-7b1ad9c92321}">
+      <Declaration><![CDATA[METHOD PROTECTED OnMainEnter
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SUPER^.OnMainEnter();
+// TODO: Öffnungsweite]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="OpeningWidth" Id="{13aa9a6e-a834-405e-819e-483894f490b5}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+//{attribute 'TcRpcEnable'}
+PROPERTY PUBLIC OpeningWidth : LREAL]]></Declaration>
+      <Get Name="Get" Id="{9a504db8-ffe9-47e0-983c-2efac9b76a4e}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[OpeningWidth := _OpeningWidth;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{95db7930-d879-44d2-94b9-620c7712481b}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_OpeningWidth := OpeningWidth;
+Root.OnPropertyChangedLReal(THIS^, 41, _OpeningWidth);]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="OpenWidth" Id="{6627fc82-3daf-40ea-af28-202ea29d5457}">
+      <Declaration><![CDATA[METHOD PUBLIC OpenWidth
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="ReqOpeningWidth" Id="{eb15edb8-baae-416e-8be8-ce711b51af91}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+//{attribute 'TcRpcEnable'}
+PROPERTY PUBLIC ReqOpeningWidth : LREAL]]></Declaration>
+      <Get Name="Get" Id="{c2f56f40-edec-46cd-ae41-b14b945fc584}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[ReqOpeningWidth := _ReqOpeningWidth;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{fae0f61e-3079-423a-8ab6-cfa4ebf57cea}">
+        <Declaration><![CDATA[VAR
+	_ReqPos1: DINT;
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_ReqOpeningWidth := ReqOpeningWidth;
+Root.OnPropertyChangedLReal(THIS^, 42, _ReqOpeningWidth);
+IF Root.InSimulation THEN
+	OpeningWidth := _ReqOpeningWidth;
+END_IF]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="ReqStopAct" Id="{716475c8-4989-429a-95b8-03f60b742516}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+//{attribute 'TcRpcEnable'}
+PROPERTY PUBLIC ReqStopAct : BOOL]]></Declaration>
+      <Get Name="Get" Id="{7e4d345c-c3f4-4bf5-b1f9-f125434d1ddb}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[ReqStopAct := _ReqStopAct;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{489c10b7-baad-4d37-919b-606b13c80bb6}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_ReqStopAct := ReqStopAct;
+Root.OnPropertyChangedBool(THIS^, 44, _ReqStopAct);]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="StopAct" Id="{294942de-d9b4-4e38-9cd8-4fdeef147ea3}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+//{attribute 'TcRpcEnable'}
+PROPERTY PUBLIC StopAct : BOOL]]></Declaration>
+      <Get Name="Get" Id="{dbecd711-e456-449e-a18f-31e769e2e01a}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[StopAct := _StopAct;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{4884d52d-84df-4953-8f88-ada66195dd51}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_StopAct := StopAct;
+Root.OnPropertyChangedBool(THIS^, 43, _StopAct);]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <LineIds Name="PAEActuator1way_Analog">
+      <LineId Id="9" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEActuator1way_Analog.DesiredWidth.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEActuator1way_Analog.DesiredWidth.Set">
+      <LineId Id="5" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEActuator1way_Analog.FB_postinit">
+      <LineId Id="9" Count="0" />
+      <LineId Id="7" Count="1" />
+      <LineId Id="6" Count="0" />
+      <LineId Id="15" Count="0" />
+      <LineId Id="14" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEActuator1way_Analog.HasPointReachedOffPosition">
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEActuator1way_Analog.HasPointReachedOnPosition">
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEActuator1way_Analog.InvokeSetterBool">
+      <LineId Id="7" Count="0" />
+      <LineId Id="9" Count="4" />
+      <LineId Id="8" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEActuator1way_Analog.InvokeSetterLReal">
+      <LineId Id="8" Count="7" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEActuator1way_Analog.IsEnabledOpen">
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEActuator1way_Analog.OnInitMemory">
+      <LineId Id="7" Count="1" />
+      <LineId Id="13" Count="2" />
+      <LineId Id="6" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEActuator1way_Analog.OnMainEnter">
+      <LineId Id="6" Count="0" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEActuator1way_Analog.OpeningWidth.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEActuator1way_Analog.OpeningWidth.Set">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEActuator1way_Analog.OpenWidth">
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEActuator1way_Analog.ReqOpeningWidth.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEActuator1way_Analog.ReqOpeningWidth.Set">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+      <LineId Id="7" Count="1" />
+      <LineId Id="6" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEActuator1way_Analog.ReqStopAct.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEActuator1way_Analog.ReqStopAct.Set">
+      <LineId Id="5" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEActuator1way_Analog.StopAct.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEActuator1way_Analog.StopAct.Set">
+      <LineId Id="5" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

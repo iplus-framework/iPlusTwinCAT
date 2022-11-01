@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4020.12">
+  <DUT Name="ACRMemoryMetaObj" Id="{a6c339e8-1d54-4967-8d48-ff56a3e43c1a}">
+    <Declaration><![CDATA[TYPE ACRMemoryMetaObj :
+STRUCT
+	_ACUrl : STRING(GCL.cACUrlLEN);
+	// Start-Index of this object in Memeory-Byte-Array
+	_OffsetInMemory : UDINT;
+	// Index in Array represents Property-ID
+	_MetaProp : ARRAY [1..GCL.cMetaPropMAX] OF ACRMemoryMetaProp;
+	// Memory-Size needed for this Object
+	_MetaPropSize : UDINT;
+	// Maximum Property ID = Last Element/Index in _MetaProp
+	_MaxPropertyID : UINT;
+	// Type of ACObject
+	_TypeOfACObject : TypeOfACObjectEnum;
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

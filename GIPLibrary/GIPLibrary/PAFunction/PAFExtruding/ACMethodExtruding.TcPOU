@@ -1,0 +1,87 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4020.12">
+  <POU Name="ACMethodExtruding" Id="{2810847e-45bc-44fd-94c1-f87f3f71e814}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK PUBLIC ACMethodExtruding EXTENDS ACMethodRouteBase
+VAR_INPUT
+END_VAR
+VAR_OUTPUT
+END_VAR
+VAR
+END_VAR
+VAR PERSISTENT
+	_Parameter : ACMethodExtrudingP;
+	_Result : ACMethodExtrudingR;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Property Name="IsValid" Id="{aa182da7-8a9b-4a00-9d81-2775e6857682}">
+      <Declaration><![CDATA[PROPERTY IsValid : BOOL]]></Declaration>
+      <Get Name="Get" Id="{038c9ca3-35bf-47b8-a0a7-fc4dc421fa97}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[IsValid := TRUE;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="Parameter" Id="{7952bdf4-4c46-4638-9234-93596d89c927}">
+      <Declaration><![CDATA[PROPERTY Parameter : ACMethodExtrudingP]]></Declaration>
+      <Get Name="Get" Id="{7322d8bf-9374-4083-b4c2-0384e004394d}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Parameter := _Parameter;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{6ab06d95-34c2-47d7-8e56-ce589c7b7d1a}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_Parameter := Parameter;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="Result" Id="{0b346fe3-01ae-432b-9ac9-d4a44bd9ab5d}">
+      <Declaration><![CDATA[PROPERTY Result : ACMethodExtrudingR]]></Declaration>
+      <Get Name="Get" Id="{22594cc4-7b8a-47b6-af24-f219beb5fe4b}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Result := _Result;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{f59db4ab-9167-47e9-9301-445f446be1ff}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_Result := Result;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <LineIds Name="ACMethodExtruding">
+      <LineId Id="9" Count="0" />
+    </LineIds>
+    <LineIds Name="ACMethodExtruding.IsValid.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="ACMethodExtruding.Parameter.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="ACMethodExtruding.Parameter.Set">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="ACMethodExtruding.Result.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="ACMethodExtruding.Result.Set">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

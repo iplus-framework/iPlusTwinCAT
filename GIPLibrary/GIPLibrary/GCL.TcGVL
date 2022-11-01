@@ -1,0 +1,51 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.6">
+  <GVL Name="GCL" Id="{17c4864b-7a38-41dc-ae6d-bb697cce1845}" ParameterList="True">
+    <Declaration><![CDATA[{attribute 'qualified_only'}
+VAR_GLOBAL CONSTANT
+	// Main-Path
+	 cPathMAIN  : STRING := 'MAIN.';
+	 // Max String lenght of ACUrl
+	 cACUrlLEN : INT := 200;
+	 // Maximal childs of ACComponent
+	 cChildsMAX  : INT := 200;
+	 // Maximum egdes in a Point-Connection-List
+	 cEdgeMAX  : INT := 100;
+	 // Maximum points in a Point-List
+	 cPointMAX  : INT := 5;
+	 // MAximum Items in a Route
+	 cRouteItemMAX : INT := 20;
+	 // Maximum Properties for Metadata
+	 cMetaPropMAX : UINT := 100;
+	 // Maximum Instances for Metadata
+	 cMetaObjMAX : UDINT := 10000;
+	 // Maximum reserved Memory
+	 cMemorySizeMAX : UDINT := 5000000;
+	 // Maximum PropertyChanges 
+	 cMemoryEventsSmallMAX : UINT := 100;
+	 cMemoryEventsMidMAX : UINT := 1000;
+	 cMemoryEventsMAX : UINT := 2000;
+	 cMemoryEventCycleMAX : UDINT := 4000000000; //4294967296;
+	 
+	 cSizeBYTE : WORD := 1;
+	 cSizeWORD : WORD := 2;
+	 cSizeDWORD : WORD := 4;
+	 cSizeLWORD : WORD := 8;
+	 cSizeSINT : WORD := GCL.cSizeBYTE;
+	 cSizeUSINT : WORD := GCL.cSizeBYTE;
+	 cSizeINT : WORD := GCL.cSizeWORD;
+	 cSizeUINT : WORD := GCL.cSizeWORD;
+	 cSizeDINT : WORD := GCL.cSizeDWORD;
+	 cSizeUDINT : WORD := GCL.cSizeDWORD;
+	 cSizeLINT : WORD := GCL.cSizeLWORD;
+	 cSizeULINT : WORD := GCL.cSizeLWORD;
+	 cSizeREAL : WORD := GCL.cSizeDWORD;
+	 cSizeLREAL  : WORD := GCL.cSizeLWORD;
+	 cSizeTIME : WORD := GCL.cSizeDWORD;
+	 cSizeLTIME  : WORD := GCL.cSizeLWORD;
+	 cSizeDATE : WORD := GCL.cSizeDWORD;
+	 cSizeDT  : WORD := GCL.cSizeDWORD;
+	 cSizeSTRING : WORD := 80;
+END_VAR]]></Declaration>
+  </GVL>
+</TcPlcObject>

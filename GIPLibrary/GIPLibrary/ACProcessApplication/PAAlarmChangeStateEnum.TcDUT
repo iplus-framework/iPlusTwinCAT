@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4020.12">
+  <DUT Name="PAAlarmChangeStateEnum" Id="{ebdd2b08-20b2-418a-9e39-c9097aa03916}">
+    <Declaration><![CDATA[{attribute 'qualified_only'}
+TYPE PAAlarmChangeStateEnum :
+(
+	    NoChange := 0,
+        NewAlarmOccurred := 1,
+        AlarmDisappeared := 2
+);
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

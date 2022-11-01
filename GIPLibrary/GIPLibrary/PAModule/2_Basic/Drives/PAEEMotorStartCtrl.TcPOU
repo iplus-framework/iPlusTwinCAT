@@ -1,0 +1,344 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.6">
+  <POU Name="PAEEMotorStartCtrl" Id="{36a3067f-bdc9-4d55-a069-de2cd453ef7d}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK PAEEMotorStartCtrl EXTENDS PAEEMotorBase
+VAR_INPUT
+END_VAR
+VAR_OUTPUT
+END_VAR
+VAR
+	_ChangeoverDelay : TIME;
+	_ReqSpeed : LREAL;
+	_StarterState : PANotifyState;
+	_StarterStateACK : BOOL;
+	_TransitTimeStar : TIME;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Property Name="ChangeoverDelay" Id="{0f162ea0-a305-4333-987b-a4039512b76b}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+//{attribute 'TcRpcEnable'}
+PROPERTY PUBLIC ChangeoverDelay : TIME]]></Declaration>
+      <Get Name="Get" Id="{0e35e9bb-1b63-4c5c-8624-79cff4b9f7aa}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[ChangeoverDelay := _ChangeoverDelay;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{f30a59ec-bea3-452a-9647-103ce9557f3e}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_ChangeoverDelay := ChangeoverDelay;
+Root.OnPropertyChangedTime(THIS^, 43, _ChangeoverDelay);]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="FB_postinit" Id="{e7439814-43ce-4545-8494-038b96f232ad}">
+      <Declaration><![CDATA[METHOD PUBLIC FB_postinit
+VAR_INPUT
+		root : IACVariobatch;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SUPER^.FB_postinit(root);  
+root.OnPropertyChangedTime(THIS^, 42, _TransitTimeStar);
+root.OnPropertyChangedTime(THIS^, 43, _ChangeoverDelay);
+root.OnPropertyChangedInt(THIS^, 44, _StarterState);
+root.OnPropertyChangedLReal(THIS^, 45, _ReqSpeed);
+root.OnPropertyChangedBool(THIS^, 46, _StarterStateACK);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="InvokeSetterBool" Id="{db6d87f6-9c73-4447-b18a-e7e53c09c77c}">
+      <Declaration><![CDATA[METHOD PUBLIC InvokeSetterBool
+VAR_INPUT
+	PropertyID : INT;
+	PropertyValue : BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SUPER^.InvokeSetterBool(PropertyID, PropertyValue);
+CASE PropertyID OF
+	46:
+		StarterStateACK := PropertyValue;
+END_CASE]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="InvokeSetterEnum" Id="{be33fc26-b5fa-48bb-8628-fba1a40445c2}">
+      <Declaration><![CDATA[METHOD PUBLIC InvokeSetterEnum
+VAR_INPUT
+	PropertyID : INT;
+	PropertyValue : INT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SUPER^.InvokeSetterEnum(PropertyID, PropertyValue);
+IF PropertyID = 44 THEN
+	THIS^.StarterState := PropertyValue;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="InvokeSetterLReal" Id="{c91a4caf-392e-4e9f-8783-090d150ba2a0}">
+      <Declaration><![CDATA[METHOD PUBLIC InvokeSetterLReal
+VAR_INPUT
+	PropertyID : INT;
+	PropertyValue : LREAL;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SUPER^.InvokeSetterLReal(PropertyID, PropertyValue);
+CASE PropertyID OF
+	45:
+		ReqSpeed := PropertyValue;
+END_CASE]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="InvokeSetterTime" Id="{28a891a1-0cbe-4fa0-84bd-4f806f189a4e}">
+      <Declaration><![CDATA[METHOD PUBLIC InvokeSetterTime
+VAR_INPUT
+	PropertyID : INT;
+	PropertyValue : DINT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SUPER^.InvokeSetterTime(PropertyID, PropertyValue);
+CASE PropertyID OF
+	42:
+		TransitTimeStar := TO_TIME(PropertyValue);
+	43:
+		ChangeoverDelay := TO_TIME(PropertyValue);
+END_CASE]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="IsEnabledAcknowledgeAlarms" Id="{4c6a12c2-1437-4265-9e05-315281e75900}">
+      <Declaration><![CDATA[METHOD PUBLIC IsEnabledAcknowledgeAlarms : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnInitMemory" Id="{0d534acf-e779-4e66-a9ab-638e6d7897c9}">
+      <Declaration><![CDATA[METHOD OnInitMemory
+VAR_INPUT
+		root : IACVariobatch;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[RegisterProperty(root, 42, GCL.cSizeTIME); //TransitTimeStar
+RegisterProperty(root, 43, GCL.cSizeTIME); //ChangeOverDelay
+RegisterProperty(root, 44, GCL.cSizeINT); //StarterState
+RegisterProperty(root, 45, GCL.cSizeLREAL); //ReqSpeed
+RegisterProperty(root, 46, GCL.cSizeBYTE); //StarterStateACK
+SUPER^.OnInitMemory(root);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnSetStarterState" Id="{8bf5d9cd-e5e3-4b80-b25f-b05f58375a9a}">
+      <Declaration><![CDATA[METHOD PUBLIC OnSetStarterState
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="ReqSpeed" Id="{f076b022-70df-420a-b4fc-d66ebacdc8ca}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+//{attribute 'TcRpcEnable'}
+PROPERTY PUBLIC ReqSpeed : LREAL]]></Declaration>
+      <Get Name="Get" Id="{6937a165-2f9e-4a28-a920-439e39974d39}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[ReqSpeed := _ReqSpeed;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{11f960eb-678a-4146-92ae-841ae8392a51}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_ReqSpeed:=ReqSpeed;
+Root.OnPropertyChangedLReal(THIS^, 45, _ReqSpeed);
+]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="StarterState" Id="{b699f06a-61c3-4760-ab24-d86619336bd1}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+//{attribute 'TcRpcEnable'}
+PROPERTY PUBLIC StarterState : PANotifyState]]></Declaration>
+      <Get Name="Get" Id="{721f7052-457f-4595-be2c-289ad2346ebf}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[StarterState := _StarterState;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{fe5e2b75-33c4-49e3-96d7-e3e931fd1106}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_StarterState := StarterState;
+Root.OnPropertyChangedInt(THIS^, 44, _StarterState);]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="StarterState_PropertyChanged" Id="{4e4a7675-54e8-43e8-adf3-b54839e077c3}">
+      <Declaration><![CDATA[METHOD StarterState_PropertyChanged
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="StarterStateACK" Id="{f892bbc7-bf30-46b7-a359-211675b7061c}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+//{attribute 'TcRpcEnable'}
+PROPERTY PUBLIC StarterStateACK : BOOL]]></Declaration>
+      <Get Name="Get" Id="{1d8583c6-1aad-4f03-8fa1-641b7a591c44}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[StarterStateACK := _StarterStateACK;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{0bbc8a14-4275-4bd1-bfdf-0191ce5381df}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_StarterStateACK := StarterStateACK;
+Root.OnPropertyChangedBool(THIS^, 46, _StarterStateACK);]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="TransitTimeStar" Id="{fded1e13-4123-4d1d-adde-5706a948c0e1}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+//{attribute 'TcRpcEnable'}
+PROPERTY PUBLIC TransitTimeStar : TIME]]></Declaration>
+      <Get Name="Get" Id="{c43b3e43-e07b-4ac0-9f46-0ce1eaccf658}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[TransitTimeStar := _TransitTimeStar;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{2bd14041-fa28-45cf-8546-e1aaaa5fe612}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_TransitTimeStar := TransitTimeStar;
+Root.OnPropertyChangedTime(THIS^, 42, _TransitTimeStar);]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <LineIds Name="PAEEMotorStartCtrl">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEEMotorStartCtrl.ChangeoverDelay.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEEMotorStartCtrl.ChangeoverDelay.Set">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEEMotorStartCtrl.FB_postinit">
+      <LineId Id="7" Count="0" />
+      <LineId Id="14" Count="0" />
+      <LineId Id="8" Count="0" />
+      <LineId Id="13" Count="0" />
+      <LineId Id="9" Count="0" />
+      <LineId Id="11" Count="0" />
+      <LineId Id="6" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEEMotorStartCtrl.InvokeSetterBool">
+      <LineId Id="7" Count="3" />
+      <LineId Id="6" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEEMotorStartCtrl.InvokeSetterEnum">
+      <LineId Id="17" Count="0" />
+      <LineId Id="8" Count="0" />
+      <LineId Id="11" Count="0" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEEMotorStartCtrl.InvokeSetterLReal">
+      <LineId Id="8" Count="3" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEEMotorStartCtrl.InvokeSetterTime">
+      <LineId Id="18" Count="0" />
+      <LineId Id="11" Count="1" />
+      <LineId Id="8" Count="2" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEEMotorStartCtrl.IsEnabledAcknowledgeAlarms">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEEMotorStartCtrl.OnInitMemory">
+      <LineId Id="14" Count="0" />
+      <LineId Id="6" Count="0" />
+      <LineId Id="15" Count="0" />
+      <LineId Id="7" Count="0" />
+      <LineId Id="9" Count="0" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEEMotorStartCtrl.OnSetStarterState">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEEMotorStartCtrl.ReqSpeed.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEEMotorStartCtrl.ReqSpeed.Set">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+      <LineId Id="7" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEEMotorStartCtrl.StarterState.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEEMotorStartCtrl.StarterState.Set">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEEMotorStartCtrl.StarterState_PropertyChanged">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEEMotorStartCtrl.StarterStateACK.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEEMotorStartCtrl.StarterStateACK.Set">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEEMotorStartCtrl.TransitTimeStar.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEEMotorStartCtrl.TransitTimeStar.Set">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

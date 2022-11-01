@@ -1,0 +1,137 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4022.7">
+  <Itf Name="IACVariobatch" Id="{8eb91f6a-0d40-40db-9547-9c649a6bda0c}">
+    <Declaration><![CDATA[INTERFACE IACVariobatch EXTENDS IACComponent
+]]></Declaration>
+    <Property Name="InSimulation" Id="{367b4412-c9f5-4080-9eb4-5617b17b1b25}">
+      <Declaration><![CDATA[PROPERTY InSimulation : BOOL]]></Declaration>
+      <Get Name="Get" Id="{647f0321-8baf-45e1-a51d-10442fba99c6}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+      </Get>
+    </Property>
+    <Method Name="OnObjectMetaBuilded" Id="{b55e04eb-7cf5-4bf7-89ad-d490ce8a828e}">
+      <Declaration><![CDATA[METHOD OnObjectMetaBuilded
+VAR_INPUT
+	iObject : IACObject;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="OnPropertyChangedBool" Id="{1776999f-6a53-4697-8545-f7bd4166d2db}">
+      <Declaration><![CDATA[METHOD OnPropertyChangedBool
+VAR_INPUT
+	object : IACObject;
+	propertyID : UINT;
+	value : BOOL;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="OnPropertyChangedByte" Id="{d577379f-2829-410b-92c8-c1d8b4fb2882}">
+      <Declaration><![CDATA[METHOD OnPropertyChangedByte
+VAR_INPUT
+	object : IACObject;
+	propertyID : UINT;
+	value : BYTE;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="OnPropertyChangedDInt" Id="{71c3db3a-ccf6-44f6-a368-ce0b17e2d3b1}">
+      <Declaration><![CDATA[METHOD OnPropertyChangedDInt
+VAR_INPUT
+	object : IACObject;
+	propertyID : UINT;
+	value : DINT;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="OnPropertyChangedDT" Id="{dce067c7-cb47-4d1f-bcb7-56f3ae3abdff}">
+      <Declaration><![CDATA[METHOD OnPropertyChangedDT
+VAR_INPUT
+	object : IACObject;
+	propertyID : UINT;
+	value : DATE_AND_TIME;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="OnPropertyChangedInt" Id="{dfb2a76b-81d5-46d6-b9f4-3a0c5cf1bfd3}">
+      <Declaration><![CDATA[METHOD OnPropertyChangedInt
+VAR_INPUT
+	object : IACObject;
+	propertyID : UINT;
+	value : INT;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="OnPropertyChangedLReal" Id="{a9d5e860-7e92-4555-9854-5852c8cde573}">
+      <Declaration><![CDATA[METHOD OnPropertyChangedLReal
+VAR_INPUT
+	object : IACObject;
+	propertyID : UINT;
+	value : LREAL;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="OnPropertyChangedReal" Id="{685de739-9991-468a-9138-7e6faea786d5}">
+      <Declaration><![CDATA[METHOD OnPropertyChangedReal
+VAR_INPUT
+	object : IACObject;
+	propertyID : UINT;
+	value : REAL;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="OnPropertyChangedString" Id="{7e0fb65b-6359-459a-adbc-fbe0ed4cd4c8}">
+      <Declaration><![CDATA[METHOD OnPropertyChangedString
+VAR_INPUT
+	object : IACObject;
+	propertyID : UINT;
+	value : STRING(255);
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="OnPropertyChangedTime" Id="{8c610fe7-32e1-4aae-81fb-7a76b9315f99}">
+      <Declaration><![CDATA[METHOD OnPropertyChangedTime
+VAR_INPUT
+	object : IACObject;
+	propertyID : UINT;
+	value : TIME;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="OnPropertyChangedUDInt" Id="{398cd77a-45cc-4191-92fe-b0fb4f111d77}">
+      <Declaration><![CDATA[METHOD OnPropertyChangedUDInt
+VAR_INPUT
+	object : IACObject;
+	propertyID : UINT;
+	value : UDINT;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="OnPropertyChangedUInt" Id="{45067c66-fa21-49cf-a647-7e6355472669}">
+      <Declaration><![CDATA[METHOD OnPropertyChangedUInt
+VAR_INPUT
+	object : IACObject;
+	propertyID : UINT;
+	value : UINT;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="SetCompMetadata" Id="{b0414800-dd55-4d67-98b5-90fa0672366d}">
+      <Declaration><![CDATA[METHOD SetCompMetadata
+VAR_INPUT
+	iObject : IACObject;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="SetPropMetadata" Id="{34245123-aeab-489c-949b-701c041042c1}">
+      <Declaration><![CDATA[METHOD SetPropMetadata
+VAR_INPUT
+	iObject : IACObject;
+	propertyID : UINT;
+	sizeOfPropType : UINT;
+END_VAR
+]]></Declaration>
+    </Method>
+  </Itf>
+</TcPlcObject>

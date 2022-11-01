@@ -1,0 +1,82 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4020.12">
+  <Itf Name="IACObject" Id="{79c2c1ad-8521-475b-a340-62866037dcbe}">
+    <Declaration><![CDATA[INTERFACE IACObject EXTENDS __System.IQueryInterface
+]]></Declaration>
+    <Property Name="ACInitState" Id="{409755ec-1ec3-45d5-9d2e-0e52500d6486}">
+      <Declaration><![CDATA[PROPERTY ACInitState : ACInitStateEnum]]></Declaration>
+      <Get Name="Get" Id="{d1a47b9d-2282-4853-a113-2d68d5f8bb8f}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Property Name="ACUrl" Id="{770000de-30de-4941-8863-089935b97730}">
+      <Declaration><![CDATA[PROPERTY ACUrl : STRING]]></Declaration>
+      <Get Name="Get" Id="{466d0091-f7a3-4d0e-a23f-2eefa2d7ac73}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Property Name="ACUrlS" Id="{ae2825c7-07c5-4fff-b851-52892a595898}">
+      <Declaration><![CDATA[// Short ACUrl Without ".PLC.MAIN"-Prefix
+PROPERTY ACUrlS : STRING]]></Declaration>
+      <Get Name="Get" Id="{9dcb6800-d39b-40ea-b262-8f619269002a}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Method Name="FB_postinit" Id="{366fd5ca-38e9-4b38-8ccc-76d8b23f0a81}">
+      <Declaration><![CDATA[METHOD FB_postinit
+VAR_INPUT
+		root : IACVariobatch;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="FindObjectInChilds" Id="{e72316f6-4ed1-4699-ab6a-9f479440823c}">
+      <Declaration><![CDATA[METHOD FindObjectInChilds : IACObject
+VAR_INPUT
+	instanceID	: UDINT;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Property Name="InstanceID" Id="{fcc6089c-1631-4382-a701-15f3f796baf3}">
+      <Declaration><![CDATA[{attribute 'TcRpcEnable'}
+PROPERTY InstanceID : UDINT]]></Declaration>
+      <Get Name="Get" Id="{016a1764-ace9-46b2-98e3-1f03ddfc315c}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Property Name="MaxPropertyID" Id="{be219855-de7f-4b9e-8cca-19e05448895b}">
+      <Declaration><![CDATA[PROPERTY MaxPropertyID : UINT]]></Declaration>
+      <Get Name="Get" Id="{0de91ca6-ea8e-4894-94c4-102dfa55e3d6}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Method Name="OnInitMemory" Id="{9e489648-2766-427c-9f96-f86126bf7d60}">
+      <Declaration><![CDATA[METHOD OnInitMemory
+VAR_INPUT
+		root : IACVariobatch;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="RegisterProperty" Id="{cc337d3d-2647-46dd-b201-00e4521d49dd}">
+      <Declaration><![CDATA[METHOD RegisterProperty
+VAR_INPUT
+	root : IACVariobatch;
+	propertyID : UINT;
+	sizeOfPropType : WORD;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Property Name="ThisPointer" Id="{1d9d27cc-c6d5-42a4-ab40-90b7ce7a328c}">
+      <Declaration><![CDATA[{attribute 'TcRpcEnable'}
+PROPERTY ThisPointer : LWORD //PVOID]]></Declaration>
+      <Get Name="Get" Id="{f4c73215-0d23-4512-b253-de1e24f75e69}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Property Name="TypeofACObject" Id="{86b25197-8793-4688-9675-13ec3d8c8854}">
+      <Declaration><![CDATA[PROPERTY TypeofACObject : TypeofACObjectEnum]]></Declaration>
+      <Get Name="Get" Id="{261a396f-a632-45ee-b980-5740cb7d96f5}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+  </Itf>
+</TcPlcObject>

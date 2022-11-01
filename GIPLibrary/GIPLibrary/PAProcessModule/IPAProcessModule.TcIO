@@ -1,0 +1,23 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4020.12">
+  <Itf Name="IPAProcessModule" Id="{d4e417a8-d6cb-4c61-bbb8-bfaaa6bdc0ee}">
+    <Declaration><![CDATA[INTERFACE IPAProcessModule EXTENDS IACComponent
+]]></Declaration>
+    <Method Name="RoutingStateFromSource" Id="{91e92d31-e6c6-4c24-a4ca-95e4c7167545}">
+      <Declaration><![CDATA[METHOD RoutingStateFromSource : PARoutingState
+VAR_INPUT
+	controlModule : IPAControlModule;
+	rStateAll : PARoutingState;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="RoutingStateToTarget" Id="{825bd789-f454-45dc-9a1c-66ad43c6f7bd}">
+      <Declaration><![CDATA[METHOD RoutingStateToTarget : PARoutingState
+VAR_INPUT
+	controlModule : IPAControlModule;
+	rStateAll : PARoutingState;
+END_VAR
+]]></Declaration>
+    </Method>
+  </Itf>
+</TcPlcObject>

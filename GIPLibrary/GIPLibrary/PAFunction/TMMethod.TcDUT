@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4020.12">
+  <DUT Name="TMMethod" Id="{24db6a1e-e77a-4133-b158-02139a00b87d}">
+    <Declaration><![CDATA[{attribute 'qualified_only'}
+TYPE TMMethod :
+(
+	TMNone := 0,
+	TMStart := 10,
+	TMRun := 11,
+	TMPause := 20,
+	TMResume := 22,
+	TMHold := 30,
+	TMRestart := 32,
+	TMAbort := 40,
+	TMStopp := 50,
+	TMReset := 99
+);
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

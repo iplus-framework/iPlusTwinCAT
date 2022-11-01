@@ -1,0 +1,28 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4020.12">
+  <DUT Name="ConnectionTypesEnum" Id="{b13b1372-7370-47d9-93be-3150e9b342df}">
+    <Declaration><![CDATA[{attribute 'qualified_only'}
+{attribute 'strict'}
+TYPE ConnectionTypesEnum :
+(
+	// Beziehung zwischen zwei Connectoren
+	Connection := 10,
+	// Physikalischer Weg, zwischen zwei ControlModules oder Prozessmodulen
+	ConnectionPhysical := 11,
+	// Beziehung zwischen einem Punkt und der Variable die den Zustand repräsentiert(offen/zu/aktiv)
+	PointState := 12,
+	// Lose Beziehung zwischen zwei Connectoren, wobei der oder die Ziel-Connectoren dynamisch ermittelt werden 
+	DynamicConnection := 20,
+	// Trigger, Ziel wird aktiviert, wenn alle Trigger gesendet haben	
+	StartTrigger := 30,
+	// Direkter Start des Ziels	
+	StartTriggerDirect := 31,
+	// Module <-> function or function <-> function connections
+	LogicalBridge := 50,
+	// Property-Binding
+	Binding := 100
+);
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

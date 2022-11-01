@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4020.12">
+  <DUT Name="ACInitStateEnum" Id="{a26d30b1-7b37-4bfc-821b-0109778f2efc}">
+    <Declaration><![CDATA[{attribute 'qualified_only'}
+{attribute 'strict'}
+TYPE ACInitStateEnum :
+(
+	Unchanged := 0,
+	NewInstance := 1,
+	Reinitialized := 2
+);
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

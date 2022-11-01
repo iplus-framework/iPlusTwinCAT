@@ -1,0 +1,7 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4020.12">
+  <Itf Name="IPAFMixing" Id="{c1628cb2-5cc0-4224-a26a-8fc2fd25b8ae}">
+    <Declaration><![CDATA[INTERFACE IPAFMixing EXTENDS IPAProcessFunction
+]]></Declaration>
+  </Itf>
+</TcPlcObject>

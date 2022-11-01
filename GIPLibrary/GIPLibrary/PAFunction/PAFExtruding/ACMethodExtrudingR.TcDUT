@@ -1,0 +1,10 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4020.12">
+  <DUT Name="ACMethodExtrudingR" Id="{907b9a5d-7447-4223-bf81-3766c506093b}">
+    <Declaration><![CDATA[TYPE ACMethodExtrudingR EXTENDS ACMethodBaseP :
+STRUCT
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

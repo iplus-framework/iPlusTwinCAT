@@ -1,0 +1,73 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4020.12">
+  <POU Name="PAFMixing" Id="{fcd6110b-9e7e-460f-9a0e-7bc2ea8862dc}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK PAFMixing EXTENDS PAProcessFunction IMPLEMENTS IPAFMixing
+VAR_INPUT
+END_VAR
+VAR_OUTPUT
+END_VAR
+VAR
+	_ACMethod : ACMethodMixing;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Folder Name="StateMethods" Id="{c6ae6d40-1f86-48f4-ab74-575284abfa17}" />
+    <Property Name="ACMethod" Id="{dccc899c-3d03-4086-8c03-3b0b8f0ad21b}">
+      <Declaration><![CDATA[PROPERTY ACMethod : IACMethod]]></Declaration>
+      <Get Name="Get" Id="{f3fd84a5-61eb-4114-a83b-103fb15caddb}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[ACMethod := _ACMethod;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="SMIdle" Id="{8ee9f5fa-571d-4f3e-8ce3-a318338e467b}" FolderPath="StateMethods\">
+      <Declaration><![CDATA[METHOD PROTECTED SMIdle
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SUPER^.SMIdle();]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="StartWithP" Id="{28ce06cf-d91b-41b1-89a0-b612b40ea290}">
+      <Declaration><![CDATA[METHOD PUBLIC StartWithP : BOOL
+VAR_INPUT
+	parameter : ACMethodMixingP;
+END_VAR
+VAR
+	acMethod : ACMethodMixing;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[acMethod.Parameter := parameter;
+IF NOT acMethod.IsValid THEN
+		StartWithP := FALSE;
+	RETURN;
+END_IF
+_ACMethod.Parameter := parameter;
+StartWithP := Start();]]></ST>
+      </Implementation>
+    </Method>
+    <LineIds Name="PAFMixing">
+      <LineId Id="9" Count="0" />
+    </LineIds>
+    <LineIds Name="PAFMixing.ACMethod.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAFMixing.SMIdle">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAFMixing.StartWithP">
+      <LineId Id="7" Count="1" />
+      <LineId Id="10" Count="1" />
+      <LineId Id="16" Count="0" />
+      <LineId Id="9" Count="0" />
+      <LineId Id="6" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

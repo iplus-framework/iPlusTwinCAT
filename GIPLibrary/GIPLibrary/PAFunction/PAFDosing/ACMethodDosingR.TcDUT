@@ -1,0 +1,31 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4020.12">
+  <DUT Name="ACMethodDosingR" Id="{104ebcbe-018d-4645-8c83-7204ef6263ff}">
+    <Declaration><![CDATA[{attribute 'pack_mode' := '0'}
+TYPE ACMethodDosingR EXTENDS ACMethodBaseR :
+STRUCT
+	// Istgewicht 
+	_ActualQuantity : LREAL;
+	// Gesamtgewicht Waage 
+	_ScaleTotalWeight : LREAL;
+	// Nachlauf 
+	_Afterflow : LREAL;
+	// Dosierzeit 
+	_DosingTime : TIME;
+	// Temperatur 
+	_Temperature : LREAL;
+	// Wägeid 
+	_GaugeCode : STRING;
+	// Wägeid Start 
+	_GaugeCodeStart : STRING;
+	// Wägeid Ende 
+	_GaugeCodeEnd : STRING;
+	// Durchflussrate 
+	_FlowRate : LREAL;
+	// Impulszähler 
+	_ImpulseCounter : LREAL;
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

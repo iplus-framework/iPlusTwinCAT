@@ -1,0 +1,100 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.6">
+  <POU Name="PAEDriveBase" Id="{45c98bb3-1009-4483-86de-a6e6e667dd40}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK PAEDriveBase EXTENDS PAEControlModuleBase
+VAR_INPUT
+END_VAR
+VAR_OUTPUT
+END_VAR
+VAR
+	_MaintenanceSwitch : BOOL;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Method Name="FB_postinit" Id="{fdf6ebba-3975-4f15-9851-76b5aacc1960}">
+      <Declaration><![CDATA[METHOD PUBLIC FB_postinit
+VAR_INPUT
+		root : IACVariobatch;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SUPER^.FB_postinit(root);
+root.OnPropertyChangedBool(THIS^, 33, _MaintenanceSwitch);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="InvokeSetterBool" Id="{bbe82952-33a0-4f2f-b6ea-b83fbfec4041}">
+      <Declaration><![CDATA[METHOD PUBLIC InvokeSetterBool
+VAR_INPUT
+	PropertyID : INT;
+	PropertyValue : BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SUPER^.InvokeSetterBool(PropertyID, PropertyValue);
+IF PropertyID = 33 THEN
+	MaintenanceSwitch := PropertyValue;
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="MaintenanceSwitch" Id="{1672a295-32d6-4a25-a713-7c703a14502b}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+//{attribute 'TcRpcEnable'}
+PROPERTY PUBLIC MaintenanceSwitch : BOOL]]></Declaration>
+      <Get Name="Get" Id="{69611494-b6cf-4dbf-a9da-2b76549f1408}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[MaintenanceSwitch := _MaintenanceSwitch;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{18b00f6b-7c45-4f88-a7bb-a96b1901aba3}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_MaintenanceSwitch := MaintenanceSwitch;
+Root.OnPropertyChangedBool(THIS^, 33, _MaintenanceSwitch);]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="OnInitMemory" Id="{565fa218-76f1-4c37-933d-cdd2d491010d}">
+      <Declaration><![CDATA[METHOD OnInitMemory
+VAR_INPUT
+		root : IACVariobatch;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[RegisterProperty(root, 33, GCL.cSizeBYTE); //MaintenanceSwitch
+SUPER^.OnInitMemory(root);]]></ST>
+      </Implementation>
+    </Method>
+    <LineIds Name="PAEDriveBase">
+      <LineId Id="9" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEDriveBase.FB_postinit">
+      <LineId Id="7" Count="1" />
+      <LineId Id="6" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEDriveBase.InvokeSetterBool">
+      <LineId Id="7" Count="2" />
+      <LineId Id="12" Count="0" />
+      <LineId Id="6" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEDriveBase.MaintenanceSwitch.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEDriveBase.MaintenanceSwitch.Set">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEDriveBase.OnInitMemory">
+      <LineId Id="7" Count="0" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

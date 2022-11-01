@@ -1,0 +1,68 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4020.12">
+  <Itf Name="IPAControlModule" Id="{11d215b8-d751-4464-8b4c-6653f7fff126}">
+    <Declaration><![CDATA[INTERFACE IPAControlModule EXTENDS IACComponent
+]]></Declaration>
+    <Property Name="AllocatedByFunction" Id="{c981204d-1045-467b-b7c9-989c89bf80f0}">
+      <Declaration><![CDATA[PROPERTY AllocatedByFunction : IPAProcessFunction]]></Declaration>
+      <Get Name="Get" Id="{837f1910-dad3-4dcc-9e8a-69fa7f2c6b60}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+      <Set Name="Set" Id="{206e6151-63f2-4a3a-8ce5-eccc42a2a3b8}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+      </Set>
+    </Property>
+    <Property Name="AllocatedByWay" Id="{19ce5e44-867a-42d7-804c-5b3225c131e8}">
+      <Declaration><![CDATA[PROPERTY AllocatedByWay : BOOL]]></Declaration>
+      <Get Name="Get" Id="{ed95a34b-8b3c-4b86-8947-f67065824331}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Method Name="HasPointReachedOffPosition" Id="{f6dcab94-a511-404f-aa01-373fa4d1c568}">
+      <Declaration><![CDATA[METHOD HasPointReachedOffPosition : BOOL
+VAR_INPUT
+	point : IACPoint;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="HasPointReachedOnPosition" Id="{5407737d-b567-4913-b43a-2daff21d7296}">
+      <Declaration><![CDATA[METHOD HasPointReachedOnPosition : BOOL
+VAR_INPUT
+	point : IACPoint;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Property Name="RoutingStateFromSource" Id="{9e4a0f87-1261-4da0-b200-114ae5a91ae1}">
+      <Declaration><![CDATA[PROPERTY RoutingStateFromSource : PARoutingState]]></Declaration>
+      <Get Name="Get" Id="{f88aeba7-d031-406a-8218-583506b452e2}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Property Name="RoutingStateOfPredecessors" Id="{13929c78-e921-4a3b-a903-4c9759f49c81}">
+      <Declaration><![CDATA[PROPERTY RoutingStateOfPredecessors : PARoutingState]]></Declaration>
+      <Get Name="Get" Id="{ad4c2a16-ba2d-4888-8b69-6d820e7ff233}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Property Name="RoutingStateOfSuccessors" Id="{e82ed9f4-4053-431c-ac03-722a1685adb1}">
+      <Declaration><![CDATA[PROPERTY RoutingStateOfSuccessors : PARoutingState]]></Declaration>
+      <Get Name="Get" Id="{9f90f9ac-f844-42d6-b400-919bfd5057cd}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Property Name="RoutingStateThis" Id="{c4804d5b-bfba-45c1-94fd-051ae44bf6b2}">
+      <Declaration><![CDATA[PROPERTY RoutingStateThis : PARoutingState]]></Declaration>
+      <Get Name="Get" Id="{a95127b3-74f6-409e-b6fd-aca3c77b57e6}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Property Name="RoutingStateToTarget" Id="{2a13bca0-010a-413e-be4e-518ee37ae078}">
+      <Declaration><![CDATA[PROPERTY RoutingStateToTarget : PARoutingState]]></Declaration>
+      <Get Name="Get" Id="{f104dd49-dc46-4a9b-9391-04424d079467}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+  </Itf>
+</TcPlcObject>

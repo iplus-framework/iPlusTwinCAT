@@ -1,0 +1,31 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4020.12">
+  <POU Name="PAEActDiverter" Id="{e69dc658-0ccb-4ee7-b5c2-3b9ef93e7d53}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK PAEActDiverter EXTENDS PAEActuator2way_In
+VAR_INPUT
+END_VAR
+VAR_OUTPUT
+END_VAR
+VAR
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Method Name="PAEActDiverter" Id="{094f4704-69e6-4122-90d7-4b6e5d9586ea}">
+      <Declaration><![CDATA[METHOD PUBLIC PAEActDiverter
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <LineIds Name="PAEActDiverter">
+      <LineId Id="9" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEActDiverter.PAEActDiverter">
+      <LineId Id="5" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

@@ -1,0 +1,251 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4022.7">
+  <POU Name="ACMethodRouteBase" Id="{f92ea2b6-0103-4083-9ec7-d643bb944132}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK ACMethodRouteBase EXTENDS ACMethodBase IMPLEMENTS IACMethodRouteBase
+VAR_INPUT
+END_VAR
+VAR_OUTPUT
+END_VAR
+VAR
+END_VAR
+VAR PERSISTENT
+	_Route : PARoute;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Method Name="AssignRoute" Id="{03406dd0-2b2c-455a-a85a-47dc4bd5e337}">
+      <Declaration><![CDATA[METHOD PUBLIC AssignRoute : BOOL
+VAR_INPUT
+	iAssignWithFunction : IPAProcessFunction;
+END_VAR
+VAR
+	i : INT;
+	iControlModule : IPAControlModule;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF NOT _Route._IsResolved THEN
+	AssignRoute := FALSE;
+	RETURN;
+END_IF
+
+// TODO: Wegwechsel einbauen bzw. aktualsiierung der Route vom Client aus?
+
+// Prüfe zuerst ob alle Stuerungsmodule nicht belegt sind
+FOR i:=1 TO GCL.cRouteItemMAX BY 1
+  DO    
+  	IF _Route._Items[i] <> 0 THEN
+		IF __QUERYINTERFACE(_Route._Items[i].Source.Parent, iControlModule) THEN
+			IF iControlModule.AllocatedByWay THEN
+				AssignRoute := FALSE;
+				RETURN;				
+			END_IF
+		END_IF
+		IF __QUERYINTERFACE(_Route._Items[i].Target.Parent, iControlModule) THEN
+			IF iControlModule.AllocatedByWay THEN
+				AssignRoute := FALSE;
+				RETURN;				
+			END_IF
+		END_IF
+	END_IF
+  	_Route._Items[i] := 0;
+END_FOR;
+
+// Setze Belegung durch diese Funktion
+FOR i:=1 TO GCL.cRouteItemMAX BY 1
+  DO    
+  	IF _Route._Items[i] <> 0 THEN
+		IF __QUERYINTERFACE(_Route._Items[i].Source.Parent, iControlModule) THEN
+			iControlModule.AllocatedByFunction := iAssignWithFunction;
+		END_IF
+		IF __QUERYINTERFACE(_Route._Items[i].Target.Parent, iControlModule) THEN
+			iControlModule.AllocatedByFunction := iAssignWithFunction;
+		END_IF
+		_Route._Items[i].AllocatedByFunction := iAssignWithFunction;
+	END_IF
+END_FOR;
+_Route._IsAssigned := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="FirstCModuleInRoute" Id="{27162ce5-5620-431d-b7a8-f2b257fbb57d}">
+      <Declaration><![CDATA[PROPERTY PUBLIC FirstCModuleInRoute : IPAControlModule]]></Declaration>
+      <Get Name="Get" Id="{d437d142-8ff9-4378-b40e-0aa4bb72caa1}">
+        <Declaration><![CDATA[VAR
+	i : INT;
+	iControlModule : IPAControlModule;
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[FOR i:=1 TO GCL.cRouteItemMAX BY 1
+  DO    
+  	IF _Route._Items[i] <> 0 THEN
+		IF __QUERYINTERFACE(_Route._Items[i].Source.Parent, iControlModule) THEN
+			FirstCModuleInRoute := iControlModule;
+			RETURN;
+		END_IF
+	END_IF
+END_FOR;
+FirstCModuleInRoute := 0;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="LastCModuleInRoute" Id="{6fd6225f-b074-457f-988b-c05b459db755}">
+      <Declaration><![CDATA[PROPERTY PUBLIC LastCModuleInRoute : IPAControlModule]]></Declaration>
+      <Get Name="Get" Id="{3a094643-31f2-41b1-9515-bcd93e03adb1}">
+        <Declaration><![CDATA[VAR
+	i : INT;
+	iControlModule : IPAControlModule;
+	iLastCModule : IPAControlModule;
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[iLastCModule := 0;
+FOR i:=1 TO GCL.cRouteItemMAX BY 1
+  DO    
+  	IF _Route._Items[i] <> 0 THEN
+		IF __QUERYINTERFACE(_Route._Items[i].Target.Parent, iControlModule) THEN
+			iLastCModule := iControlModule;
+			RETURN;
+		END_IF
+	ELSE
+		EXIT;
+	END_IF
+END_FOR;
+LastCModuleInRoute := iLastCModule;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="ResetRoute" Id="{33fe7a1c-00bb-4339-b838-2c6e06cd15dc}">
+      <Declaration><![CDATA[METHOD PUBLIC ResetRoute
+VAR_INPUT
+END_VAR
+VAR
+	i : INT;
+	iControlModule : IPAControlModule;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF NOT _Route._IsResolved AND NOT _Route._IsAssigned THEN
+	RETURN;
+END_IF
+FOR i:=1 TO GCL.cRouteItemMAX BY 1
+  DO    
+  	// Lösche Wegebelegung auf den Steuerungsmodulen
+  	IF  _Route._Items[i] <> 0 THEN
+		IF __QUERYINTERFACE(_Route._Items[i].Source.Parent, iControlModule) THEN
+			iControlModule.AllocatedByFunction := 0;
+		END_IF
+		IF __QUERYINTERFACE(_Route._Items[i].Target.Parent, iControlModule) THEN
+			iControlModule.AllocatedByFunction := 0;
+		END_IF
+	END_IF
+  	_Route._Items[i] := 0;
+END_FOR;
+_Route._IsResolved := FALSE;
+_Route._IsAssigned := FALSE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ResolveRoutePointers" Id="{75300ac9-c793-451f-9707-ec23dbc9607a}">
+      <Declaration><![CDATA[METHOD PUBLIC ResolveRoutePointers : BOOL
+VAR_INPUT
+	routeToResolve : PARoutePointers;	
+	parentComp : IACComponent;
+END_VAR
+VAR
+	i: INT;
+	pEdge : IACEdge;
+	pEdgeToTest : IACObject;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[FOR i:=1 TO GCL.cRouteItemMAX BY 1
+  DO
+  	_Route._Items[i] := 0;
+	IF routeToResolve._InstanceID[i] = 0 THEN
+		CONTINUE;
+	END_IF
+	pEdgeToTest := parentComp.FindObjectByID(routeToResolve._InstanceID[i]);
+	IF pEdgeToTest = 0 AND __QUERYINTERFACE(pEdgeToTest, pEdge) THEN
+		_Route._Items[i] := pEdge;		
+	END_IF
+END_FOR;
+_Route._IsResolved := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="Route" Id="{f648304f-e6e6-4301-8fc7-f6bcc1c05516}">
+      <Declaration><![CDATA[PROPERTY PUBLIC Route : PARoute]]></Declaration>
+      <Get Name="Get" Id="{1cfee147-c5a3-411c-800f-29184951d6d6}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Route := _Route;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <LineIds Name="ACMethodRouteBase">
+      <LineId Id="9" Count="0" />
+    </LineIds>
+    <LineIds Name="ACMethodRouteBase.AssignRoute">
+      <LineId Id="23" Count="0" />
+      <LineId Id="25" Count="0" />
+      <LineId Id="24" Count="0" />
+      <LineId Id="51" Count="0" />
+      <LineId Id="59" Count="1" />
+      <LineId Id="47" Count="0" />
+      <LineId Id="26" Count="2" />
+      <LineId Id="39" Count="0" />
+      <LineId Id="31" Count="0" />
+      <LineId Id="40" Count="0" />
+      <LineId Id="42" Count="0" />
+      <LineId Id="41" Count="0" />
+      <LineId Id="32" Count="2" />
+      <LineId Id="43" Count="3" />
+      <LineId Id="36" Count="2" />
+      <LineId Id="48" Count="1" />
+      <LineId Id="22" Count="0" />
+      <LineId Id="6" Count="1" />
+      <LineId Id="9" Count="5" />
+      <LineId Id="61" Count="0" />
+      <LineId Id="15" Count="1" />
+      <LineId Id="18" Count="0" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="ACMethodRouteBase.FirstCModuleInRoute.Get">
+      <LineId Id="3" Count="8" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="ACMethodRouteBase.LastCModuleInRoute.Get">
+      <LineId Id="3" Count="11" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="ACMethodRouteBase.ResetRoute">
+      <LineId Id="40" Count="1" />
+      <LineId Id="39" Count="0" />
+      <LineId Id="6" Count="0" />
+      <LineId Id="29" Count="0" />
+      <LineId Id="18" Count="0" />
+      <LineId Id="31" Count="0" />
+      <LineId Id="25" Count="0" />
+      <LineId Id="23" Count="0" />
+      <LineId Id="20" Count="0" />
+      <LineId Id="26" Count="2" />
+      <LineId Id="7" Count="1" />
+      <LineId Id="14" Count="0" />
+      <LineId Id="32" Count="0" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="ACMethodRouteBase.ResolveRoutePointers">
+      <LineId Id="10" Count="0" />
+      <LineId Id="22" Count="3" />
+      <LineId Id="60" Count="1" />
+      <LineId Id="66" Count="0" />
+      <LineId Id="63" Count="0" />
+      <LineId Id="56" Count="0" />
+      <LineId Id="48" Count="0" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="ACMethodRouteBase.Route.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

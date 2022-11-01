@@ -1,0 +1,90 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4022.7">
+  <POU Name="ACMethodMixing" Id="{e34540a1-26ae-4e11-859a-e6bce4e16774}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK PUBLIC ACMethodMixing EXTENDS ACMethodRouteBase
+VAR_INPUT
+END_VAR
+VAR_OUTPUT
+END_VAR
+VAR PERSISTENT
+	_Parameter : ACMethodMixingP;
+	_Result : ACMethodMixingR;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Property Name="IsValid" Id="{42f4db85-f64f-43b4-97a5-718885284ed0}">
+      <Declaration><![CDATA[PROPERTY IsValid : BOOL
+]]></Declaration>
+      <Get Name="Get" Id="{b18a4950-feb2-491e-becd-006bc04d95b6}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[IsValid := TRUE;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="Parameter" Id="{b7128a30-ff08-4a6d-ba85-4974fbf3f524}">
+      <Declaration><![CDATA[PROPERTY Parameter : ACMethodMixingP
+]]></Declaration>
+      <Get Name="Get" Id="{046d3d49-095b-4ae6-975c-499e718bc5b5}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Parameter := _Parameter;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{2532546b-7ad8-4f0c-90d7-f35a83733087}">
+        <Declaration><![CDATA[PUBLIC 
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_Parameter := Parameter;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="Result" Id="{8ddda802-b4e1-41a9-bee9-a82d418e5a74}">
+      <Declaration><![CDATA[PROPERTY Result : ACMethodMixingR
+]]></Declaration>
+      <Get Name="Get" Id="{5425cf10-1e16-4355-8b91-1ae8a13849bd}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Result := _Result;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{90ab7058-3e29-4c68-9abb-c086e958cd38}">
+        <Declaration><![CDATA[PUBLIC 
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_Result := Result;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <LineIds Name="ACMethodMixing">
+      <LineId Id="9" Count="0" />
+    </LineIds>
+    <LineIds Name="ACMethodMixing.IsValid.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="ACMethodMixing.Parameter.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="ACMethodMixing.Parameter.Set">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="ACMethodMixing.Result.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="ACMethodMixing.Result.Set">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

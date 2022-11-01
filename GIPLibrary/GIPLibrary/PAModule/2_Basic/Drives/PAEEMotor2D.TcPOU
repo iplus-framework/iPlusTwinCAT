@@ -1,0 +1,284 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.6">
+  <POU Name="PAEEMotor2D" Id="{6a4fb019-13e3-4d45-95ed-03a9fcf466aa}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK PUBLIC PAEEMotor2D EXTENDS PAEEMotorStartCtrl
+VAR_INPUT
+END_VAR
+VAR_OUTPUT
+END_VAR
+VAR
+	_PAPointMatInOut1 : PAPoint(THIS^);
+	_PAPointMatInOut2 : PAPoint(THIS^);
+	_DirectionLeft : BOOL;
+	_ReqDirectionLeft : BOOL;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Property Name="DirectionLeft" Id="{abea491d-34a3-4914-9312-8fffeb00af5e}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+//{attribute 'TcRpcEnable'}
+PROPERTY PUBLIC DirectionLeft : BOOL]]></Declaration>
+      <Get Name="Get" Id="{539a146e-0bdf-41c8-b4c1-5ce1c464b6ee}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[DirectionLeft:=_DirectionLeft;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{0470e491-d8a5-4d2b-af86-58b438da2d58}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_DirectionLeft:=DirectionLeft;
+Root.OnPropertyChangedBool(THIS^, 50, _DirectionLeft);]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="FB_init" Id="{103743ca-5d67-4ca6-b7b2-86d48811a02d}">
+      <Declaration><![CDATA[METHOD FB_init : BOOL
+VAR_INPUT
+	bInitRetains : BOOL; // if TRUE, the retain variables are initialized (warm start / cold start)
+	bInCopyCode : BOOL;  // if TRUE, the instance afterwards gets moved into the copy code (online change)
+	parent : IACComponent;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[AddPoint(_PAPointMatInOut1);
+AddPoint(_PAPointMatInOut2);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="FB_postinit" Id="{c0b27f3b-9529-4f33-a190-d9c8d3f0f40d}">
+      <Declaration><![CDATA[METHOD FB_postinit
+VAR_INPUT
+	root : IACVariobatch;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SUPER^.FB_postinit(root);
+root.OnPropertyChangedBool(THIS^, 50, _DirectionLeft);
+root.OnPropertyChangedBool(THIS^, 51, _ReqDirectionLeft);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="HasPointReachedOffPosition" Id="{2f8147b8-fe5d-4fb6-8a79-286fd1150506}">
+      <Declaration><![CDATA[METHOD PUBLIC HasPointReachedOffPosition : BOOL
+VAR_INPUT
+	point : IACPoint;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF point = PAPointMatInOut1 OR point = PAPointMatInOut2 THEN
+	HasPointReachedOffPosition := NOT _RunState;
+ELSE
+	HasPointReachedOffPosition := FALSE;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="HasPointReachedOnPosition" Id="{17e3cd9b-3703-4d14-b7a0-89f763eee301}">
+      <Declaration><![CDATA[METHOD PUBLIC HasPointReachedOnPosition : BOOL
+VAR_INPUT
+	point : IACPoint;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF point = PAPointMatInOut1 THEN
+	HasPointReachedOnPosition := ((NOT _DirectionLeft) AND _RunState) // Fungiert als Ausgangspunkt
+								OR _DirectionLeft; // Fungiert als Eingangspunkt
+ELSIF point = PAPointMatInOut2 THEN
+	HasPointReachedOnPosition := (_DirectionLeft AND _RunState) // Fungiert als Ausgangspunkt 
+								OR NOT _DirectionLeft; // Fungiert als Eingangspunkt
+ELSE
+	HasPointReachedOnPosition := FALSE;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="InvokeSetterBool" Id="{2a30011c-e224-4cd9-bf92-df64e6534c7a}">
+      <Declaration><![CDATA[METHOD PUBLIC InvokeSetterBool
+VAR_INPUT
+	PropertyID : INT;
+	PropertyValue : BOOL;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SUPER^.InvokeSetterBool(PropertyID, PropertyValue);
+IF PropertyID = 50 THEN
+	DirectionLeft := PropertyValue;
+ELSIF PropertyID = 51 THEN	
+	ReqDirectionLeft := PropertyValue;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="IsEnabledTurnOnLeft" Id="{93d86263-124e-4ac3-bcf9-9ae89f9c29cd}">
+      <Declaration><![CDATA[METHOD PUBLIC IsEnabledTurnOnLeft : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="IsEnabledTurnOnRight" Id="{04cff014-f022-4081-9135-43b62934e517}">
+      <Declaration><![CDATA[METHOD PUBLIC IsEnabledTurnOnRight : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnInitMemory" Id="{340fbb05-6a96-47c6-a00c-8aec5a277848}">
+      <Declaration><![CDATA[METHOD OnInitMemory
+VAR_INPUT
+	root : IACVariobatch;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[RegisterProperty(root, 50, GCL.cSizeBYTE); //DirectionLeft
+RegisterProperty(root, 51, GCL.cSizeBYTE); //ReqDirectionLeft
+SUPER^.OnInitMemory(root);]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="PAPointMatInOut1" Id="{dcd045f6-5229-4156-9a34-7f014dac76f9}">
+      <Declaration><![CDATA[PROPERTY PUBLIC PAPointMatInOut1 : IACPoint]]></Declaration>
+      <Get Name="Get" Id="{6d571e82-b0b6-4cf7-ad71-5621240db6d7}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[PAPointMatInOut1:=_PAPointMatInOut1;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="PAPointMatInOut2" Id="{6c2dcc4c-32e5-4cfa-8f46-f868681655ed}">
+      <Declaration><![CDATA[PROPERTY PUBLIC PAPointMatInOut2 : IACPoint]]></Declaration>
+      <Get Name="Get" Id="{aca16904-dab9-4f03-842c-b4ce56eb2731}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[PAPointMatInOut2:=_PAPointMatInOut2;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="ReqDirectionLeft" Id="{d452eea0-3202-4f25-9805-25e1c02d5e2f}">
+      <Declaration><![CDATA[//{attribute 'TcRpcEnable'}
+PROPERTY PUBLIC ReqDirectionLeft : BOOL]]></Declaration>
+      <Get Name="Get" Id="{cb4f88c2-3c1e-4e70-9519-87410ee5e8b1}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[ReqDirectionLeft:=_ReqDirectionLeft;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{1cc86aa8-c9de-47dd-9956-b6381da67f67}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_ReqDirectionLeft:=ReqDirectionLeft;
+Root.OnPropertyChangedBool(THIS^, 51, _ReqDirectionLeft);
+IF Root.InSimulation THEN
+	DirectionLeft := _ReqDirectionLeft;
+END_IF]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="TurnOnLeft" Id="{2c7fae80-470a-4ccb-bd24-051da3548fff}">
+      <Declaration><![CDATA[METHOD PUBLIC TurnOnLeft
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="TurnOnRight" Id="{95933f27-4d02-47aa-b887-b11da6a2d877}">
+      <Declaration><![CDATA[METHOD PUBLIC TurnOnRight
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <LineIds Name="PAEEMotor2D">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEEMotor2D.DirectionLeft.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEEMotor2D.DirectionLeft.Set">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEEMotor2D.FB_init">
+      <LineId Id="8" Count="0" />
+      <LineId Id="7" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEEMotor2D.FB_postinit">
+      <LineId Id="8" Count="2" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEEMotor2D.HasPointReachedOffPosition">
+      <LineId Id="7" Count="3" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEEMotor2D.HasPointReachedOnPosition">
+      <LineId Id="7" Count="0" />
+      <LineId Id="17" Count="0" />
+      <LineId Id="8" Count="0" />
+      <LineId Id="11" Count="0" />
+      <LineId Id="18" Count="0" />
+      <LineId Id="12" Count="0" />
+      <LineId Id="9" Count="1" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEEMotor2D.InvokeSetterBool">
+      <LineId Id="8" Count="4" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEEMotor2D.IsEnabledTurnOnLeft">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEEMotor2D.IsEnabledTurnOnRight">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEEMotor2D.OnInitMemory">
+      <LineId Id="7" Count="0" />
+      <LineId Id="9" Count="0" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEEMotor2D.PAPointMatInOut1.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEEMotor2D.PAPointMatInOut2.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEEMotor2D.ReqDirectionLeft.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEEMotor2D.ReqDirectionLeft.Set">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+      <LineId Id="8" Count="1" />
+      <LineId Id="7" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEEMotor2D.TurnOnLeft">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEEMotor2D.TurnOnRight">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

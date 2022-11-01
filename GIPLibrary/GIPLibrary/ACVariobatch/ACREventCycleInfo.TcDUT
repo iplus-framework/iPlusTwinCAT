@@ -1,0 +1,22 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4020.12">
+  <DUT Name="ACREventCycleInfo" Id="{36d91dbf-6bbf-405d-b740-79c1c48deabe}">
+    <Declaration><![CDATA[TYPE ACREventCycleInfo :
+STRUCT
+	_MemReadCycle : UDINT;
+	_MemWriteCycle : UDINT;
+	_NextByteEventIndex : DINT;
+	_NextUIntEventIndex : DINT;
+	_NextIntEventIndex : DINT;
+	_NextUDIntEventIndex : DINT;
+	_NextDIntEventIndex : DINT;
+	_NextRealEventIndex : DINT;
+	_NextLRealEventIndex : DINT;
+	_NextStringEventIndex : DINT;
+	_NextTimeEventIndex : DINT;
+	_NextDTEventIndex : DINT;
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

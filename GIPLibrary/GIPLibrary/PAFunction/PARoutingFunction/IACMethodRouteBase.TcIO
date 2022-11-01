@@ -1,0 +1,38 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4020.12">
+  <Itf Name="IACMethodRouteBase" Id="{5f0e2e87-cca9-4b49-8d90-0d51c828fc22}">
+    <Declaration><![CDATA[INTERFACE IACMethodRouteBase EXTENDS IACMethod
+]]></Declaration>
+    <Method Name="AssignRoute" Id="{52a607e6-2781-44dd-9e6a-b3fb46cba777}">
+      <Declaration><![CDATA[METHOD AssignRoute : BOOL
+VAR_INPUT
+	iAssignWithFunction : IPAProcessFunction;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Property Name="FirstCModuleInRoute" Id="{eeb4f1ba-7914-48bb-82b7-016bc7aafe51}">
+      <Declaration><![CDATA[PROPERTY FirstCModuleInRoute : IPAControlModule]]></Declaration>
+      <Get Name="Get" Id="{50df1f2b-4d94-4022-8af4-373d8a35087d}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Property Name="LastCModuleInRoute" Id="{7744c646-e33a-471d-92a6-002a40ac8936}">
+      <Declaration><![CDATA[PROPERTY LastCModuleInRoute : IPAControlModule]]></Declaration>
+      <Get Name="Get" Id="{9f61e21f-3dc6-4b27-9a1c-b6b357ddfeaa}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Method Name="ResetRoute" Id="{cfbd70f2-7302-48f3-ae05-651a1aefc9f8}">
+      <Declaration><![CDATA[METHOD ResetRoute
+VAR_INPUT
+END_VAR
+]]></Declaration>
+    </Method>
+    <Property Name="Route" Id="{9167d0b2-fd91-43b7-aabc-4dab3ff69b4a}">
+      <Declaration><![CDATA[PROPERTY Route : PARoute]]></Declaration>
+      <Get Name="Get" Id="{665e5675-c084-487d-86e4-780b127be625}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+  </Itf>
+</TcPlcObject>

@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4020.12">
+  <DUT Name="PARoutePointers" Id="{46e5edba-7498-4df9-9c6c-0ac570f02f22}">
+    <Declaration><![CDATA[TYPE PARoutePointers :
+STRUCT
+	_InstanceID : ARRAY [1..GCL.cRouteItemMAX] OF UDINT;
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

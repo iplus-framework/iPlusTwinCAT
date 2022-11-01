@@ -1,0 +1,10 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4020.12">
+  <DUT Name="ACMethodBaseP" Id="{e468b4fd-5bdf-4975-a108-9ea34b967c90}">
+    <Declaration><![CDATA[TYPE ACMethodBaseP :
+STRUCT
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>
