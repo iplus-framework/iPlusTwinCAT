@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4020.12">
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.6">
   <POU Name="PAMSilo" Id="{8c438af7-c522-409b-9349-cd0efcda1a63}" SpecialFunc="None">
     <Declaration><![CDATA[FUNCTION_BLOCK PAMSilo EXTENDS PAProcessModule IMPLEMENTS IPAMSilo
 VAR_INPUT
@@ -9,6 +9,7 @@ END_VAR
 VAR
 	_PAPointMatIn1 : PAPoint(THIS^);
 	_PAPointMatOut1 : PAPoint(THIS^);
+	_FillLevel : LREAL;
 END_VAR
 ]]></Declaration>
     <Implementation>
@@ -25,6 +26,52 @@ END_VAR
       <Implementation>
         <ST><![CDATA[AddPoint(_PAPointMatIn1);
 AddPoint(_PAPointMatOut1);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="FB_postinit" Id="{f10d123d-2020-42ce-8e8c-892bb0b29b54}">
+      <Declaration><![CDATA[METHOD PUBLIC FB_postinit
+VAR_INPUT
+		root : IACVariobatch;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SUPER^.FB_postinit(root);  
+root.OnPropertyChangedLReal(THIS^, 20, _FillLevel);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="FillLevel" Id="{04659c80-c650-48a4-ad05-7eba530b98ee}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+//{attribute 'TcRpcEnable'}
+PROPERTY PUBLIC FillLevel : LREAL]]></Declaration>
+      <Get Name="Get" Id="{9be80066-5028-4329-ba76-ee4a546b65c5}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[FillLevel := _FillLevel;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{99c490a5-f23f-44bc-8a0e-4702e53c66ee}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_FillLevel := FillLevel;
+Root.OnPropertyChangedLReal(THIS^, 20, _FillLevel);]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="OnInitMemory" Id="{5042c2ca-0a47-494d-b637-0724e12cdb9c}">
+      <Declaration><![CDATA[METHOD OnInitMemory
+VAR_INPUT
+		root : IACVariobatch;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[RegisterProperty(root, 20, GCL.cSizeLREAL); //FillLevel
+SUPER^.OnInitMemory(root);]]></ST>
       </Implementation>
     </Method>
     <Property Name="PAPointMatIn1" Id="{e98b3327-6e29-46d9-82cc-f3779057e7e3}">
@@ -56,6 +103,21 @@ END_VAR
     <LineIds Name="PAMSilo.FB_init">
       <LineId Id="8" Count="0" />
       <LineId Id="7" Count="0" />
+    </LineIds>
+    <LineIds Name="PAMSilo.FB_postinit">
+      <LineId Id="12" Count="1" />
+      <LineId Id="6" Count="0" />
+    </LineIds>
+    <LineIds Name="PAMSilo.FillLevel.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAMSilo.FillLevel.Set">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAMSilo.OnInitMemory">
+      <LineId Id="16" Count="0" />
+      <LineId Id="5" Count="0" />
     </LineIds>
     <LineIds Name="PAMSilo.PAPointMatIn1.Get">
       <LineId Id="2" Count="0" />

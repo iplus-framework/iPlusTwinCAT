@@ -8,6 +8,8 @@ VAR_OUTPUT
 END_VAR
 VAR
 	_InputAddress : STRING;
+	_SwitchingFrequency : DINT;
+	_TotalAlarms : DINT;
 END_VAR
 ]]></Declaration>
     <Implementation>
@@ -21,6 +23,8 @@ END_VAR
 ]]></Declaration>
       <Implementation>
         <ST><![CDATA[SUPER^.FB_postinit(root);
+root.OnPropertyChangedDInt(THIS^, 13, _SwitchingFrequency);
+root.OnPropertyChangedDInt(THIS^, 14, _TotalAlarms);
 root.OnPropertyChangedString(THIS^, 19, _InputAddress);]]></ST>
       </Implementation>
     </Method>
@@ -68,15 +72,62 @@ VAR_INPUT
 END_VAR
 ]]></Declaration>
       <Implementation>
-        <ST><![CDATA[RegisterProperty(root, 19, GCL.cSizeSTRING); // InputAddress
+        <ST><![CDATA[RegisterProperty(root, 13, GCL.cSizeDINT); // _SwitchingFrequency
+RegisterProperty(root, 14, GCL.cSizeDINT); // _TotalAlarms
+RegisterProperty(root, 19, GCL.cSizeSTRING); // InputAddress
 SUPER^.OnInitMemory(root);]]></ST>
       </Implementation>
     </Method>
+    <Property Name="SwitchingFrequency" Id="{2224f919-5401-44a4-9805-42b6f0ba9168}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+//{attribute 'TcRpcEnable'}
+PROPERTY PUBLIC SwitchingFrequency : DINT]]></Declaration>
+      <Get Name="Get" Id="{4a61facb-0fb4-49bb-b98c-e59ca872aaf4}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[SwitchingFrequency := _SwitchingFrequency;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{667c06d0-d5b1-4294-94cd-ff445f1253bc}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_SwitchingFrequency := SwitchingFrequency;
+Root.OnPropertyChangedDInt(THIS^, 13, _SwitchingFrequency);]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="TotalAlarms" Id="{f38f6728-741f-4c58-aab7-e535e5e13065}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+//{attribute 'TcRpcEnable'}
+PROPERTY PUBLIC TotalAlarms : DINT]]></Declaration>
+      <Get Name="Get" Id="{a4264417-1b55-45f0-9b81-1ae3c9f767c8}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[TotalAlarms := _TotalAlarms;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{7ded6128-ae59-4fc8-8d35-36e914c09094}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_TotalAlarms := TotalAlarms;
+Root.OnPropertyChangedDInt(THIS^, 14, _TotalAlarms);]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
     <LineIds Name="PAESensorBase">
       <LineId Id="9" Count="0" />
     </LineIds>
     <LineIds Name="PAESensorBase.FB_postinit">
       <LineId Id="7" Count="0" />
+      <LineId Id="13" Count="1" />
       <LineId Id="5" Count="0" />
     </LineIds>
     <LineIds Name="PAESensorBase.InputAddress.Get">
@@ -91,8 +142,23 @@ SUPER^.OnInitMemory(root);]]></ST>
       <LineId Id="5" Count="0" />
     </LineIds>
     <LineIds Name="PAESensorBase.OnInitMemory">
+      <LineId Id="12" Count="1" />
       <LineId Id="7" Count="0" />
       <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="PAESensorBase.SwitchingFrequency.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAESensorBase.SwitchingFrequency.Set">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAESensorBase.TotalAlarms.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAESensorBase.TotalAlarms.Set">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
     </LineIds>
   </POU>
 </TcPlcObject>
