@@ -32,7 +32,7 @@ VAR_INPUT
 END_VAR
 ]]></Declaration>
       <Implementation>
-        <ST><![CDATA[]]></ST>
+        <ST><![CDATA[Pos1Open := FALSE;]]></ST>
       </Implementation>
     </Method>
     <Method Name="FB_init" Id="{fba4ee08-bb8e-4340-87cd-4f56e2c8bca7}">
@@ -163,7 +163,7 @@ END_VAR
                           <l2 n="OutputItems" cet="Operand">
                             <o>
                               <v n="Operand">"???"</v>
-                              <n n="Type" />
+                              <v n="Type">"BOOL"</v>
                               <v n="Comment">""</v>
                               <v n="SymbolComment">""</v>
                               <v n="Address">""</v>
@@ -1425,11 +1425,12 @@ END_VAR
       <Implementation>
         <ST><![CDATA[SUPER^.OnMainEnter();
 
+// TEST-CODE:
 // Aufruf als FUP-Variante
 IF FALSE THEN
 	MyMainEnter();	
 // ST
-ELSE
+ELSIF FALSE THEN
 	IF OperatingMode = PAOperatingModeEnum.Automatic THEN
 		IF RoutingStateThis = PARoutingState.MovingOrTurningOn THEN
 			_ReqPos1OpenA := TRUE;
@@ -1471,7 +1472,7 @@ VAR_INPUT
 END_VAR
 ]]></Declaration>
       <Implementation>
-        <ST><![CDATA[]]></ST>
+        <ST><![CDATA[Pos1Open := TRUE;]]></ST>
       </Implementation>
     </Method>
     <Property Name="PAPointMatIn1" Id="{1d8f36c7-b913-48e8-9aab-0a714c227b4c}">
@@ -1602,7 +1603,8 @@ END_VAR
     </LineIds>
     <LineIds Name="PAEActuator1way.OnMainEnter">
       <LineId Id="38" Count="0" />
-      <LineId Id="45" Count="0" />
+      <LineId Id="69" Count="0" />
+      <LineId Id="68" Count="0" />
       <LineId Id="62" Count="0" />
       <LineId Id="46" Count="1" />
       <LineId Id="63" Count="0" />
