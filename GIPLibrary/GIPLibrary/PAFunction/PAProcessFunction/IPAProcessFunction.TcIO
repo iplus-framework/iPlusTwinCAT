@@ -4,7 +4,9 @@
     <Declaration><![CDATA[INTERFACE IPAProcessFunction EXTENDS IACComponent
 ]]></Declaration>
     <Property Name="ACState" Id="{cebbfa0e-c1f9-40d8-8238-0c74fe94c23f}">
-      <Declaration><![CDATA[PROPERTY ACState : ACStateEnum]]></Declaration>
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+//{attribute 'TcRpcEnable'}
+PROPERTY ACState : ACStateEnum]]></Declaration>
       <Get Name="Get" Id="{c82ecdbb-fd0c-4ae5-b99c-cf3a6fde5bed}">
         <Declaration><![CDATA[]]></Declaration>
       </Get>

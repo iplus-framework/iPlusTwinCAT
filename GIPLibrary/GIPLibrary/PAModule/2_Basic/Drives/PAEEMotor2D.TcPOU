@@ -200,7 +200,8 @@ VAR_INPUT
 END_VAR
 ]]></Declaration>
       <Implementation>
-        <ST><![CDATA[]]></ST>
+        <ST><![CDATA[DirectionLeft := TRUE;
+RunState := TRUE;]]></ST>
       </Implementation>
     </Method>
     <Method Name="TurnOnRight" Id="{95933f27-4d02-47aa-b887-b11da6a2d877}">
@@ -209,7 +210,8 @@ VAR_INPUT
 END_VAR
 ]]></Declaration>
       <Implementation>
-        <ST><![CDATA[]]></ST>
+        <ST><![CDATA[DirectionLeft := FALSE;
+RunState := TRUE;]]></ST>
       </Implementation>
     </Method>
     <LineIds Name="PAEEMotor2D">
@@ -276,8 +278,10 @@ END_VAR
     </LineIds>
     <LineIds Name="PAEEMotor2D.TurnOnLeft">
       <LineId Id="2" Count="0" />
+      <LineId Id="6" Count="0" />
     </LineIds>
     <LineIds Name="PAEEMotor2D.TurnOnRight">
+      <LineId Id="6" Count="0" />
       <LineId Id="2" Count="0" />
     </LineIds>
   </POU>

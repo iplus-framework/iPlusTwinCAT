@@ -176,7 +176,7 @@ VAR_INPUT
 END_VAR
 ]]></Declaration>
       <Implementation>
-        <ST><![CDATA[]]></ST>
+        <ST><![CDATA[RunState := FALSE;]]></ST>
       </Implementation>
     </Method>
     <LineIds Name="PAEEMotorBase">

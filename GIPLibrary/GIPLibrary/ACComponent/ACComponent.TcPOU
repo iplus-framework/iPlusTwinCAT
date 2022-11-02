@@ -156,11 +156,13 @@ VAR_INPUT
 	maxChildDepth : INT;
 END_VAR
 VAR
+	currIndexInResultArr : INT;
 	result : ARRAY [0..GCL.cChildsMAX] OF IACComponent;
 END_VAR
 ]]></Declaration>
       <Implementation>
-        <ST><![CDATA[FindChildsOfTypeIntern(objectType,0,maxChildDepth,0,result);
+        <ST><![CDATA[currIndexInResultArr := 0;
+FindChildsOfTypeIntern(THIS^,objectType,0,maxChildDepth,currIndexInResultArr,result);
 FindChildOfTypeAt := result[atIndex];]]></ST>
       </Implementation>
     </Method>
@@ -172,23 +174,29 @@ VAR_INPUT
 END_VAR
 VAR_IN_OUT
 	result : ARRAY [0..GCL.cChildsMAX] OF IACComponent;
+END_VAR
+VAR
+	currIndexInResultArr : INT;
 END_VAR]]></Declaration>
       <Implementation>
-        <ST><![CDATA[FindChildsOfTypeIntern(objectType,0,maxChildDepth,0,result);]]></ST>
+        <ST><![CDATA[currIndexInResultArr := 0;
+FindChildsOfTypeIntern(THIS^,objectType,0,maxChildDepth,currIndexInResultArr,result);]]></ST>
       </Implementation>
     </Method>
     <Method Name="FindChildsOfTypeIntern" Id="{b2bdf6ab-d225-4c7a-96f2-ec26236633f7}">
       <Declaration><![CDATA[METHOD PRIVATE FindChildsOfTypeIntern
 VAR_INPUT
+	iThis : IACComponent;
 	objectType : TypeOfACObjectEnum;
 	currentDepth : INT;
 	maxChildDepth : INT;
-	currIndexInResultArr : INT;
 END_VAR
 VAR_IN_OUT
+	currIndexInResultArr : INT;
 	result : ARRAY [0..GCL.cChildsMAX] OF IACComponent;
 END_VAR
 VAR
+	childs : ARRAY [1..GCL.cChildsMAX] OF IACComponent;
 	i: INT;
 	iProcessFunction : IPAProcessFunction;
 	iDosing : IPAFDosing;
@@ -207,59 +215,59 @@ END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[CASE objectType OF
 	TypeOfACObjectEnum.ProcessFunction:
-		IF __QUERYINTERFACE(THIS^, iProcessFunction) THEN
-			result[currIndexInResultArr] := THIS^;
+		IF __QUERYINTERFACE(iThis, iProcessFunction) THEN
+			result[currIndexInResultArr] := iThis;
 			currIndexInResultArr := currIndexInResultArr + 1;
 		END_IF	
 	TypeOfACObjectEnum.Dosing:
-		IF __QUERYINTERFACE(THIS^, iDosing) THEN
-			result[currIndexInResultArr] := THIS^;
+		IF __QUERYINTERFACE(iThis, iDosing) THEN
+			result[currIndexInResultArr] := iThis;
 			currIndexInResultArr := currIndexInResultArr + 1;
 		END_IF	
 	TypeOfACObjectEnum.Discharging:
-		IF __QUERYINTERFACE(THIS^, iDischarging) THEN
-			result[currIndexInResultArr] := THIS^;
+		IF __QUERYINTERFACE(iThis, iDischarging) THEN
+			result[currIndexInResultArr] := iThis;
 			currIndexInResultArr := currIndexInResultArr + 1;
 			RETURN;
 		END_IF	
 	TypeOfACObjectEnum.Mixing:
-		IF __QUERYINTERFACE(THIS^, iMixing) THEN
-			result[currIndexInResultArr] := THIS^;
+		IF __QUERYINTERFACE(iThis, iMixing) THEN
+			result[currIndexInResultArr] := iThis;
 			currIndexInResultArr := currIndexInResultArr + 1;
 		END_IF	
 	TypeOfACObjectEnum.ControlModule:
-		IF __QUERYINTERFACE(THIS^, iControlModule) THEN
-			result[currIndexInResultArr] := THIS^;
+		IF __QUERYINTERFACE(iThis, iControlModule) THEN
+			result[currIndexInResultArr] := iThis;
 			currIndexInResultArr := currIndexInResultArr + 1;
 		END_IF	
 	TypeOfACObjectEnum.ScaleBase:
-		IF __QUERYINTERFACE(THIS^, iScaleBase) THEN
-			result[currIndexInResultArr] := THIS^;
+		IF __QUERYINTERFACE(iThis, iScaleBase) THEN
+			result[currIndexInResultArr] := iThis;
 			currIndexInResultArr := currIndexInResultArr + 1;
 		END_IF	
 	TypeOfACObjectEnum.ScaleGravimetric:
-		IF __QUERYINTERFACE(THIS^, iScaleGravimetric) THEN
-			result[currIndexInResultArr] := THIS^;
+		IF __QUERYINTERFACE(iThis, iScaleGravimetric) THEN
+			result[currIndexInResultArr] := iThis;
 			currIndexInResultArr := currIndexInResultArr + 1;
 		END_IF	
 	TypeOfACObjectEnum.ScaleTotalizing:
-		IF __QUERYINTERFACE(THIS^, iScaleTotalizing) THEN
-			result[currIndexInResultArr] := THIS^;
+		IF __QUERYINTERFACE(iThis, iScaleTotalizing) THEN
+			result[currIndexInResultArr] := iThis;
 			currIndexInResultArr := currIndexInResultArr + 1;
 		END_IF	
 	TypeOfACObjectEnum.ScaleVolumetric:
-		IF __QUERYINTERFACE(THIS^, iScaleVolumetric) THEN
-			result[currIndexInResultArr] := THIS^;
+		IF __QUERYINTERFACE(iThis, iScaleVolumetric) THEN
+			result[currIndexInResultArr] := iThis;
 			currIndexInResultArr := currIndexInResultArr + 1;
 		END_IF	
 	TypeOfACObjectEnum.ProcessModule:
-		IF __QUERYINTERFACE(THIS^, iProcessModule) THEN
-			result[currIndexInResultArr] := THIS^;
+		IF __QUERYINTERFACE(iThis, iProcessModule) THEN
+			result[currIndexInResultArr] := iThis;
 			currIndexInResultArr := currIndexInResultArr + 1;
 		END_IF	
 	TypeOfACObjectEnum.Silo:
-		IF __QUERYINTERFACE(THIS^, iSilo) THEN
-			result[currIndexInResultArr] := THIS^;
+		IF __QUERYINTERFACE(iThis, iSilo) THEN
+			result[currIndexInResultArr] := iThis;
 			currIndexInResultArr := currIndexInResultArr + 1;
 		END_IF	
 END_CASE
@@ -272,10 +280,11 @@ IF ((maxChildDepth > 0) AND (currentDepth > maxChildDepth)) THEN
 	RETURN;
 END_IF
 
+childs := iThis.Childs;
 FOR i:=1 TO GCL.cChildsMAX BY 1
   DO
-    IF _Childs[i] <> 0 THEN
-		FindChildsOfTypeIntern(objectType,currentDepth,maxChildDepth,currIndexInResultArr,result);
+    IF childs[i] <> 0 THEN
+		FindChildsOfTypeIntern(childs[i],objectType,currentDepth,maxChildDepth,currIndexInResultArr,result);
 	ELSE
 		EXIT;
 	END_IF
@@ -694,10 +703,12 @@ END_VAR
       <LineId Id="3" Count="0" />
     </LineIds>
     <LineIds Name="ACComponent.FindChildOfTypeAt">
+      <LineId Id="23" Count="0" />
       <LineId Id="12" Count="0" />
       <LineId Id="5" Count="0" />
     </LineIds>
     <LineIds Name="ACComponent.FindChildsOfType">
+      <LineId Id="14" Count="0" />
       <LineId Id="5" Count="0" />
     </LineIds>
     <LineIds Name="ACComponent.FindChildsOfTypeIntern">
@@ -726,7 +737,9 @@ END_VAR
       <LineId Id="85" Count="0" />
       <LineId Id="108" Count="4" />
       <LineId Id="115" Count="0" />
-      <LineId Id="118" Count="5" />
+      <LineId Id="118" Count="3" />
+      <LineId Id="176" Count="0" />
+      <LineId Id="122" Count="1" />
       <LineId Id="144" Count="0" />
       <LineId Id="124" Count="0" />
       <LineId Id="140" Count="2" />
