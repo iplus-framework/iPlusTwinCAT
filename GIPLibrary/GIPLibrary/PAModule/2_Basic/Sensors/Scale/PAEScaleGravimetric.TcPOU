@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.6">
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
   <POU Name="PAEScaleGravimetric" Id="{2689bd4b-c758-47c9-b36a-a0290e7a3511}" SpecialFunc="None">
     <Declaration><![CDATA[FUNCTION_BLOCK PUBLIC PAEScaleGravimetric EXTENDS PAEScaleBase IMPLEMENTS IPAScaleGravimetric
 VAR_INPUT
@@ -8,7 +8,7 @@ VAR_OUTPUT
 END_VAR
 VAR
 	_CalmingTime : TIME;
-	_CalmingWeight : TIME;
+	_CalmingWeight : LREAL;
 	_IsDischarging : BOOL;
 	_IsManualDosing : BOOL;
 	_IsTared : BOOL;
@@ -75,7 +75,7 @@ Root.OnPropertyChangedTime(THIS^, 72, _CalmingTime);]]></ST>
     <Property Name="CalmingWeight" Id="{54282896-1f07-47cd-91c7-7650e7e99f26}">
       <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
 //{attribute 'TcRpcEnable'}
-PROPERTY CalmingWeight : TIME]]></Declaration>
+PROPERTY CalmingWeight : LREAL]]></Declaration>
       <Get Name="Get" Id="{1b726460-df51-4354-9026-1c6ae8026981}">
         <Declaration><![CDATA[VAR
 END_VAR
@@ -90,7 +90,7 @@ END_VAR
 ]]></Declaration>
         <Implementation>
           <ST><![CDATA[_CalmingWeight := CalmingWeight;
-Root.OnPropertyChangedTime(THIS^, 73, _CalmingWeight);]]></ST>
+Root.OnPropertyChangedLReal(THIS^, 73, _CalmingWeight);]]></ST>
         </Implementation>
       </Set>
     </Property>
@@ -103,7 +103,7 @@ END_VAR
       <Implementation>
         <ST><![CDATA[SUPER^.FB_postinit(root);
 root.OnPropertyChangedTime(THIS^, 72, _CalmingTime);
-root.OnPropertyChangedTime(THIS^, 73, _CalmingWeight);
+root.OnPropertyChangedLReal(THIS^, 73, _CalmingWeight);
 root.OnPropertyChangedBool(THIS^,74, _ReqZeroSet);
 root.OnPropertyChangedBool(THIS^, 75, _ReqZeroReset);
 root.OnPropertyChangedLReal(THIS^, 76, _TareWeight);
@@ -175,6 +175,8 @@ END_VAR
       <Implementation>
         <ST><![CDATA[SUPER^.InvokeSetterLReal(PropertyID, PropertyValue);
 CASE PropertyID OF
+	73:
+		CalmingWeight := PropertyValue;
 	76:
 		TareWeight := PropertyValue;
 	77:
@@ -195,8 +197,6 @@ END_VAR]]></Declaration>
 CASE PropertyID OF 
 	72:
 		CalmingTime := TO_TIME(PropertyValue);
-	73:
-		CalmingWeight := TO_TIME(PropertyValue);
 END_CASE]]></ST>
       </Implementation>
     </Method>
@@ -298,7 +298,7 @@ END_VAR
 ]]></Declaration>
       <Implementation>
         <ST><![CDATA[RegisterProperty(root, 72, GCL.cSizeTIME); //CalmingTime
-RegisterProperty(root, 73, GCL.cSizeTIME); //CalmingWeight
+RegisterProperty(root, 73, GCL.cSizeLREAL); //CalmingWeight
 RegisterProperty(root, 74, GCL.cSizeBYTE); //ReqZeroSet
 RegisterProperty(root, 75, GCL.cSizeBYTE); //ReqZeroReset
 RegisterProperty(root, 76, GCL.cSizeLREAL); //TareWeight
@@ -565,15 +565,16 @@ Root.OnPropertyChangedBool(THIS^, 80, _ZeroSet);]]></ST>
       <LineId Id="5" Count="0" />
     </LineIds>
     <LineIds Name="PAEScaleGravimetric.InvokeSetterLReal">
-      <LineId Id="8" Count="7" />
+      <LineId Id="8" Count="1" />
+      <LineId Id="21" Count="1" />
+      <LineId Id="10" Count="5" />
       <LineId Id="5" Count="0" />
     </LineIds>
     <LineIds Name="PAEScaleGravimetric.InvokeSetterTime">
       <LineId Id="10" Count="0" />
       <LineId Id="23" Count="0" />
       <LineId Id="11" Count="0" />
-      <LineId Id="17" Count="1" />
-      <LineId Id="16" Count="0" />
+      <LineId Id="17" Count="0" />
       <LineId Id="5" Count="0" />
     </LineIds>
     <LineIds Name="PAEScaleGravimetric.IsDischarging.Get">
