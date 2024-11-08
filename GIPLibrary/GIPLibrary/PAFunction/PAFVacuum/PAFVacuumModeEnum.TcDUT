@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4020.12">
+  <DUT Name="PAFVacuumModeEnum" Id="{6dc57d59-a754-4d4e-92f4-2da49d74696e}">
+    <Declaration><![CDATA[{attribute 'qualified_only'}
+TYPE PAFVacuumModeEnum :
+(
+	Evacuate := 0,
+	ReleaseVacuum := 1,
+	Inflate := 2,
+	BreakPressure := 3
+)INT;
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

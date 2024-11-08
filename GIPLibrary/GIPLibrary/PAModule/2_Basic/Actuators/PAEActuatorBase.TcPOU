@@ -1,0 +1,55 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4020.12">
+  <POU Name="PAEActuatorBase" Id="{1bec4bfa-032c-4c9e-a650-6604cbef6856}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK PUBLIC PAEActuatorBase EXTENDS PAEControlModuleBase
+VAR_INPUT
+END_VAR
+VAR_OUTPUT
+END_VAR
+VAR
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Method Name="GoToBasicPosition" Id="{0ff620b3-085e-45af-8a6d-201bced75125}">
+      <Declaration><![CDATA[METHOD PROTECTED GoToBasicPosition
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="IsEnabledSwitchToMaintenance" Id="{c4de3c36-74cf-48dc-b4e4-c1bcbd1090a0}">
+      <Declaration><![CDATA[METHOD PUBLIC IsEnabledSwitchToMaintenance : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SwitchToMaintenance" Id="{f0bdd76c-5b0d-4b57-8229-0de5e68327d6}">
+      <Declaration><![CDATA[METHOD PUBLIC SwitchToMaintenance
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <LineIds Name="PAEActuatorBase">
+      <LineId Id="9" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEActuatorBase.GoToBasicPosition">
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEActuatorBase.IsEnabledSwitchToMaintenance">
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEActuatorBase.SwitchToMaintenance">
+      <LineId Id="5" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

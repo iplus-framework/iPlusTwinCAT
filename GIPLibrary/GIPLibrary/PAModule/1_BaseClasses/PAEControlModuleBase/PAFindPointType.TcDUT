@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4020.12">
+  <DUT Name="PAFindPointType" Id="{416cc50c-c578-4b46-8a7c-0c4237b3f6c5}">
+    <Declaration><![CDATA[{attribute 'qualified_only'}
+{attribute 'strict'}
+TYPE PAFindPointType :
+(
+	InPoints := 0,
+	OutPoints := 1,
+	Both := 2
+);
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

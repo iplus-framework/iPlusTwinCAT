@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4020.12">
+  <DUT Name="PAEActuatorPos" Id="{59cbc901-d1d0-41a6-8949-a7ef0afca716}">
+    <Declaration><![CDATA[TYPE PAEActuatorPos :
+(
+		BasicPos := 0,      
+        Pos1_Open := 1,      
+        Pos2 := 2,           
+        Pos1_Pos2 := 3,      
+        Pos3 := 4,           
+        Pos1_Pos3 := 5,      
+        Pos2_Pos3 := 6,      
+        Pos1_Pos2_Pos3 := 7
+);	
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

@@ -1,0 +1,182 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4022.7">
+  <POU Name="PAEActuator2way_3pos" Id="{de1bc531-1cd1-48f5-8263-8c3879ef2122}" SpecialFunc="None">
+    <Declaration><![CDATA[/// <summary>
+/// Two-Way-Actuator with basic position
+/// Zwei-Wege-Stellglied mit Grundstellung
+/// </summary>
+FUNCTION_BLOCK PAEActuator2way_3pos EXTENDS PAEActuator2way
+VAR_INPUT
+END_VAR
+VAR_OUTPUT
+END_VAR
+VAR
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Method Name="Close" Id="{1c903920-de84-4ff9-9f52-18e57b2ebc5b}">
+      <Declaration><![CDATA[METHOD PUBLIC Close
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="GoToBasicPosition" Id="{52dda8f1-9829-483d-90f7-45ef9184c477}">
+      <Declaration><![CDATA[METHOD PROTECTED GoToBasicPosition
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="HasPointReachedOffPosition" Id="{050303cd-ff43-466c-af12-949f2fc211bd}">
+      <Declaration><![CDATA[METHOD PUBLIC HasPointReachedOffPosition : BOOL
+VAR_INPUT
+	point : IACPoint;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF point = PAPointMatOut1 THEN
+	HasPointReachedOffPosition := NOT _Pos1 AND NOT _Pos2;
+ELSIF point = PAPointMatOut2 THEN
+	HasPointReachedOffPosition := NOT _Pos1 AND NOT _Pos2;
+ELSIF point = PAPointMatIn1 THEN
+	HasPointReachedOffPosition := TRUE;
+ELSE
+	HasPointReachedOffPosition := FALSE;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="HasPointReachedOnPosition" Id="{79bd9bd9-fa8e-4626-9bc7-5629c07d31b5}">
+      <Declaration><![CDATA[METHOD PUBLIC HasPointReachedOnPosition : BOOL
+VAR_INPUT
+	point : IACPoint;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF point = PAPointMatOut1 THEN
+	HasPointReachedOnPosition := _Pos1;
+ELSIF point = PAPointMatOut2 THEN
+	HasPointReachedOnPosition := _Pos2;
+ELSIF point = PAPointMatIn1 THEN
+	HasPointReachedOnPosition := TRUE;
+ELSE
+	HasPointReachedOnPosition := FALSE;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="IsEnabledClose" Id="{5102b08d-9c2b-4a3d-bbd5-84bdca2ebd18}">
+      <Declaration><![CDATA[METHOD PUBLIC IsEnabledClose : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnMainEnter" Id="{addcf18d-c2ca-4a81-8f69-170794ba3b21}">
+      <Declaration><![CDATA[METHOD PROTECTED OnMainEnter
+VAR_INPUT
+END_VAR
+VAR
+	activePoints : ARRAY [1..GCL.cPointMAX] OF IACPoint;
+	i: INT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SUPER^.OnMainEnter();
+
+IF OperatingMode = PAOperatingModeEnum.Automatic THEN
+	IF RoutingStateThis = PARoutingState.MovingOrTurningOn THEN
+		GetActivePoints(activePoints,PAFindPointType.OutPoints);
+		FOR i:=1 TO GCL.cPointMAX BY 1
+		  DO
+			IF _Points[i] <> 0 THEN
+				IF _Points[i] = PAPointMatOut1 THEN
+					_ReqPos1A := TRUE;
+					_ReqPos2A := FALSE;
+				ELSIF _Points[i] = PAPointMatOut2 THEN
+					_ReqPos1A := FALSE;
+					_ReqPos2A := TRUE;
+				END_IF
+			ELSE
+				EXIT;
+			END_IF
+		END_FOR;
+	ELSIF RoutingStateThis = PARoutingState.MovingOrTurningOff THEN		
+		_ReqPos1A := FALSE;
+		_ReqPos2A := FALSE;
+	END_IF
+END_IF
+// TODO: Was ist mit Wartungsbetrieb?
+_QPos1 := 	(OperatingMode = PAOperatingModeEnum.Automatic AND _ReqPos1A) 
+		 OR (OperatingMode = PAOperatingModeEnum.Manual AND _ReqPos1);
+_QPos2 := 	(OperatingMode = PAOperatingModeEnum.Automatic AND _ReqPos2A) 
+		 OR (OperatingMode = PAOperatingModeEnum.Manual AND _ReqPos2);
+_Pos1 := 	(GVL.gSimulation AND _QPos1) 
+			 OR _IPos1;	
+_Pos2 := 	(GVL.gSimulation AND _QPos2) 
+			 OR _IPos2;	
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnSetCloseValues" Id="{72892cc6-30b5-415d-818b-97d8051d5b8a}">
+      <Declaration><![CDATA[METHOD PUBLIC OnSetCloseValues
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SwitchToAutomatic" Id="{d57a7364-bd22-41ae-8c89-56b08503f083}">
+      <Declaration><![CDATA[METHOD PUBLIC SwitchToAutomatic
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <LineIds Name="PAEActuator2way_3pos">
+      <LineId Id="9" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEActuator2way_3pos.Close">
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEActuator2way_3pos.GoToBasicPosition">
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEActuator2way_3pos.HasPointReachedOffPosition">
+      <LineId Id="8" Count="3" />
+      <LineId Id="18" Count="1" />
+      <LineId Id="12" Count="1" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEActuator2way_3pos.HasPointReachedOnPosition">
+      <LineId Id="10" Count="7" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEActuator2way_3pos.IsEnabledClose">
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEActuator2way_3pos.OnMainEnter">
+      <LineId Id="10" Count="18" />
+      <LineId Id="30" Count="0" />
+      <LineId Id="42" Count="1" />
+      <LineId Id="31" Count="10" />
+      <LineId Id="9" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEActuator2way_3pos.OnSetCloseValues">
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEActuator2way_3pos.SwitchToAutomatic">
+      <LineId Id="5" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

@@ -1,0 +1,433 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.6">
+  <POU Name="PAETurnHeadDist" Id="{1791f932-5bf8-45fc-b4d6-be60ea6f55d1}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK PUBLIC PAETurnHeadDist EXTENDS PAEEMotor2D
+VAR_INPUT
+END_VAR
+VAR_OUTPUT
+END_VAR
+VAR
+	_PAPointMatIn1 : PAPoint(THIS^);
+	_PAPointMatOut01 : PAPoint(THIS^);
+	_PAPointMatOut02 : PAPoint(THIS^);
+	_PAPointMatOut03 : PAPoint(THIS^);
+	_PAPointMatOut04 : PAPoint(THIS^);
+	_PAPointMatOut05 : PAPoint(THIS^);
+	_PAPointMatOut06 : PAPoint(THIS^);
+	_PAPointMatOut07 : PAPoint(THIS^);
+	_PAPointMatOut08 : PAPoint(THIS^);
+	_PAPointMatOut09 : PAPoint(THIS^);
+	_PAPointMatOut10 : PAPoint(THIS^);
+	_DesiredPosition : INT;
+	_Position : INT;
+	_ReqPosition : INT;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Property Name="DesiredPosition" Id="{4b5aa20c-ee37-4c63-8ff2-4dd5101ac2ba}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+//{attribute 'TcRpcEnable'}
+PROPERTY PUBLIC DesiredPosition : INT]]></Declaration>
+      <Get Name="Get" Id="{704af908-372b-43e2-9257-ba39ce11f42c}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[DesiredPosition := _DesiredPosition;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{36fd2fe3-0dbf-46b1-91d8-b69d81787cc0}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_DesiredPosition := DesiredPosition;
+Root.OnPropertyChangedInt(THIS^, 56, _DesiredPosition);]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="FB_init" Id="{00b03402-d621-4ff3-84a4-bc6d3c003a4f}">
+      <Declaration><![CDATA[METHOD FB_init : BOOL
+VAR_INPUT
+	bInitRetains : BOOL; // if TRUE, the retain variables are initialized (warm start / cold start)
+	bInCopyCode : BOOL;  // if TRUE, the instance afterwards gets moved into the copy code (online change)
+	parent : IACComponent;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[AddPoint(_PAPointMatIn1);
+AddPoint(_PAPointMatOut01);
+AddPoint(_PAPointMatOut02);
+AddPoint(_PAPointMatOut03);
+AddPoint(_PAPointMatOut04);
+AddPoint(_PAPointMatOut05);
+AddPoint(_PAPointMatOut06);
+AddPoint(_PAPointMatOut07);
+AddPoint(_PAPointMatOut08);
+AddPoint(_PAPointMatOut09);
+AddPoint(_PAPointMatOut10);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="FB_postinit" Id="{b2a4cff4-e33d-4583-87a5-813c04828cb4}">
+      <Declaration><![CDATA[METHOD FB_postinit
+VAR_INPUT
+	root : IACVariobatch;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SUPER^.FB_postinit(root);  
+root.OnPropertyChangedInt(THIS^, 55, _Position);
+root.OnPropertyChangedInt(THIS^, 56, _DesiredPosition);
+root.OnPropertyChangedInt(THIS^, 57, _ReqPosition);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="HasPointReachedOffPosition" Id="{0b7dad62-5f36-4004-a118-40ae5df985f0}">
+      <Declaration><![CDATA[METHOD PUBLIC HasPointReachedOffPosition : BOOL
+VAR_INPUT
+	point : IACPoint;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="HasPointReachedOnPosition" Id="{f6245a46-c667-4501-8412-ab0a826ec392}">
+      <Declaration><![CDATA[METHOD PUBLIC HasPointReachedOnPosition : BOOL
+VAR_INPUT
+	point : IACPoint;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="InvokeSetterInt" Id="{76b3d27f-1106-43bb-ae3b-9cc3afc3307b}">
+      <Declaration><![CDATA[METHOD PUBLIC InvokeSetterInt
+VAR_INPUT
+	PropertyID : INT;
+	PropertyValue : INT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SUPER^.InvokeSetterInt(PropertyID, PropertyValue);
+CASE PropertyID OF
+	55:
+		Position := PropertyValue;
+	56:
+		DesiredPosition := PropertyValue;
+	57:
+		ReqPosition := PropertyValue;
+END_CASE]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnInitMemory" Id="{c3468934-a1d9-4dbd-9411-f05d48e11033}">
+      <Declaration><![CDATA[METHOD OnInitMemory
+VAR_INPUT
+	root : IACVariobatch;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[RegisterProperty(root, 55, GCL.cSizeINT); //Position
+RegisterProperty(root, 56, GCL.cSizeINT); //DesiredPosition
+RegisterProperty(root, 57, GCL.cSizeINT); //ReqPosition
+SUPER^.OnInitMemory(root);]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="PAPointMatIn1" Id="{a404647b-5209-4499-9b58-b12891c06fa3}">
+      <Declaration><![CDATA[PROPERTY PUBLIC PAPointMatIn1 : IACPoint]]></Declaration>
+      <Get Name="Get" Id="{c0e8aedf-9ced-4017-b458-2a6cf7f9e560}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[PAPointMatIn1 := _PAPointMatIn1;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="PAPointMatOut01" Id="{9a3cd5f6-e9d7-4e0e-9b27-ac3afd0b2f62}">
+      <Declaration><![CDATA[PROPERTY PUBLIC PAPointMatOut01 : IACPoint]]></Declaration>
+      <Get Name="Get" Id="{eb9be030-42cb-4474-bfab-34e559ce0f75}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[PAPointMatOut01 := _PAPointMatOut01;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="PAPointMatOut02" Id="{2eb12494-70f4-4326-9c8a-b21b32bd3d99}">
+      <Declaration><![CDATA[PROPERTY PUBLIC PAPointMatOut02 : IACPoint]]></Declaration>
+      <Get Name="Get" Id="{f552503b-9579-4277-a2d8-99ce2e2275cc}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[PAPointMatOut02 := _PAPointMatOut02;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="PAPointMatOut03" Id="{dcd48c1b-509d-42fa-ae95-2a57af204f4b}">
+      <Declaration><![CDATA[PROPERTY PUBLIC PAPointMatOut03 : IACPoint]]></Declaration>
+      <Get Name="Get" Id="{8690ca26-a8b3-4657-9456-b6f09f58417e}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[PAPointMatOut03 := _PAPointMatOut03;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="PAPointMatOut04" Id="{3f4ce6c2-b659-422f-8665-cc674d6ec597}">
+      <Declaration><![CDATA[PROPERTY PUBLIC PAPointMatOut04 : IACPoint]]></Declaration>
+      <Get Name="Get" Id="{87516809-2aab-41fc-90fd-783c88a343df}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[PAPointMatOut04 := _PAPointMatOut04;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="PAPointMatOut05" Id="{c2405e17-99f1-4c24-b38a-d635847f773f}">
+      <Declaration><![CDATA[PROPERTY PUBLIC PAPointMatOut05 : IACPoint]]></Declaration>
+      <Get Name="Get" Id="{0adab9bd-12e8-424a-9eaf-7dd9446c0e76}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[PAPointMatOut05 := _PAPointMatOut05;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="PAPointMatOut06" Id="{8707f0d9-6a6b-47aa-bfff-a8480a21600a}">
+      <Declaration><![CDATA[PROPERTY PUBLIC PAPointMatOut06 : IACPoint]]></Declaration>
+      <Get Name="Get" Id="{3c6e12f1-e6fe-47c3-a081-5abcb8bb1030}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[PAPointMatOut06 := _PAPointMatOut06;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="PAPointMatOut07" Id="{66f46587-d8d5-4445-bae7-99d5413d812a}">
+      <Declaration><![CDATA[PROPERTY PUBLIC PAPointMatOut07 : IACPoint]]></Declaration>
+      <Get Name="Get" Id="{c715ff0d-a285-4cb7-9004-39006b056fa9}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[PAPointMatOut07 := _PAPointMatOut08;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="PAPointMatOut08" Id="{3eea5dee-07e5-481e-91e7-3e6f347a9a99}">
+      <Declaration><![CDATA[PROPERTY PUBLIC PAPointMatOut08 : IACPoint]]></Declaration>
+      <Get Name="Get" Id="{6eab18f3-3986-428d-a9ae-fee6dad82fa0}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[PAPointMatOut08 := _PAPointMatOut08;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="PAPointMatOut09" Id="{4191852c-2db4-4cee-ae6a-f7c8e4a1ba38}">
+      <Declaration><![CDATA[PROPERTY PUBLIC PAPointMatOut09 : IACPoint]]></Declaration>
+      <Get Name="Get" Id="{0473c79f-9092-4b6d-9f63-6a142f884e66}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[PAPointMatOut09 := _PAPointMatOut09;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="PAPointMatOut10" Id="{365fc2aa-81fc-4b42-92ee-2f247b889341}">
+      <Declaration><![CDATA[PROPERTY PUBLIC PAPointMatOut10 : IACPoint]]></Declaration>
+      <Get Name="Get" Id="{1c5240ec-75ce-4f82-ad2c-c6539a4416c4}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[PAPointMatOut10 := _PAPointMatOut10;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="Position" Id="{3857d02a-e2dd-4115-82c9-7ced76ffdfa7}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+//{attribute 'TcRpcEnable'}
+PROPERTY PUBLIC Position : INT]]></Declaration>
+      <Get Name="Get" Id="{02533626-0fde-40d0-8742-2ea413334509}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Position := _Position;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{f295c1da-1e93-470b-a196-2458b496d9de}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_Position := Position;
+Root.OnPropertyChangedInt(THIS^, 55, _Position);]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="ReqPosition" Id="{4bab6ba9-45b0-437f-ae11-62e7593c6fea}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+//{attribute 'TcRpcEnable'}
+PROPERTY PUBLIC ReqPosition : INT]]></Declaration>
+      <Get Name="Get" Id="{bcd011e1-e468-440b-b37d-ec6854eefe8c}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[ReqPosition := _ReqPosition;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{e1441a23-e090-4f1a-86a2-13f15d0001a1}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_ReqPosition := ReqPosition;
+Root.OnPropertyChangedInt(THIS^, 57, _ReqPosition);
+IF Root.InSimulation THEN
+	Position := _ReqPosition;
+END_IF]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="TurnOnLeftWithPos" Id="{d2fc1164-7be0-4e86-b57f-4e1a9d584566}">
+      <Declaration><![CDATA[METHOD PUBLIC TurnOnLeftWithPos
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="TurnOnRightWithPos" Id="{9b4ce0de-df5d-4cef-80bd-2c040f7aaba6}">
+      <Declaration><![CDATA[METHOD PUBLIC TurnOnRightWithPos
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <LineIds Name="PAETurnHeadDist">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAETurnHeadDist.DesiredPosition.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAETurnHeadDist.DesiredPosition.Set">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAETurnHeadDist.FB_init">
+      <LineId Id="9" Count="9" />
+      <LineId Id="8" Count="0" />
+    </LineIds>
+    <LineIds Name="PAETurnHeadDist.FB_postinit">
+      <LineId Id="7" Count="0" />
+      <LineId Id="11" Count="0" />
+      <LineId Id="8" Count="0" />
+      <LineId Id="10" Count="0" />
+      <LineId Id="6" Count="0" />
+    </LineIds>
+    <LineIds Name="PAETurnHeadDist.HasPointReachedOffPosition">
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="PAETurnHeadDist.HasPointReachedOnPosition">
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="PAETurnHeadDist.InvokeSetterInt">
+      <LineId Id="8" Count="7" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="PAETurnHeadDist.OnInitMemory">
+      <LineId Id="14" Count="0" />
+      <LineId Id="8" Count="0" />
+      <LineId Id="7" Count="0" />
+      <LineId Id="6" Count="0" />
+    </LineIds>
+    <LineIds Name="PAETurnHeadDist.PAPointMatIn1.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAETurnHeadDist.PAPointMatOut01.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAETurnHeadDist.PAPointMatOut02.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAETurnHeadDist.PAPointMatOut03.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAETurnHeadDist.PAPointMatOut04.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAETurnHeadDist.PAPointMatOut05.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAETurnHeadDist.PAPointMatOut06.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAETurnHeadDist.PAPointMatOut07.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAETurnHeadDist.PAPointMatOut08.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAETurnHeadDist.PAPointMatOut09.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAETurnHeadDist.PAPointMatOut10.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAETurnHeadDist.Position.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAETurnHeadDist.Position.Set">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAETurnHeadDist.ReqPosition.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAETurnHeadDist.ReqPosition.Set">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+      <LineId Id="7" Count="2" />
+    </LineIds>
+    <LineIds Name="PAETurnHeadDist.TurnOnLeftWithPos">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAETurnHeadDist.TurnOnRightWithPos">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

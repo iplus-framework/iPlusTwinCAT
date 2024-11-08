@@ -1,0 +1,868 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.6">
+  <POU Name="ACComponent" Id="{76279868-6a32-486d-b9cf-3518008e5244}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK ACComponent EXTENDS ACObject IMPLEMENTS IACComponent
+VAR_INPUT
+END_VAR
+VAR_OUTPUT
+END_VAR
+VAR
+	_Childs : ARRAY [1..GCL.cChildsMAX] OF IACComponent;
+	_Parent : IACComponent;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Property Name="ACIdentifier" Id="{5ae464c2-ab45-43ad-a768-ca043cd4b912}">
+      <Declaration><![CDATA[{attribute 'TcRpcEnable'}
+PROPERTY ACIdentifier : STRING
+]]></Declaration>
+      <Get Name="Get" Id="{eec6f585-8237-47de-a6d7-45c5bba088db}">
+        <Declaration><![CDATA[VAR
+	i: INT;
+	pos: INT;
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[pos := -1;
+FOR i:=0 TO (LEN(_ACUrl) - 1) BY 1
+  DO
+  	//IF (_ACUrl[i] = '.') THEN
+  	IF (_ACUrl[i] = 16#2E) THEN
+		pos := i;
+	END_IF
+END_FOR;
+IF (pos < 0) THEN
+	ACIdentifier := '';
+	RETURN;
+END_IF
+ACIdentifier := RIGHT(_ACUrl,LEN(_ACUrl) - pos + 1);]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="AddChild" Id="{ae80c3c5-eea9-4c65-9868-a7ea9cee5722}">
+      <Declaration><![CDATA[METHOD PROTECTED AddChild : BOOL
+VAR_INPUT
+	child : IACComponent;
+END_VAR
+
+VAR
+	i: INT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF child = 0 THEN
+	AddChild := FALSE;
+	RETURN;
+END_IF
+// 1. Check if child already exists in the array because of online change
+FOR i:=1 TO GCL.cChildsMAX BY 1
+  DO
+    IF _Childs[i] <> 0 THEN
+		IF _Childs[i].ACUrl = child.ACUrl THEN
+			AddChild := FALSE;
+			RETURN;			
+		END_IF
+	ELSE
+		EXIT;
+	END_IF
+END_FOR;
+// 2. If the child doesn't exist, add to _Childs-List
+FOR i:=1 TO GCL.cChildsMAX BY 1
+  DO
+    IF _Childs[i] = 0 THEN
+		AddChild := TRUE;
+		_Childs[i] := child;
+		EXIT;
+	END_IF
+END_FOR;]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="Childs" Id="{bafde815-35f9-4ecf-8855-4c288fdc4e94}">
+      <Declaration><![CDATA[PROPERTY Childs : ARRAY [1..GCL.cChildsMAX] OF IACComponent
+]]></Declaration>
+      <Get Name="Get" Id="{d18973ab-e112-4441-a434-734dad5bfb32}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Childs := _Childs;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="FB_childinit" Id="{88990f67-0437-4b61-bd41-c32e91fff094}">
+      <Declaration><![CDATA[METHOD PUBLIC FB_childinit
+VAR_INPUT
+END_VAR
+VAR
+	i: INT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[FOR i:=1 TO GCL.cChildsMAX BY 1
+  DO
+    IF _Childs[i] <> 0 THEN
+		_Childs[i].FB_childinit();
+	ELSE
+		EXIT;
+	END_IF
+END_FOR;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="FB_init" Id="{bd922afe-f463-416e-a54e-8a1973ea7698}">
+      <Declaration><![CDATA[METHOD FB_init : BOOL
+VAR_INPUT
+	bInitRetains : BOOL; // if TRUE, the retain variables are initialized (warm start / cold start)
+	bInCopyCode : BOOL;  // if TRUE, the instance afterwards gets moved into the copy code (online change)
+	parent : IACComponent;
+END_VAR
+
+VAR
+	isValidRef: BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF parent <> 0 THEN
+	_Parent := parent;
+END_IF
+IncFBInitCount();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="FB_postinit" Id="{eeb19e11-9936-4e16-bf7a-6d27ca54ca29}">
+      <Declaration><![CDATA[METHOD PUBLIC FB_postinit
+VAR_INPUT
+		root : IACVariobatch;
+END_VAR
+VAR
+	i: INT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SUPER^.FB_postinit(root);
+FOR i:=1 TO GCL.cChildsMAX BY 1
+  DO
+    IF _Childs[i] <> 0 THEN
+		_Childs[i].FB_postinit(root);
+	ELSE
+		EXIT;
+	END_IF
+END_FOR;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="FindChildOfTypeAt" Id="{6162b147-55dc-4849-82e2-51537856b6fb}">
+      <Declaration><![CDATA[METHOD FindChildOfTypeAt : IACComponent
+VAR_INPUT
+	atIndex : INT;
+	objectType : TypeOfACObjectEnum;
+	maxChildDepth : INT;
+END_VAR
+VAR
+	currIndexInResultArr : INT;
+	result : ARRAY [0..GCL.cChildsMAX] OF IACComponent;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[currIndexInResultArr := 0;
+FindChildsOfTypeIntern(THIS^,objectType,0,maxChildDepth,currIndexInResultArr,result);
+FindChildOfTypeAt := result[atIndex];]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="FindChildsOfType" Id="{cc966b9c-ebd0-4cbb-9495-ea40652f33e8}">
+      <Declaration><![CDATA[METHOD FindChildsOfType
+VAR_INPUT
+	objectType : TypeOfACObjectEnum;
+	maxChildDepth : INT;
+END_VAR
+VAR_IN_OUT
+	result : ARRAY [0..GCL.cChildsMAX] OF IACComponent;
+END_VAR
+VAR
+	currIndexInResultArr : INT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[currIndexInResultArr := 0;
+FindChildsOfTypeIntern(THIS^,objectType,0,maxChildDepth,currIndexInResultArr,result);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="FindChildsOfTypeIntern" Id="{b2bdf6ab-d225-4c7a-96f2-ec26236633f7}">
+      <Declaration><![CDATA[METHOD PRIVATE FindChildsOfTypeIntern
+VAR_INPUT
+	iThis : IACComponent;
+	objectType : TypeOfACObjectEnum;
+	currentDepth : INT;
+	maxChildDepth : INT;
+END_VAR
+VAR_IN_OUT
+	currIndexInResultArr : INT;
+	result : ARRAY [0..GCL.cChildsMAX] OF IACComponent;
+END_VAR
+VAR
+	childs : ARRAY [1..GCL.cChildsMAX] OF IACComponent;
+	i: INT;
+	iProcessFunction : IPAProcessFunction;
+	iDosing : IPAFDosing;
+	iDischarging : IPAFDischarging;
+	iMixing : IPAFMixing;
+	
+	iControlModule : IPAControlModule;
+	iScaleBase : IPAScale;
+	iScaleGravimetric : IPAScaleGravimetric;
+	iScaleTotalizing : IPAScaleTotalizing;
+	iScaleVolumetric : IPAScaleVolumetric;
+	
+	iProcessModule : IPAProcessModule;
+	iSilo : IPAMSilo;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[CASE objectType OF
+	TypeOfACObjectEnum.ProcessFunction:
+		IF __QUERYINTERFACE(iThis, iProcessFunction) THEN
+			result[currIndexInResultArr] := iThis;
+			currIndexInResultArr := currIndexInResultArr + 1;
+		END_IF	
+	TypeOfACObjectEnum.Dosing:
+		IF __QUERYINTERFACE(iThis, iDosing) THEN
+			result[currIndexInResultArr] := iThis;
+			currIndexInResultArr := currIndexInResultArr + 1;
+		END_IF	
+	TypeOfACObjectEnum.Discharging:
+		IF __QUERYINTERFACE(iThis, iDischarging) THEN
+			result[currIndexInResultArr] := iThis;
+			currIndexInResultArr := currIndexInResultArr + 1;
+			RETURN;
+		END_IF	
+	TypeOfACObjectEnum.Mixing:
+		IF __QUERYINTERFACE(iThis, iMixing) THEN
+			result[currIndexInResultArr] := iThis;
+			currIndexInResultArr := currIndexInResultArr + 1;
+		END_IF	
+	TypeOfACObjectEnum.ControlModule:
+		IF __QUERYINTERFACE(iThis, iControlModule) THEN
+			result[currIndexInResultArr] := iThis;
+			currIndexInResultArr := currIndexInResultArr + 1;
+		END_IF	
+	TypeOfACObjectEnum.ScaleBase:
+		IF __QUERYINTERFACE(iThis, iScaleBase) THEN
+			result[currIndexInResultArr] := iThis;
+			currIndexInResultArr := currIndexInResultArr + 1;
+		END_IF	
+	TypeOfACObjectEnum.ScaleGravimetric:
+		IF __QUERYINTERFACE(iThis, iScaleGravimetric) THEN
+			result[currIndexInResultArr] := iThis;
+			currIndexInResultArr := currIndexInResultArr + 1;
+		END_IF	
+	TypeOfACObjectEnum.ScaleTotalizing:
+		IF __QUERYINTERFACE(iThis, iScaleTotalizing) THEN
+			result[currIndexInResultArr] := iThis;
+			currIndexInResultArr := currIndexInResultArr + 1;
+		END_IF	
+	TypeOfACObjectEnum.ScaleVolumetric:
+		IF __QUERYINTERFACE(iThis, iScaleVolumetric) THEN
+			result[currIndexInResultArr] := iThis;
+			currIndexInResultArr := currIndexInResultArr + 1;
+		END_IF	
+	TypeOfACObjectEnum.ProcessModule:
+		IF __QUERYINTERFACE(iThis, iProcessModule) THEN
+			result[currIndexInResultArr] := iThis;
+			currIndexInResultArr := currIndexInResultArr + 1;
+		END_IF	
+	TypeOfACObjectEnum.Silo:
+		IF __QUERYINTERFACE(iThis, iSilo) THEN
+			result[currIndexInResultArr] := iThis;
+			currIndexInResultArr := currIndexInResultArr + 1;
+		END_IF	
+END_CASE
+
+IF currIndexInResultArr > GCL.cChildsMAX THEN
+	RETURN;
+END_IF
+currentDepth := currentDepth + 1;
+IF ((maxChildDepth > 0) AND (currentDepth > maxChildDepth)) THEN
+	RETURN;
+END_IF
+
+childs := iThis.Childs;
+FOR i:=1 TO GCL.cChildsMAX BY 1
+  DO
+    IF childs[i] <> 0 THEN
+		FindChildsOfTypeIntern(childs[i],objectType,currentDepth,maxChildDepth,currIndexInResultArr,result);
+	ELSE
+		EXIT;
+	END_IF
+END_FOR;
+
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="FindObjectByID" Id="{414521d6-f4e8-4e3d-bb2e-5fb4f3102166}">
+      <Declaration><![CDATA[METHOD FindObjectByID : IACObject
+VAR_INPUT
+	instanceID	: UDINT;
+END_VAR
+VAR
+	rootComp : IACComponent;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[rootComp := Root;
+IF rootComp = 0 THEN
+	FindObjectByID := 0;
+	RETURN;
+END_IF
+IF rootComp.InstanceID = instanceID THEN
+	FindObjectByID := rootComp;
+	RETURN;
+END_IF
+FindObjectByID := FindObjectInChilds(instanceID);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="FindObjectInChilds" Id="{22bbd2b5-21b6-47a1-a592-d1e51c460203}">
+      <Declaration><![CDATA[METHOD PUBLIC FindObjectInChilds : IACObject
+VAR_INPUT
+	instanceID	: UDINT;
+END_VAR
+VAR
+	i: INT;
+	prevComponent : IACComponent;
+	currentComponent : IACComponent;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[prevComponent := 0;
+currentComponent := 0;
+
+FOR i:=1 TO GCL.cChildsMAX BY 1
+  DO
+    IF _Childs[i] <> 0 THEN
+		currentComponent := _Childs[i];
+		IF currentComponent.InstanceID = instanceID THEN
+			FindObjectInChilds := currentComponent;
+			RETURN;
+		ELSIF currentComponent.InstanceID > instanceID THEN
+			IF prevComponent <> 0 THEN
+				FindObjectInChilds := prevComponent.FindObjectInChilds(instanceID);
+				RETURN;
+			ELSE
+				FindObjectInChilds := 0;
+				RETURN;
+			END_IF
+		ELSE
+			prevComponent := currentComponent;
+		END_IF
+	ELSE
+		EXIT;
+	END_IF
+END_FOR;
+
+IF prevComponent <> 0 AND prevComponent.InstanceID < instanceID THEN
+	FindObjectInChilds := prevComponent.FindObjectInChilds(instanceID);
+	RETURN;
+END_IF
+
+FindObjectInChilds := 0;
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="FindParentOfType" Id="{6bef1b9e-3632-4c0a-a05c-0dce7580746f}">
+      <Declaration><![CDATA[METHOD FindParentOfType : IACComponent
+VAR_INPUT
+	objectType : TypeOfACObjectEnum;
+END_VAR
+VAR
+	iProcessFunction : IPAProcessFunction;
+	iDosing : IPAFDosing;
+	iDischarging : IPAFDischarging;
+	iMixing : IPAFMixing;
+	
+	iControlModule : IPAControlModule;
+	iScaleBase : IPAScale;
+	iScaleGravimetric : IPAScaleGravimetric;
+	iScaleTotalizing : IPAScaleTotalizing;
+	iScaleVolumetric : IPAScaleVolumetric;
+	
+	iProcessModule : IPAProcessModule;
+	iSilo : IPAMSilo;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF objectType < TypeOfACObjectEnum.ProcessFunction OR _Parent = 0 THEN
+	FindParentOfType := 0;
+	RETURN;
+END_IF
+
+CASE objectType OF
+	TypeOfACObjectEnum.ProcessFunction:
+		IF __QUERYINTERFACE(_Parent, iProcessFunction) THEN
+			FindParentOfType := _Parent;
+			RETURN;
+		END_IF	
+	TypeOfACObjectEnum.Dosing:
+		IF __QUERYINTERFACE(_Parent, iDosing) THEN
+			FindParentOfType := _Parent;
+			RETURN;
+		END_IF	
+	TypeOfACObjectEnum.Discharging:
+		IF __QUERYINTERFACE(_Parent, iDischarging) THEN
+			FindParentOfType := _Parent;
+			RETURN;
+		END_IF	
+	TypeOfACObjectEnum.Mixing:
+		IF __QUERYINTERFACE(_Parent, iMixing) THEN
+			FindParentOfType := _Parent;
+			RETURN;
+		END_IF	
+	TypeOfACObjectEnum.ControlModule:
+		IF __QUERYINTERFACE(_Parent, iControlModule) THEN
+			FindParentOfType := _Parent;
+			RETURN;
+		END_IF	
+	TypeOfACObjectEnum.ScaleBase:
+		IF __QUERYINTERFACE(_Parent, iScaleBase) THEN
+			FindParentOfType := _Parent;
+			RETURN;
+		END_IF	
+	TypeOfACObjectEnum.ScaleGravimetric:
+		IF __QUERYINTERFACE(_Parent, iScaleGravimetric) THEN
+			FindParentOfType := _Parent;
+			RETURN;
+		END_IF	
+	TypeOfACObjectEnum.ScaleTotalizing:
+		IF __QUERYINTERFACE(_Parent, iScaleTotalizing) THEN
+			FindParentOfType := _Parent;
+			RETURN;
+		END_IF	
+	TypeOfACObjectEnum.ScaleVolumetric:
+		IF __QUERYINTERFACE(_Parent, iScaleVolumetric) THEN
+			FindParentOfType := _Parent;
+			RETURN;
+		END_IF	
+	TypeOfACObjectEnum.ProcessModule:
+		IF __QUERYINTERFACE(_Parent, iProcessModule) THEN
+			FindParentOfType := _Parent;
+			RETURN;
+		END_IF	
+	TypeOfACObjectEnum.Silo:
+		IF __QUERYINTERFACE(_Parent, iSilo) THEN
+			FindParentOfType := _Parent;
+			RETURN;
+		END_IF	
+END_CASE
+
+FindParentOfType := _Parent.FindParentOfType(objectType);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="InvokeSetterBool" Id="{718df054-1fa9-4bbb-ade4-0f18ec834361}">
+      <Declaration><![CDATA[{attribute 'TcRpcEnable'}
+METHOD PUBLIC InvokeSetterBool
+VAR_INPUT
+	PropertyID : INT;
+	PropertyValue : BOOL;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="InvokeSetterByte" Id="{0ae47c7b-e27c-4c57-88f8-1bc7082f5b03}">
+      <Declaration><![CDATA[{attribute 'TcRpcEnable'}
+METHOD PUBLIC InvokeSetterByte
+VAR_INPUT
+	PropertyID : INT;
+	PropertyValue : BYTE;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="InvokeSetterDInt" Id="{6467ae74-c65c-4803-aae4-9b5feee2ae22}">
+      <Declaration><![CDATA[{attribute 'TcRpcEnable'}
+METHOD PUBLIC InvokeSetterDInt
+VAR_INPUT
+	PropertyID : INT;
+	PropertyValue : DINT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="InvokeSetterDT" Id="{073f28d0-0411-4390-9a52-128c857921f4}">
+      <Declaration><![CDATA[{attribute 'TcRpcEnable'}
+METHOD PUBLIC InvokeSetterDT
+VAR_INPUT
+	PropertyID : INT;
+	PropertyValue : DINT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="InvokeSetterEnum" Id="{02198412-e73c-403e-963b-442e008a8c37}">
+      <Declaration><![CDATA[{attribute 'TcRpcEnable'}
+METHOD PUBLIC InvokeSetterEnum
+VAR_INPUT
+	PropertyID : INT;
+	PropertyValue : INT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="InvokeSetterInt" Id="{02c64325-9090-4139-b762-3e63bb2acab6}">
+      <Declaration><![CDATA[{attribute 'TcRpcEnable'}
+METHOD PUBLIC InvokeSetterInt
+VAR_INPUT
+	PropertyID : INT;
+	PropertyValue : INT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="InvokeSetterLReal" Id="{a79e7c9a-95a0-4669-8e57-1dd82058e50f}">
+      <Declaration><![CDATA[{attribute 'TcRpcEnable'}
+METHOD PUBLIC InvokeSetterLReal
+VAR_INPUT
+	PropertyID : INT;
+	PropertyValue : LREAL;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="InvokeSetterReal" Id="{96ec4768-f738-4ba6-b9ed-010f2de59b2a}">
+      <Declaration><![CDATA[{attribute 'TcRpcEnable'}
+METHOD PUBLIC InvokeSetterReal
+VAR_INPUT
+	PropertyID : INT;
+	PropertyValue : REAL;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="InvokeSetterString" Id="{1cffcb77-44c5-4b33-b218-4342061684a0}">
+      <Declaration><![CDATA[{attribute 'TcRpcEnable'}
+METHOD PUBLIC InvokeSetterString
+VAR_INPUT
+	PropertyID : INT;
+	PropertyValue : STRING;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="InvokeSetterTime" Id="{0bbf002b-6bdf-4695-9702-ad78cda90f14}">
+      <Declaration><![CDATA[{attribute 'TcRpcEnable'}
+METHOD PUBLIC InvokeSetterTime
+VAR_INPUT
+	PropertyID : INT;
+	PropertyValue : DINT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="InvokeSetterUDInt" Id="{7386b95a-aff2-4eeb-8b3e-22f105ad1da4}">
+      <Declaration><![CDATA[{attribute 'TcRpcEnable'}
+METHOD PUBLIC InvokeSetterUDInt
+VAR_INPUT
+	PropertyID : INT;
+	PropertyValue : UDINT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="InvokeSetterUInt" Id="{218b7960-7982-45ce-a952-e36b6eb4aed2}">
+      <Declaration><![CDATA[{attribute 'TcRpcEnable'}
+METHOD PUBLIC InvokeSetterUInt
+VAR_INPUT
+	PropertyID : INT;
+	PropertyValue : UINT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnMainEnter" Id="{aa9c2f80-fd3a-4082-b6d7-1ae2308d1c9e}">
+      <Declaration><![CDATA[METHOD PROTECTED OnMainEnter
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnMainExit" Id="{b5bb2bba-dd7c-4ecc-983c-59de5dff3d70}">
+      <Declaration><![CDATA[METHOD PROTECTED OnMainExit
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="Parent" Id="{613f2de5-844c-44e1-9d48-d7be61748a82}">
+      <Declaration><![CDATA[PROPERTY Parent : IACComponent
+]]></Declaration>
+      <Get Name="Get" Id="{cae023ad-f08a-47e9-92ef-6d0ca88f1653}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Parent := _Parent;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="Root" Id="{64fb832c-be64-4f35-ae48-b0115ce45b09}">
+      <Declaration><![CDATA[PROPERTY Root : IACVariobatch
+]]></Declaration>
+      <Get Name="Get" Id="{f0c1fbda-c5c9-4c3d-bb00-142367c24c43}">
+        <Declaration><![CDATA[VAR
+	iVariobatch : IACVariobatch;
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[IF _Parent = 0 THEN
+	IF __QUERYINTERFACE(THIS^, iVariobatch) THEN
+		Root := iVariobatch;
+	ELSE
+		Root := 0;
+	END_IF	
+	RETURN;
+END_IF
+Root := _Parent.Root;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="RunMain" Id="{77d1af51-fdbf-4046-bb5f-1017b9524e7e}">
+      <Declaration><![CDATA[METHOD RunMain : BOOL
+VAR
+	i: INT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[OnMainEnter();
+FOR i:=1 TO GCL.cChildsMAX BY 1
+  DO
+    IF _Childs[i] <> 0 THEN
+		_Childs[i].RunMain();
+	ELSE
+		EXIT;
+	END_IF
+END_FOR;
+OnMainExit();]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="TypeOfACObject" Id="{e1f62ae0-634a-4888-a629-7fd887a0a2b7}">
+      <Declaration><![CDATA[PROPERTY TypeOfACObject : TypeOfACObjectEnum]]></Declaration>
+      <Get Name="Get" Id="{4cf0edd4-eb86-457e-8bba-815fa32eff0c}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[TypeOfACObject := TypeOfACObjectEnum.Component;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <LineIds Name="ACComponent">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="ACComponent.ACIdentifier.Get">
+      <LineId Id="3" Count="11" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="ACComponent.AddChild">
+      <LineId Id="3" Count="23" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="ACComponent.Childs.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="ACComponent.FB_childinit">
+      <LineId Id="9" Count="6" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="ACComponent.FB_init">
+      <LineId Id="3" Count="1" />
+      <LineId Id="31" Count="0" />
+      <LineId Id="18" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="ACComponent.FB_postinit">
+      <LineId Id="18" Count="0" />
+      <LineId Id="5" Count="6" />
+      <LineId Id="3" Count="0" />
+    </LineIds>
+    <LineIds Name="ACComponent.FindChildOfTypeAt">
+      <LineId Id="23" Count="0" />
+      <LineId Id="12" Count="0" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="ACComponent.FindChildsOfType">
+      <LineId Id="14" Count="0" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="ACComponent.FindChildsOfTypeIntern">
+      <LineId Id="30" Count="3" />
+      <LineId Id="93" Count="0" />
+      <LineId Id="35" Count="2" />
+      <LineId Id="87" Count="1" />
+      <LineId Id="40" Count="2" />
+      <LineId Id="89" Count="1" />
+      <LineId Id="44" Count="3" />
+      <LineId Id="91" Count="1" />
+      <LineId Id="50" Count="2" />
+      <LineId Id="94" Count="1" />
+      <LineId Id="55" Count="2" />
+      <LineId Id="96" Count="1" />
+      <LineId Id="60" Count="2" />
+      <LineId Id="98" Count="1" />
+      <LineId Id="65" Count="2" />
+      <LineId Id="100" Count="1" />
+      <LineId Id="70" Count="2" />
+      <LineId Id="102" Count="1" />
+      <LineId Id="75" Count="2" />
+      <LineId Id="104" Count="1" />
+      <LineId Id="80" Count="2" />
+      <LineId Id="106" Count="1" />
+      <LineId Id="85" Count="0" />
+      <LineId Id="108" Count="4" />
+      <LineId Id="115" Count="0" />
+      <LineId Id="118" Count="3" />
+      <LineId Id="176" Count="0" />
+      <LineId Id="122" Count="1" />
+      <LineId Id="144" Count="0" />
+      <LineId Id="124" Count="0" />
+      <LineId Id="140" Count="2" />
+      <LineId Id="116" Count="0" />
+      <LineId Id="86" Count="0" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="ACComponent.FindObjectByID">
+      <LineId Id="23" Count="0" />
+      <LineId Id="26" Count="0" />
+      <LineId Id="24" Count="1" />
+      <LineId Id="11" Count="1" />
+      <LineId Id="14" Count="0" />
+      <LineId Id="13" Count="0" />
+      <LineId Id="15" Count="0" />
+      <LineId Id="7" Count="0" />
+    </LineIds>
+    <LineIds Name="ACComponent.FindObjectInChilds">
+      <LineId Id="21" Count="0" />
+      <LineId Id="47" Count="0" />
+      <LineId Id="20" Count="0" />
+      <LineId Id="8" Count="1" />
+      <LineId Id="26" Count="0" />
+      <LineId Id="10" Count="0" />
+      <LineId Id="23" Count="0" />
+      <LineId Id="27" Count="3" />
+      <LineId Id="32" Count="0" />
+      <LineId Id="36" Count="2" />
+      <LineId Id="31" Count="0" />
+      <LineId Id="24" Count="0" />
+      <LineId Id="34" Count="1" />
+      <LineId Id="11" Count="3" />
+      <LineId Id="39" Count="4" />
+      <LineId Id="45" Count="1" />
+      <LineId Id="44" Count="0" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="ACComponent.FindParentOfType">
+      <LineId Id="50" Count="0" />
+      <LineId Id="45" Count="2" />
+      <LineId Id="51" Count="2" />
+      <LineId Id="75" Count="0" />
+      <LineId Id="78" Count="0" />
+      <LineId Id="76" Count="1" />
+      <LineId Id="55" Count="0" />
+      <LineId Id="79" Count="3" />
+      <LineId Id="57" Count="0" />
+      <LineId Id="83" Count="3" />
+      <LineId Id="59" Count="0" />
+      <LineId Id="87" Count="3" />
+      <LineId Id="61" Count="0" />
+      <LineId Id="91" Count="3" />
+      <LineId Id="63" Count="0" />
+      <LineId Id="95" Count="3" />
+      <LineId Id="65" Count="0" />
+      <LineId Id="99" Count="3" />
+      <LineId Id="67" Count="0" />
+      <LineId Id="103" Count="3" />
+      <LineId Id="69" Count="0" />
+      <LineId Id="107" Count="3" />
+      <LineId Id="71" Count="0" />
+      <LineId Id="111" Count="3" />
+      <LineId Id="73" Count="0" />
+      <LineId Id="115" Count="3" />
+      <LineId Id="43" Count="0" />
+      <LineId Id="33" Count="0" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="ACComponent.InvokeSetterBool">
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="ACComponent.InvokeSetterByte">
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="ACComponent.InvokeSetterDInt">
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="ACComponent.InvokeSetterDT">
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="ACComponent.InvokeSetterEnum">
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="ACComponent.InvokeSetterInt">
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="ACComponent.InvokeSetterLReal">
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="ACComponent.InvokeSetterReal">
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="ACComponent.InvokeSetterString">
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="ACComponent.InvokeSetterTime">
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="ACComponent.InvokeSetterUDInt">
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="ACComponent.InvokeSetterUInt">
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="ACComponent.OnMainEnter">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="ACComponent.OnMainExit">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="ACComponent.Parent.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="ACComponent.Root.Get">
+      <LineId Id="3" Count="7" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="ACComponent.RunMain">
+      <LineId Id="3" Count="8" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="ACComponent.TypeOfACObject.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

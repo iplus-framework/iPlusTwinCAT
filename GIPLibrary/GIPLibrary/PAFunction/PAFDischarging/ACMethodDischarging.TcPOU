@@ -1,0 +1,90 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4022.7">
+  <POU Name="ACMethodDischarging" Id="{767368ff-698c-4ac5-8131-bc642d8f48e0}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK PUBLIC ACMethodDischarging EXTENDS ACMethodRouteBase
+VAR_INPUT
+END_VAR
+VAR_OUTPUT
+END_VAR
+VAR PERSISTENT
+	_Parameter : ACMethodDischargingP;
+	_Result : ACMethodDischargingR;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Property Name="IsValid" Id="{240c4b9b-c94d-424b-8a3b-08228ae6d599}">
+      <Declaration><![CDATA[PROPERTY IsValid : BOOL
+]]></Declaration>
+      <Get Name="Get" Id="{5162d71e-40bb-41ab-8179-2293debef61b}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[IsValid := TRUE;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="Parameter" Id="{b09c19ed-611c-4a85-a2a8-8f8377def8ad}">
+      <Declaration><![CDATA[PROPERTY Parameter : ACMethodDischargingP
+]]></Declaration>
+      <Get Name="Get" Id="{10fbe84c-f830-4dc5-b82f-7bd4dd50bf59}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Parameter := _Parameter;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{5980b3ec-cbb4-421c-a04e-92bf6e735dfb}">
+        <Declaration><![CDATA[PUBLIC 
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_Parameter := Parameter;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="Result" Id="{b59e5876-ddd4-4d25-b14e-58cab793a664}">
+      <Declaration><![CDATA[PROPERTY Result : ACMethodDischargingR
+]]></Declaration>
+      <Get Name="Get" Id="{b58deabd-a5dc-4bc7-a6b9-ecb5bed41c84}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Result := _Result;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{074a6e78-e204-4559-94c0-a1119ece1e63}">
+        <Declaration><![CDATA[PUBLIC 
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_Result := Result;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <LineIds Name="ACMethodDischarging">
+      <LineId Id="9" Count="0" />
+    </LineIds>
+    <LineIds Name="ACMethodDischarging.IsValid.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="ACMethodDischarging.Parameter.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="ACMethodDischarging.Parameter.Set">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="ACMethodDischarging.Result.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="ACMethodDischarging.Result.Set">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

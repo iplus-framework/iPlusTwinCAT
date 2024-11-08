@@ -1,0 +1,34 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4020.12">
+  <POU Name="PAFExtruding" Id="{f1e5dd8c-da1b-4836-97e3-8dc2981d9e48}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK PUBLIC PAFExtruding EXTENDS PARoutingFunction
+VAR_INPUT
+END_VAR
+VAR_OUTPUT
+END_VAR
+VAR
+	_ACMethod : ACMethodExtruding;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Property Name="ACMethod" Id="{4f1580cc-6142-4bf2-a910-eb019515bde2}">
+      <Declaration><![CDATA[PROPERTY ACMethod : IACMethod]]></Declaration>
+      <Get Name="Get" Id="{8b9c93c1-0723-4de7-8b38-92f9487a07fc}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[ACMethod := _ACMethod;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <LineIds Name="PAFExtruding">
+      <LineId Id="9" Count="0" />
+    </LineIds>
+    <LineIds Name="PAFExtruding.ACMethod.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

@@ -1,0 +1,7 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4020.12">
+  <Itf Name="IPAScaleGravimetric" Id="{ba942767-991c-4d51-bd8d-b46eb8f07034}">
+    <Declaration><![CDATA[INTERFACE IPAScaleGravimetric EXTENDS IPAScale
+]]></Declaration>
+  </Itf>
+</TcPlcObject>

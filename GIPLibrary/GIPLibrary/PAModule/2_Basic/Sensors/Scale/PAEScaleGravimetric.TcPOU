@@ -1,0 +1,682 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="PAEScaleGravimetric" Id="{2689bd4b-c758-47c9-b36a-a0290e7a3511}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK PUBLIC PAEScaleGravimetric EXTENDS PAEScaleBase IMPLEMENTS IPAScaleGravimetric
+VAR_INPUT
+END_VAR
+VAR_OUTPUT
+END_VAR
+VAR
+	_CalmingTime : TIME;
+	_CalmingWeight : LREAL;
+	_IsDischarging : BOOL;
+	_IsManualDosing : BOOL;
+	_IsTared : BOOL;
+	_ReqZeroReset : BOOL;
+	_ReqZeroSet : BOOL;
+	_StoredTareWeight : LREAL;
+	_TareWeight : LREAL;
+	_ZeroSet : BOOL;
+	_ReqIsTared : BOOL;
+	_TareCounterReq : DINT;
+	_ActualWeightExternal : LREAL;
+	_TareCounterRes : DINT;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Property Name="ActualWeightExternal" Id="{e25f7741-07b2-46fd-9687-c860ee1a1068}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+//{attribute 'TcRpcEnable'}
+PROPERTY PUBLIC ActualWeightExternal : LREAL]]></Declaration>
+      <Get Name="Get" Id="{18189f82-5514-4c61-a53c-0932185c160e}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[ActualWeightExternal := _ActualWeightExternal;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{4b10a11c-d41f-41ce-b739-58d83de11f01}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_ActualWeightExternal := ActualWeightExternal;
+Root.OnPropertyChangedLReal(THIS^, 84, _ActualWeightExternal);]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="CalmingTime" Id="{03837b69-0765-4d97-ac71-968db9750d03}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+//{attribute 'TcRpcEnable'}
+PROPERTY PUBLIC CalmingTime : TIME]]></Declaration>
+      <Get Name="Get" Id="{3d1381dd-94dd-4102-91e2-361ccee45a82}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[CalmingTime := _CalmingTime;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{fdef0714-f469-4235-98ee-4d98240d9990}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_CalmingTime := CalmingTime;
+Root.OnPropertyChangedTime(THIS^, 72, _CalmingTime);]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="CalmingWeight" Id="{54282896-1f07-47cd-91c7-7650e7e99f26}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+//{attribute 'TcRpcEnable'}
+PROPERTY CalmingWeight : LREAL]]></Declaration>
+      <Get Name="Get" Id="{1b726460-df51-4354-9026-1c6ae8026981}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[CalmingWeight := _CalmingWeight;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{e2ca8723-2e5c-4e0c-9198-3ae122d26dfe}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_CalmingWeight := CalmingWeight;
+Root.OnPropertyChangedLReal(THIS^, 73, _CalmingWeight);]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="FB_postinit" Id="{6ce4865d-e114-4d4e-a805-6cea694b7ddd}">
+      <Declaration><![CDATA[METHOD FB_postinit
+VAR_INPUT
+	root : IACVariobatch;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SUPER^.FB_postinit(root);
+root.OnPropertyChangedTime(THIS^, 72, _CalmingTime);
+root.OnPropertyChangedLReal(THIS^, 73, _CalmingWeight);
+root.OnPropertyChangedBool(THIS^,74, _ReqZeroSet);
+root.OnPropertyChangedBool(THIS^, 75, _ReqZeroReset);
+root.OnPropertyChangedLReal(THIS^, 76, _TareWeight);
+root.OnPropertyChangedLReal(THIS^, 77, _StoredTareWeight);
+root.OnPropertyChangedBool(THIS^, 78, _IsDischarging);
+root.OnPropertyChangedBool(THIS^, 79, _IsTared);
+root.OnPropertyChangedBool(THIS^, 80, _ZeroSet);
+root.OnPropertyChangedBool(THIS^, 81, _IsManualDosing);
+root.OnPropertyChangedBool(THIS^, 82, _ReqIsTared);
+root.OnPropertyChangedDInt(THIS^, 83, _TareCounterReq);
+root.OnPropertyChangedLReal(THIS^, 84, _ActualWeightExternal);
+root.OnPropertyChangedDInt(THIS^, 85, _TareCounterRes);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="InvokeSetterBool" Id="{bbf839f1-a3a9-4227-8116-4ea97104f046}">
+      <Declaration><![CDATA[METHOD PUBLIC InvokeSetterBool
+VAR_INPUT
+	PropertyID : INT;
+	PropertyValue : BOOL;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SUPER^.InvokeSetterBool(PropertyID, PropertyValue);
+CASE PropertyID OF
+	74:
+		ReqZeroSet := PropertyValue;
+	75:
+		ReqZeroReset := PropertyValue;
+	78:
+		IsDischarging := PropertyValue;
+	79:
+		IsTared := PropertyValue;
+	80:
+		ZeroSet := PropertyValue;
+	81:
+		IsManualDosing := PropertyValue;
+	82:
+		ReqIsTared := PropertyValue;
+END_CASE]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="InvokeSetterDInt" Id="{a5ad1fd4-4132-4ccb-8b42-cf072c7bc429}">
+      <Declaration><![CDATA[METHOD PUBLIC InvokeSetterDInt
+VAR_INPUT
+	PropertyID : INT;
+	PropertyValue : DINT;
+END_VAR
+
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SUPER^.InvokeSetterDInt(PropertyID, PropertyValue);
+CASE PropertyID OF
+	83:
+		TareCounterReq := PropertyValue;
+	85:
+		TareCounterRes := PropertyValue;
+END_CASE
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="InvokeSetterLReal" Id="{cf72ab2a-6209-417a-bb23-6179e2b22e3f}">
+      <Declaration><![CDATA[METHOD PUBLIC InvokeSetterLReal
+VAR_INPUT
+	PropertyID : INT;
+	PropertyValue : LREAL;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SUPER^.InvokeSetterLReal(PropertyID, PropertyValue);
+CASE PropertyID OF
+	73:
+		CalmingWeight := PropertyValue;
+	76:
+		TareWeight := PropertyValue;
+	77:
+		StoredTareWeight := PropertyValue;
+	84:
+		ActualWeightExternal := PropertyValue;
+END_CASE]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="InvokeSetterTime" Id="{def87042-584f-44b1-b4d4-483d88e713d5}">
+      <Declaration><![CDATA[METHOD PUBLIC InvokeSetterTime
+VAR_INPUT
+	PropertyID : INT;
+	PropertyValue : DINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SUPER^.InvokeSetterTime(PropertyID, PropertyValue);
+CASE PropertyID OF 
+	72:
+		CalmingTime := TO_TIME(PropertyValue);
+END_CASE]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="IsDischarging" Id="{950ba824-8cbd-44a0-98ce-838c9f362ab1}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+//{attribute 'TcRpcEnable'}
+PROPERTY PUBLIC IsDischarging : BOOL]]></Declaration>
+      <Get Name="Get" Id="{12b04c7e-86c9-4ade-b3c0-1579d52867cb}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[IsDischarging := _IsDischarging;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{474a4ebe-2e3a-461b-a0a0-d0a29dc98a25}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_IsDischarging := IsDischarging;
+Root.OnPropertyChangedBool(THIS^, 78, _IsDischarging);]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="IsEnabledResetZero" Id="{c81e55c7-ece9-4fa4-b04f-181a6d7d85c6}">
+      <Declaration><![CDATA[METHOD PUBLIC IsEnabledResetZero : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="IsEnabledSetZero" Id="{dd8dcb68-0ca8-46ef-9a91-05afeaa9faee}">
+      <Declaration><![CDATA[METHOD PUBLIC IsEnabledSetZero : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="IsManualDosing" Id="{47777a7e-dfff-40d6-8a54-557154b22f2a}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+//{attribute 'TcRpcEnable'}
+PROPERTY PUBLIC IsManualDosing : BOOL]]></Declaration>
+      <Get Name="Get" Id="{828f0136-b81a-4e57-b347-6dffa5657b4e}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[IsManualDosing := _IsManualDosing;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{7b928f91-da61-48c0-8ca0-e9d7db920195}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_IsManualDosing := IsManualDosing;
+Root.OnPropertyChangedBool(THIS^, 81, _IsManualDosing);]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="IsTared" Id="{535d1c86-4f6a-4f74-8496-bc3721fb1984}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+//{attribute 'TcRpcEnable'}
+PROPERTY PUBLIC IsTared : BOOL]]></Declaration>
+      <Get Name="Get" Id="{9950b043-3209-4161-bfd4-6a61a5607243}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[IsTared := _IsTared;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{19bcbf19-3414-415a-8f6d-c4c1feac517a}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_IsTared := IsTared;
+Root.OnPropertyChangedBool(THIS^, 79, _IsTared);]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="OnInitMemory" Id="{cf13ca5c-7e40-4b4f-9cce-5c695fc15e03}">
+      <Declaration><![CDATA[METHOD OnInitMemory
+VAR_INPUT
+	root : IACVariobatch;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[RegisterProperty(root, 72, GCL.cSizeTIME); //CalmingTime
+RegisterProperty(root, 73, GCL.cSizeLREAL); //CalmingWeight
+RegisterProperty(root, 74, GCL.cSizeBYTE); //ReqZeroSet
+RegisterProperty(root, 75, GCL.cSizeBYTE); //ReqZeroReset
+RegisterProperty(root, 76, GCL.cSizeLREAL); //TareWeight
+RegisterProperty(root, 77, GCL.cSizeLREAL); //StoredTaredWeight
+RegisterProperty(root, 78, GCL.cSizeBYTE); //IsDischarging
+RegisterProperty(root, 79, GCL.cSizeBYTE); //IsTared
+RegisterProperty(root, 80, GCL.cSizeBYTE); //ZeroSet
+RegisterProperty(root, 81, GCL.cSizeBYTE); //IsManualDosing
+RegisterProperty(root, 82, GCL.cSizeBYTE); //ReqIsTared
+RegisterProperty(root, 83, GCL.cSizeDINT); //TareCounterReq
+RegisterProperty(root, 84, GCL.cSizeLREAL); //ActualWeightExternal
+RegisterProperty(root, 85, GCL.cSizeDINT); //TareCounterRes
+SUPER^.OnInitMemory(root);]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="ReqIsTared" Id="{9fa7ddf8-aaad-431e-8ee7-1b4e25a9e236}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+//{attribute 'TcRpcEnable'}
+PROPERTY PUBLIC ReqIsTared : BOOL]]></Declaration>
+      <Get Name="Get" Id="{032237ff-2cd9-4e20-b7a0-36255aa7e10d}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[ReqIsTared := _ReqIsTared;
+]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{421806d8-ead7-4fe9-9c76-1c2fd8f6339f}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_ReqIsTared := ReqIsTared;
+Root.OnPropertyChangedBool(THIS^, 82, _ReqIsTared);
+]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="ReqZeroReset" Id="{668329f0-9ef4-4912-b589-7bb8c4802a88}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+//{attribute 'TcRpcEnable'}
+PROPERTY PUBLIC ReqZeroReset : BOOL]]></Declaration>
+      <Get Name="Get" Id="{b98fbc6a-fac7-46ab-81c5-059d959cd7a2}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[ReqZeroReset := _ReqZeroReset;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{ac3c66a3-f795-4ce4-8a29-17f75a46023d}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_ReqZeroReset := ReqZeroReset;	
+Root.OnPropertyChangedBool(THIS^, 75, _ReqZeroReset);]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="ReqZeroSet" Id="{c7d34542-4ec8-4c48-bd68-628b771f280a}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+//{attribute 'TcRpcEnable'}
+PROPERTY PUBLIC ReqZeroSet : BOOL]]></Declaration>
+      <Get Name="Get" Id="{738dd903-ff9d-4148-86a6-81ef0f7fab7c}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[ReqZeroSet := _ReqZeroSet;	]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{e35f8501-0dab-4a10-abce-db723cb73ab4}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_ReqZeroSet := ReqZeroSet;	
+Root.OnPropertyChangedBool(THIS^,74, _ReqZeroSet);]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="ResetZero" Id="{73c76d66-917f-4d7e-8b04-a989916a4d92}">
+      <Declaration><![CDATA[METHOD PUBLIC ResetZero
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SetZero" Id="{3b4cfb95-3d55-46b1-86ef-96f64e2143e2}">
+      <Declaration><![CDATA[METHOD PUBLIC SetZero
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="StoredTareWeight" Id="{ad0bcff8-4376-43b4-b735-78fd68263a81}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+//{attribute 'TcRpcEnable'}
+PROPERTY PUBLIC StoredTareWeight : LREAL]]></Declaration>
+      <Get Name="Get" Id="{d1f6c9b3-6837-4cad-bd0c-e2880666a5e7}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[StoredTareWeight := _StoredTareWeight;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{f4764ea2-8fed-4178-a597-4acdaf951b33}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_StoredTareWeight := StoredTareWeight;
+Root.OnPropertyChangedLReal(THIS^, 77, _StoredTareWeight);]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="TareCounterReq" Id="{c81913b2-b7a2-444b-a589-ba9d873193e8}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+//{attribute 'TcRpcEnable'}
+PROPERTY PUBLIC TareCounterReq : DINT]]></Declaration>
+      <Get Name="Get" Id="{3c39aaf9-2a5e-4eaa-a618-1522cc4f5655}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[TareCounterReq := _TareCounterReq;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{13ba6ed6-e8ed-4d15-9edf-ebbe9b1f7b47}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_TareCounterReq := TareCounterReq;
+Root.OnPropertyChangedDInt(THIS^, 83, _TareCounterReq);]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="TareCounterRes" Id="{ae7b7d24-47ad-486d-bff8-fe81c0ff929a}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+//{attribute 'TcRpcEnable'}
+PROPERTY PUBLIC TareCounterRes : DINT]]></Declaration>
+      <Get Name="Get" Id="{a5859536-68c6-48c9-b628-6114a8e1244d}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[TareCounterRes := _TareCounterRes;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{07df4e7b-82b3-4523-9993-bc40b5912021}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_TareCounterRes := TareCounterRes;
+Root.OnPropertyChangedDInt(THIS^, 85, _TareCounterRes);]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="TareWeight" Id="{4518311c-984a-4703-9e1f-7190aec24180}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+//{attribute 'TcRpcEnable'}
+PROPERTY PUBLIC TareWeight : LREAL]]></Declaration>
+      <Get Name="Get" Id="{cc9dc880-68fd-4d31-a303-b57ad2cb5b9a}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[TareWeight := _TareWeight;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{f5cde28c-952a-40b1-82f2-f49949a872b4}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_TareWeight := TareWeight;
+Root.OnPropertyChangedLReal(THIS^, 76, _TareWeight);]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="ZeroSet" Id="{4b012830-84ba-4039-9e7d-3ae3c477337e}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+//{attribute 'TcRpcEnable'}
+PROPERTY PUBLIC ZeroSet : BOOL]]></Declaration>
+      <Get Name="Get" Id="{69f2e0e3-fabc-4cef-b4da-f3985e788b61}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[ZeroSet := _ZeroSet;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{f79884b8-e707-4111-9962-89a76ee73056}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_ZeroSet := ZeroSet;
+Root.OnPropertyChangedBool(THIS^, 80, _ZeroSet);]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <LineIds Name="PAEScaleGravimetric">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEScaleGravimetric.ActualWeightExternal.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEScaleGravimetric.ActualWeightExternal.Set">
+      <LineId Id="5" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEScaleGravimetric.CalmingTime.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEScaleGravimetric.CalmingTime.Set">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEScaleGravimetric.CalmingWeight.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEScaleGravimetric.CalmingWeight.Set">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEScaleGravimetric.FB_postinit">
+      <LineId Id="7" Count="2" />
+      <LineId Id="22" Count="3" />
+      <LineId Id="10" Count="0" />
+      <LineId Id="26" Count="1" />
+      <LineId Id="11" Count="0" />
+      <LineId Id="28" Count="3" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEScaleGravimetric.InvokeSetterBool">
+      <LineId Id="8" Count="15" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEScaleGravimetric.InvokeSetterDInt">
+      <LineId Id="10" Count="3" />
+      <LineId Id="15" Count="1" />
+      <LineId Id="14" Count="0" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEScaleGravimetric.InvokeSetterLReal">
+      <LineId Id="8" Count="1" />
+      <LineId Id="21" Count="1" />
+      <LineId Id="10" Count="5" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEScaleGravimetric.InvokeSetterTime">
+      <LineId Id="10" Count="0" />
+      <LineId Id="23" Count="0" />
+      <LineId Id="11" Count="0" />
+      <LineId Id="17" Count="0" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEScaleGravimetric.IsDischarging.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEScaleGravimetric.IsDischarging.Set">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEScaleGravimetric.IsEnabledResetZero">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEScaleGravimetric.IsEnabledSetZero">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEScaleGravimetric.IsManualDosing.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEScaleGravimetric.IsManualDosing.Set">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEScaleGravimetric.IsTared.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEScaleGravimetric.IsTared.Set">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEScaleGravimetric.OnInitMemory">
+      <LineId Id="20" Count="0" />
+      <LineId Id="8" Count="0" />
+      <LineId Id="25" Count="3" />
+      <LineId Id="9" Count="0" />
+      <LineId Id="29" Count="1" />
+      <LineId Id="10" Count="0" />
+      <LineId Id="35" Count="3" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEScaleGravimetric.ReqIsTared.Get">
+      <LineId Id="5" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEScaleGravimetric.ReqIsTared.Set">
+      <LineId Id="5" Count="0" />
+      <LineId Id="9" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEScaleGravimetric.ReqZeroReset.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEScaleGravimetric.ReqZeroReset.Set">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEScaleGravimetric.ReqZeroSet.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEScaleGravimetric.ReqZeroSet.Set">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEScaleGravimetric.ResetZero">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEScaleGravimetric.SetZero">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEScaleGravimetric.StoredTareWeight.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEScaleGravimetric.StoredTareWeight.Set">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEScaleGravimetric.TareCounterReq.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEScaleGravimetric.TareCounterReq.Set">
+      <LineId Id="5" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEScaleGravimetric.TareCounterRes.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEScaleGravimetric.TareCounterRes.Set">
+      <LineId Id="5" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEScaleGravimetric.TareWeight.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEScaleGravimetric.TareWeight.Set">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEScaleGravimetric.ZeroSet.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEScaleGravimetric.ZeroSet.Set">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

@@ -1,0 +1,847 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.6">
+  <POU Name="PAProcessFunction" Id="{79b850f6-1962-463e-9639-bcb04767e56d}" SpecialFunc="None">
+    <Declaration><![CDATA[    /// <summary>
+    /// 
+    /// Die PAProcessFunction wickelt einen ACMethod-Aufruf asynchron ab. 
+    /// Instanzen von PAProcessFunction werden immer unterhalb von ACComponent der Model- oder VarioBatch-Welt erzeugt.
+    /// 
+    /// Es gibt drei Varianten der Implementierung
+    /// 1. Direkte Ableitung in Form einer asynchronen Prozessfunktion (z.B. PAFDosing, PAFMixing) 
+    ///    Nur einmal Instanziierbar (Meist mit Kopplung an Hardware/SPS)
+    /// 2. Verwendung der Ableitung PWProcessFunction als Workflow (weitere Info siehe in PWProcessFunction.cs)
+    /// 3. Direkte Ableitung als mehrfach Instanziierbar. Beispiel (abstract):
+    /// SAPSchnittstelle : ACComponent (Modeltree)
+    ///     SAPExport : PAProcessFunction   (Dynamische Instanzen beim SAPSchnittstelle.Exportstart)
+    ///     SAPImport : PAProcessFunction   (Dynamische Instanzen beim SAPSchnittstelle.Importstart)
+    /// 
+    /// Die Statusfolge und die Steuerung von außen ist an die S88 angelehnt
+    /// https://www.isa.org/pdfs/microsites121/s-880001/
+    /// Methoden zur Steuerung von außen: 
+    /// -Start(acMethod)    Starten/Initialisieren des Prozesses
+    /// -Run()              Aktivieren des Prozesses
+    /// -Pause()            Pausieren des Prozesses
+    /// -Resume()           Fortsetzen nach dem Pausieren
+    /// -Hold()             Anhalten des Prozesses (längere Pause)
+    /// -Restart()          Anfahren nach längerer Pause
+    /// -Abort()            Abbrechen des Prozesses
+    /// -Stop()             Stoppen des Prozesses
+    /// -Reset()            Wechsel in den Grundzustand SMIdle
+    /// 
+    ///     ACState     | Auto-Next-State  |                |                                               TRANSITION-METHODS
+    ///               	|   (No Method)    |   Start()	    |   Run()	    |   Pause()	    |   Resume()	|   Hold()	    |   Restart()	|   Abort()	    |   Stopp()	    |   Reset()
+    /// ___________________________________________________________________________________________________________________________________________________________________________________
+    /// 
+    /// SMIdle		    |           		|  SMStarting   |				|               |               |               |               |               |               |         
+    /// -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    /// SMStarting	    |       			|	    		|	SMRunning	|	            |               |               |               |               |               |   SMResetting
+    /// -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    /// SMRunning	    | SMCompleted		|               |               | SMPausing		|               | SMHolding	    |	            |  SMAborting   |	SMStopping	|
+    /// -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    /// SMCompleted	    |					|               |               |               |               |               |               |               |               |	SMResetting
+    /// -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    /// SMResetting	    | SMIdle			|               |               |               |               |               |               |               |               |					
+    /// ___________________________________________________________________________________________________________________________________________________________________________________
+    /// SMPausing	    | SMPaused			|               |               |               |               |               |               |               |               |					
+    /// -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    /// SMPaused		|                   |               |               |               |  SMResuming	|               |               |  SMAborting	|   SMStopping  |	
+    /// -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    /// SMResuming	    | SMRunning			|               |               |               |               |               |               |               |               |					
+    /// ___________________________________________________________________________________________________________________________________________________________________________________
+    /// SMHolding	    | SMHeld			|               |               |               |               |               |               |               |               |					
+    /// -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    /// SMHeld			|			        |               |               |               |               |               |SMRestarting	|   SMAborting	|   SMStopping	|
+    /// -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    /// SMRestarting	| SMRunning			|               |               |               |               |               |               |               |               |				
+    /// ___________________________________________________________________________________________________________________________________________________________________________________
+    /// SMAborting	    | SMAborted			|               |               |               |               |               |               |               |               |										
+    /// -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    /// SMAborted		|					|               |               |               |               |               |               |               |               |	SMResetting
+    /// ___________________________________________________________________________________________________________________________________________________________________________________
+    /// SMStopping	    | SMStopped			|               |               |               |               |               |               |               |               |				
+    /// -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    /// SMStopped		|					|               |               |               |               |               |               |               |               |	SMResetting
+    /// -----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    /// </summary>
+FUNCTION_BLOCK PAProcessFunction EXTENDS PAClassAlarmingBase IMPLEMENTS IPAProcessFunction
+VAR_INPUT
+END_VAR
+VAR_OUTPUT
+END_VAR
+VAR
+	_Malfunction : PANotifyState;
+	_AckMalfunction : BOOL;
+END_VAR
+VAR PERSISTENT
+	_ACState : ACStateEnum;
+	_TMMethod : TMMethod;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Folder Name="IsEnabledMethods" Id="{ab4fa63a-cfbc-4409-bb53-e54781e40a0d}" />
+    <Folder Name="Properties" Id="{981846ba-357f-4ae5-860a-f032b7423ae9}" />
+    <Folder Name="StateMethods" Id="{39513048-fbf1-4443-81c5-9efb2ab082af}" />
+    <Folder Name="TransitionMethods" Id="{dd848e1b-49b8-4b6b-94dc-3a8403668558}" />
+    <Method Name="Abort" Id="{c9d3ea8d-1551-48d6-9adc-177f5e196019}" FolderPath="TransitionMethods\">
+      <Declaration><![CDATA[METHOD PUBLIC Abort : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF NOT IsEnabledAbort THEN
+	Abort := FALSE;
+	RETURN;
+END_IF
+ACState := ACStateEnum.SMAborting;
+Abort := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="AckMalfunction" Id="{541a44e3-be9c-41ed-b44d-06cce1c76469}" FolderPath="Properties\">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+//{attribute 'TcRpcEnable'}
+PROPERTY PUBLIC AckMalfunction : BOOL]]></Declaration>
+      <Get Name="Get" Id="{987b8645-86d8-4d2e-9c74-2f211f3fc0df}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[AckMalfunction := _AckMalfunction;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{683ffd67-0007-4b68-ae6f-9b0d9eafb8eb}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_AckMalfunction := AckMalfunction;
+Root.OnPropertyChangedBool(THIS^, 15, _AckMalfunction);]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="ACMethod" Id="{03d6abe1-7d4c-40d0-acae-55c66cd24e22}">
+      <Declaration><![CDATA[PROPERTY PUBLIC ACMethod : IACMethod]]></Declaration>
+      <Get Name="Get" Id="{5573962a-f6f7-42f4-bdc2-d4c3e6f57f25}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="ACState" Id="{2bfb6a4f-c65f-464b-a0a9-6a2a61d70739}" FolderPath="Properties\">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+//{attribute 'TcRpcEnable'}
+PROPERTY PUBLIC ACState : ACStateEnum
+]]></Declaration>
+      <Get Name="Get" Id="{48811ade-1d01-4881-a302-7d66db477b79}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[ACState := _ACState;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{4a09b30d-1c54-4c7a-8f6a-b88792a318c6}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_ACState := ACState;
+Root.OnPropertyChangedInt(THIS^, 13, _ACState);]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="FB_postinit" Id="{0dd89ec2-265b-4a09-90ed-a83b2f79da3c}">
+      <Declaration><![CDATA[METHOD PUBLIC FB_postinit
+VAR_INPUT
+		root : IACVariobatch;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SUPER^.FB_postinit(root);
+root.OnPropertyChangedInt(THIS^, 13, _ACState);
+root.OnPropertyChangedInt(THIS^, 14, _Malfunction);
+root.OnPropertyChangedBool(THIS^, 15, _AckMalfunction);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="HandleACState" Id="{b88d4a9d-bbae-4757-bd10-06754fb1d11a}">
+      <Declaration><![CDATA[METHOD PROTECTED HandleACState
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[CASE _ACState OF
+	ACStateEnum.SMIdle:
+		SMIdle();
+	ACStateEnum.SMStarting:
+		SMStarting();
+	ACStateEnum.SMRunning:
+		SMRunning();
+	ACStateEnum.SMCompleted:
+		SMCompleted();
+	ACStateEnum.SMResetting:
+		SMResetting();
+	ACStateEnum.SMPausing:
+		SMPausing();
+	ACStateEnum.SMPaused:
+		SMPaused();
+	ACStateEnum.SMResuming:
+		SMResuming();
+	ACStateEnum.SMHolding:
+		SMHolding();
+	ACStateEnum.SMHeld:
+		SMHeld();
+	ACStateEnum.SMRestarting:
+		SMRestarting();
+	ACStateEnum.SMAborting:
+		SMAborting();
+	ACStateEnum.SMAborted:
+		SMAborted();
+	ACStateEnum.SMStopping:
+		SMStopping();
+	ACStateEnum.SMStopped:
+		SMStopped();
+END_CASE]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="HandleTMMethod" Id="{853bc94c-8941-4e51-a75b-bb32a89a55da}">
+      <Declaration><![CDATA[METHOD PROTECTED HandleTMMethod
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[CASE _TMMethod OF
+	TMMethod.TMNone:
+		RETURN;
+	TMMethod.TMStart :
+		Start();
+	TMMethod.TMRun:
+		Run();
+	TMMethod.TMPause:
+		Pause();
+	TMMethod.TMResume:
+		Resume();
+	TMMethod.TMHold:
+		Hold();
+	TMMethod.TMRestart:
+		Restart();
+	TMMethod.TMAbort:
+		Abort();
+	TMMethod.TMStopp:
+		Stopp();
+	TMMethod.TMReset:
+		Reset();
+END_CASE
+_TMMethod := TMMethod.TMNone;
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Hold" Id="{d06ffbbb-aed6-47cf-8854-4c72fb7f13a7}" FolderPath="TransitionMethods\">
+      <Declaration><![CDATA[METHOD PUBLIC Hold : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF NOT IsEnabledHold THEN
+	Hold := FALSE;
+	RETURN;
+END_IF
+ACState := ACStateEnum.SMHolding;
+Hold := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="InvokeSetterBool" Id="{928e2a59-abc6-4878-8149-162c5c587f62}">
+      <Declaration><![CDATA[METHOD PUBLIC InvokeSetterBool
+VAR_INPUT
+	PropertyID : INT;
+	PropertyValue : BOOL;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SUPER^.InvokeSetterBool(PropertyID, PropertyValue);
+IF PropertyID = 15 THEN
+	THIS^.AckMalfunction := PropertyValue;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="InvokeSetterEnum" Id="{ebe13666-0bec-4a12-b3f6-b455fb3fa089}">
+      <Declaration><![CDATA[METHOD PUBLIC InvokeSetterEnum
+VAR_INPUT
+	PropertyID : INT;
+	PropertyValue : INT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SUPER^.InvokeSetterEnum(PropertyID, PropertyValue);
+IF PropertyID = 13 THEN
+	THIS^.ACState := PropertyValue;
+ELSIF PropertyID = 14 THEN	
+	THIS^.Malfunction := PropertyValue;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="IsEnabledAbort" Id="{809f95e9-ef40-4837-b3ab-319b6e4d2710}" FolderPath="IsEnabledMethods\">
+      <Declaration><![CDATA[PROPERTY PUBLIC IsEnabledAbort : BOOL]]></Declaration>
+      <Get Name="Get" Id="{821b2a7d-3dfc-407c-ba97-8b53abeb18b5}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[IsEnabledAbort := _ACState = ACStateEnum.SMRunning OR _ACState = ACStateEnum.SMHeld OR _ACState = ACStateEnum.SMPaused;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="IsEnabledHold" Id="{1aa723e4-4ed9-4039-959d-ac484328df09}" FolderPath="IsEnabledMethods\">
+      <Declaration><![CDATA[PROPERTY PUBLIC IsEnabledHold : BOOL]]></Declaration>
+      <Get Name="Get" Id="{80eac49d-e380-49f9-baf8-86297410ecbe}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[IsEnabledHold := _ACState = ACStateEnum.SMRunning;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="IsEnabledPause" Id="{64f0fee1-afd3-4727-9247-2be165d423a2}" FolderPath="IsEnabledMethods\">
+      <Declaration><![CDATA[PROPERTY PUBLIC IsEnabledPause : BOOL]]></Declaration>
+      <Get Name="Get" Id="{628b572a-4b4a-45b6-9d4d-3f9e72a721a5}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[IsEnabledPause := _ACState = ACStateEnum.SMRunning;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="IsEnabledReset" Id="{2adcf514-1621-4801-b3e1-7d337c81f8bf}" FolderPath="IsEnabledMethods\">
+      <Declaration><![CDATA[PROPERTY PUBLIC IsEnabledReset : BOOL]]></Declaration>
+      <Get Name="Get" Id="{723366dc-c509-4dbc-9827-de2e90b0fbe6}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[IsEnabledReset := _ACState = ACStateEnum.SMStarting OR _ACState = ACStateEnum.SMCompleted OR _ACState = ACStateEnum.SMAborted OR _ACState = ACStateEnum.SMStopped OR _ACState = ACStateEnum.SMIdle;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="IsEnabledRestart" Id="{76f78737-2cd6-4463-b1fd-070d9f04c98b}" FolderPath="IsEnabledMethods\">
+      <Declaration><![CDATA[PROPERTY PUBLIC IsEnabledRestart : BOOL]]></Declaration>
+      <Get Name="Get" Id="{b564b76a-5521-493f-a77f-5da63164d795}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[IsEnabledRestart := _ACState = ACStateEnum.SMHeld;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="IsEnabledResume" Id="{d0b55608-2a49-4284-b7d2-02796330be3f}" FolderPath="IsEnabledMethods\">
+      <Declaration><![CDATA[PROPERTY PUBLIC IsEnabledResume : BOOL]]></Declaration>
+      <Get Name="Get" Id="{c4abcf28-688c-4e42-b855-9f905f6e699a}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[IsEnabledResume := _ACState = ACStateEnum.SMPaused;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="IsEnabledRun" Id="{ea60c16f-f0f6-4148-9902-b84c357ea5f1}" FolderPath="IsEnabledMethods\">
+      <Declaration><![CDATA[PROPERTY PUBLIC IsEnabledRun : BOOL]]></Declaration>
+      <Get Name="Get" Id="{e7441336-7751-44cd-8445-87605087d421}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[IsEnabledRun := _ACState = ACStateEnum.SMStarting;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="IsEnabledStart" Id="{7fbc58a0-0333-4f8a-ad36-8dc5b9cf6667}" FolderPath="IsEnabledMethods\">
+      <Declaration><![CDATA[PROPERTY PUBLIC IsEnabledStart : BOOL]]></Declaration>
+      <Get Name="Get" Id="{c3715939-474e-4b23-b373-2bfb98a2c585}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[IF _ACState = ACStateEnum.SMIdle THEN
+		IsEnabledStart := TRUE;
+	RETURN;
+END_IF
+IsEnabledStart := ACMethod.IsValid;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="IsEnabledStopp" Id="{d68ba562-f1f2-48de-b8c2-92f232e7f4a7}" FolderPath="IsEnabledMethods\">
+      <Declaration><![CDATA[PROPERTY PUBLIC IsEnabledStopp : BOOL]]></Declaration>
+      <Get Name="Get" Id="{1043286c-0718-40ba-87fd-90b323b177c6}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[IsEnabledStopp := _ACState = ACStateEnum.SMRunning OR _ACState = ACStateEnum.SMHeld OR _ACState = ACStateEnum.SMPaused;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="Malfunction" Id="{902523fc-57ed-4777-823a-f58e643c1c2d}" FolderPath="Properties\">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+//{attribute 'TcRpcEnable'}
+PROPERTY PUBLIC Malfunction : PANotifyState]]></Declaration>
+      <Get Name="Get" Id="{abb53ce4-c1c4-4a6d-aab5-909f2ed3922d}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Malfunction := _Malfunction;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{60b074b9-dd02-4fd8-8ee9-e4041f301c72}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_Malfunction := Malfunction;
+Root.OnPropertyChangedInt(THIS^, 14, _Malfunction);]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="OnInitMemory" Id="{5ba8255f-96c2-4bfa-a9e4-eed2a16005cf}">
+      <Declaration><![CDATA[METHOD OnInitMemory
+VAR_INPUT
+		root : IACVariobatch;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[RegisterProperty(root, 13, GCL.cSizeINT); // _ACState
+RegisterProperty(root, 14, GCL.cSizeINT); // _Malfunction
+RegisterProperty(root, 15, GCL.cSizeBYTE); // _AckMalfunction
+SUPER^.OnInitMemory(root);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnMainEnter" Id="{133bba2a-5ec4-42cf-99b8-5a804abd5fa6}">
+      <Declaration><![CDATA[METHOD PROTECTED OnMainEnter
+VAR_INPUT
+END_VAR
+
+VAR
+	TMNone: INT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[HandleTMMethod();
+HandleACState();]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Pause" Id="{b4bfe6a4-0adc-4b89-aecd-c90778d5a8af}" FolderPath="TransitionMethods\">
+      <Declaration><![CDATA[METHOD PUBLIC Pause : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF NOT IsEnabledPause THEN
+	Pause := FALSE;
+	RETURN;
+END_IF
+ACState := ACStateEnum.SMPausing;
+Pause := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Reset" Id="{ad9e6810-26b8-4a7b-b6dd-fc3819d565de}" FolderPath="TransitionMethods\">
+      <Declaration><![CDATA[METHOD PUBLIC Reset : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF NOT IsEnabledReset THEN
+	Reset := FALSE;
+	RETURN;
+END_IF
+ACState := ACStateEnum.SMResetting;
+Reset := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Restart" Id="{2d9d79d6-4691-4a1b-b2a0-e74fdbdc5a75}" FolderPath="TransitionMethods\">
+      <Declaration><![CDATA[METHOD PUBLIC Restart : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF NOT IsEnabledRestart THEN
+	Restart := FALSE;
+	RETURN;
+END_IF
+ACState := ACStateEnum.SMRestarting;
+Restart := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Resume" Id="{58a328c9-cfef-4ef2-b8b3-28de79d296bb}" FolderPath="TransitionMethods\">
+      <Declaration><![CDATA[METHOD PUBLIC Resume : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF NOT IsEnabledResume THEN
+	Resume := FALSE;
+	RETURN;
+END_IF
+ACState := ACStateEnum.SMResuming;
+Resume := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Run" Id="{d030c7db-8a24-4166-89cc-95cfcddda6e8}" FolderPath="TransitionMethods\">
+      <Declaration><![CDATA[METHOD PUBLIC Run : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF NOT IsEnabledRun THEN
+	Run := FALSE;
+	RETURN;
+END_IF
+ACState := ACStateEnum.SMRunning;
+Run := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SMAborted" Id="{206a6db6-6022-4454-889c-0fc156ec2929}" FolderPath="StateMethods\">
+      <Declaration><![CDATA[METHOD PROTECTED SMAborted
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SMAborting" Id="{fcc3d314-b6fe-4082-8539-c0fd8c65df3c}" FolderPath="StateMethods\">
+      <Declaration><![CDATA[METHOD PROTECTED SMAborting
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SMCompleted" Id="{bc125f72-fa83-490c-9187-1c0ecd739724}" FolderPath="StateMethods\">
+      <Declaration><![CDATA[METHOD PROTECTED SMCompleted
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SMHeld" Id="{6c78f470-57ab-4fa7-9361-76d84bdcd577}" FolderPath="StateMethods\">
+      <Declaration><![CDATA[METHOD PROTECTED SMHeld
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SMHolding" Id="{fa8573d4-a549-4bc4-9d7e-c2af3ed33271}" FolderPath="StateMethods\">
+      <Declaration><![CDATA[METHOD PROTECTED SMHolding
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SMIdle" Id="{7065863c-db7c-46bc-84d4-71be823c84c8}" FolderPath="StateMethods\">
+      <Declaration><![CDATA[METHOD PROTECTED SMIdle
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SMPaused" Id="{06ec23ff-9bb0-4472-b19b-be5240dec765}" FolderPath="StateMethods\">
+      <Declaration><![CDATA[METHOD PROTECTED SMPaused
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SMPausing" Id="{85caec46-008a-410e-9137-60d12f575c1c}" FolderPath="StateMethods\">
+      <Declaration><![CDATA[METHOD PROTECTED SMPausing
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SMResetting" Id="{2bd66971-b68e-4df2-abb5-3be18009cf3a}" FolderPath="StateMethods\">
+      <Declaration><![CDATA[METHOD PROTECTED SMResetting
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SMRestarting" Id="{64e4fe97-2495-4ad1-9e58-6ae21d343cf7}" FolderPath="StateMethods\">
+      <Declaration><![CDATA[METHOD PROTECTED SMRestarting
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SMResuming" Id="{d65c255f-866b-48ea-8598-1470e12d5d07}" FolderPath="StateMethods\">
+      <Declaration><![CDATA[METHOD PROTECTED SMResuming
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SMRunning" Id="{feeb4b25-34c8-4a76-ac47-2878d29d7c52}" FolderPath="StateMethods\">
+      <Declaration><![CDATA[METHOD PROTECTED SMRunning
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SMStarting" Id="{6e11f845-1709-4c24-8591-6696212a45b8}" FolderPath="StateMethods\">
+      <Declaration><![CDATA[METHOD PROTECTED SMStarting
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SMStopped" Id="{fb806c1a-a32e-40ca-b70c-ff2b8b5a4e17}" FolderPath="StateMethods\">
+      <Declaration><![CDATA[METHOD PROTECTED SMStopped
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SMStopping" Id="{a4bfcb26-d76e-4f0f-b940-e96e92ba6a4b}" FolderPath="StateMethods\">
+      <Declaration><![CDATA[METHOD PROTECTED SMStopping
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Start" Id="{0f87f056-075c-4224-8528-1c9a24f52cf5}" FolderPath="TransitionMethods\">
+      <Declaration><![CDATA[METHOD PUBLIC Start : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF NOT IsEnabledStart THEN
+		Start := FALSE;
+	RETURN;
+END_IF
+ACState := ACStateEnum.SMRunning;
+Start := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Stopp" Id="{7f82a9aa-c4ef-44ff-ae83-d23bf796f23b}" FolderPath="TransitionMethods\">
+      <Declaration><![CDATA[METHOD PUBLIC Stopp : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF NOT IsEnabledStopp THEN
+	Stopp := FALSE;
+	RETURN;
+END_IF
+ACState := ACStateEnum.SMStopping;
+Stopp := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <ObjectProperties>
+      <XmlArchive>
+        <Data>
+          <o xml:space="preserve" t="LicenseProperty">
+            <l2 n="Licenses" />
+          </o>
+        </Data>
+        <TypeList>
+          <Type n="LicenseProperty">{ec6b18ef-cd41-4646-b1b3-985c60f930b9}</Type>
+        </TypeList>
+      </XmlArchive>
+    </ObjectProperties>
+    <LineIds Name="PAProcessFunction">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAProcessFunction.Abort">
+      <LineId Id="3" Count="4" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAProcessFunction.AckMalfunction.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAProcessFunction.AckMalfunction.Set">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAProcessFunction.ACMethod.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAProcessFunction.ACState.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAProcessFunction.ACState.Set">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAProcessFunction.FB_postinit">
+      <LineId Id="3" Count="2" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAProcessFunction.HandleACState">
+      <LineId Id="3" Count="30" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAProcessFunction.HandleTMMethod">
+      <LineId Id="3" Count="22" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAProcessFunction.Hold">
+      <LineId Id="3" Count="4" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAProcessFunction.InvokeSetterBool">
+      <LineId Id="8" Count="2" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="PAProcessFunction.InvokeSetterEnum">
+      <LineId Id="3" Count="4" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAProcessFunction.IsEnabledAbort.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAProcessFunction.IsEnabledHold.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAProcessFunction.IsEnabledPause.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAProcessFunction.IsEnabledReset.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAProcessFunction.IsEnabledRestart.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAProcessFunction.IsEnabledResume.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAProcessFunction.IsEnabledRun.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAProcessFunction.IsEnabledStart.Get">
+      <LineId Id="3" Count="3" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAProcessFunction.IsEnabledStopp.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAProcessFunction.Malfunction.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAProcessFunction.Malfunction.Set">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAProcessFunction.OnInitMemory">
+      <LineId Id="3" Count="2" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAProcessFunction.OnMainEnter">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAProcessFunction.Pause">
+      <LineId Id="3" Count="4" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAProcessFunction.Reset">
+      <LineId Id="3" Count="4" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAProcessFunction.Restart">
+      <LineId Id="3" Count="4" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAProcessFunction.Resume">
+      <LineId Id="3" Count="4" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAProcessFunction.Run">
+      <LineId Id="3" Count="4" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAProcessFunction.SMAborted">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAProcessFunction.SMAborting">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAProcessFunction.SMCompleted">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAProcessFunction.SMHeld">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAProcessFunction.SMHolding">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAProcessFunction.SMIdle">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAProcessFunction.SMPaused">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAProcessFunction.SMPausing">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAProcessFunction.SMResetting">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAProcessFunction.SMRestarting">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAProcessFunction.SMResuming">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAProcessFunction.SMRunning">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAProcessFunction.SMStarting">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAProcessFunction.SMStopped">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAProcessFunction.SMStopping">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAProcessFunction.Start">
+      <LineId Id="3" Count="4" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAProcessFunction.Stopp">
+      <LineId Id="3" Count="4" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

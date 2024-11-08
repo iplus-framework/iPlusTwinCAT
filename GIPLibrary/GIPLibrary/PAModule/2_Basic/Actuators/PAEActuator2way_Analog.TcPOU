@@ -1,0 +1,84 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4020.12">
+  <POU Name="PAEActuator2way_Analog" Id="{a2a041d8-6df1-467d-bb65-37358f54a768}" SpecialFunc="None">
+    <Declaration><![CDATA[/// <summary>
+/// Two-Way-Actuator analog (mixing valve)
+/// Zwei-Wege-Stellglied analog (Mischventil)
+/// </summary>
+FUNCTION_BLOCK PAEActuator2way_Analog EXTENDS PAEActuator1way_Analog
+VAR_INPUT
+	_IPos2 AT %I*: BOOL;	
+END_VAR
+VAR_OUTPUT
+	_QPos2 AT %Q*: BOOL;	
+END_VAR
+VAR
+	_PAPointMatIn2  : PAPoint(THIS^);
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Method Name="FB_init" Id="{1a3bad42-9e08-41e2-b79f-a2631a4da060}">
+      <Declaration><![CDATA[METHOD FB_init : BOOL
+VAR_INPUT
+	bInitRetains : BOOL; // if TRUE, the retain variables are initialized (warm start / cold start)
+	bInCopyCode : BOOL;  // if TRUE, the instance afterwards gets moved into the copy code (online change)
+	parent : IACComponent;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[AddPoint(_PAPointMatIn1);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="HasPointReachedOffPosition" Id="{2988950c-9b2f-409e-8f7a-84e8da5bc658}">
+      <Declaration><![CDATA[METHOD PUBLIC HasPointReachedOffPosition : BOOL
+VAR_INPUT
+	point : IACPoint;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[HasPointReachedOffPosition := SUPER^.HasPointReachedOffPosition(point);]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="HasPointReachedOnPosition" Id="{d2bade0b-1836-491f-896f-183f863eb4de}">
+      <Declaration><![CDATA[METHOD PUBLIC HasPointReachedOnPosition : BOOL
+VAR_INPUT
+	point : IACPoint;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[HasPointReachedOnPosition := SUPER^.HasPointReachedOnPosition(point);]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="PAPointMatIn2" Id="{901f576c-7f82-488b-915d-d8d590d987fb}">
+      <Declaration><![CDATA[PROPERTY PUBLIC PAPointMatIn2 : IACPoint
+]]></Declaration>
+      <Get Name="Get" Id="{d6a50b6e-fd2c-42fb-897e-f62f4197a367}">
+        <Declaration><![CDATA[VAR	
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[PAPointMatIn2  := _PAPointMatIn2;
+]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <LineIds Name="PAEActuator2way_Analog">
+      <LineId Id="9" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEActuator2way_Analog.FB_init">
+      <LineId Id="7" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEActuator2way_Analog.HasPointReachedOffPosition">
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEActuator2way_Analog.HasPointReachedOnPosition">
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEActuator2way_Analog.PAPointMatIn2.Get">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

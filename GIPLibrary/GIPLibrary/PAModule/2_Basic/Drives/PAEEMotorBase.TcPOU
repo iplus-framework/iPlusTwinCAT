@@ -1,0 +1,241 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.6">
+  <POU Name="PAEEMotorBase" Id="{a6e912c4-cd0f-4977-b62a-c2df04abb728}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK PAEEMotorBase EXTENDS PAEDriveBase
+VAR_INPUT
+END_VAR
+VAR_OUTPUT
+END_VAR
+VAR
+	_ReqRunState : BOOL;
+	_RunState : BOOL;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Method Name="AcknowledgeAlarms" Id="{e443fc8d-81ce-4230-b3d7-e8a918f6ca3e}">
+      <Declaration><![CDATA[METHOD PUBLIC AcknowledgeAlarms
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="FB_init" Id="{5390724d-11a6-4049-9280-29de12581243}">
+      <Declaration><![CDATA[METHOD FB_init : BOOL
+VAR_INPUT
+	bInitRetains : BOOL; // if TRUE, the retain variables are initialized (warm start / cold start)
+	bInCopyCode : BOOL;  // if TRUE, the instance afterwards gets moved into the copy code (online change)
+	parent : IACComponent;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="FB_postinit" Id="{8c70ffe5-1e58-4432-a034-9bbaa2d81807}">
+      <Declaration><![CDATA[METHOD PUBLIC FB_postinit
+VAR_INPUT
+		root : IACVariobatch;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SUPER^.FB_postinit(root);  
+root.OnPropertyChangedBool(THIS^, 37, _RunState);
+root.OnPropertyChangedBool(THIS^, 38, _ReqRunState);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="InvokeSetterBool" Id="{f17e38f5-2df1-42ec-8bfd-de8267475887}">
+      <Declaration><![CDATA[METHOD PUBLIC InvokeSetterBool
+VAR_INPUT
+	PropertyID : INT;
+	PropertyValue : BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[SUPER^.InvokeSetterBool(PropertyID, PropertyValue);
+IF PropertyID = 37 THEN
+	RunState := PropertyValue;
+ELSIF PropertyID = 38 THEN	
+	ReqRunState := PropertyValue;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="IsEnabledAcknowledgeAlarms" Id="{eaad388a-00bb-448e-9aa1-cb3c618815da}">
+      <Declaration><![CDATA[METHOD PUBLIC IsEnabledAcknowledgeAlarms : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="IsEnabledSwitchToMaintenance" Id="{dfcfe09d-9694-4290-8a71-f97cdb55436d}">
+      <Declaration><![CDATA[METHOD PUBLIC IsEnabledSwitchToMaintenance : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="IsEnabledTurnOff" Id="{975e00dd-6147-4a90-9b46-c03847fcebdf}">
+      <Declaration><![CDATA[METHOD PUBLIC IsEnabledTurnOff : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnInitMemory" Id="{ab85b4eb-999a-4590-afd1-84175664b24b}">
+      <Declaration><![CDATA[METHOD OnInitMemory
+VAR_INPUT
+		root : IACVariobatch;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[RegisterProperty(root, 37, GCL.cSizeBYTE); //RunState
+RegisterProperty(root, 38, GCL.cSizeBYTE); //ReqRunState
+SUPER^.OnInitMemory(root);]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="ReqRunState" Id="{18e8b13a-e5fe-43dc-8384-2dbdef1fd5a2}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+//{attribute 'TcRpcEnable'}
+PROPERTY PUBLIC ReqRunState : BOOL]]></Declaration>
+      <Get Name="Get" Id="{36fd6190-a523-4415-8793-49811eee6be4}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[ReqRunState := _ReqRunState;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{a1dfc3c1-643c-4aaa-a288-512c2b0bafd7}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_ReqRunState := ReqRunState;
+Root.OnPropertyChangedBool(THIS^, 38, _ReqRunState);
+IF Root.InSimulation THEN
+	RunState := _ReqRunState;
+END_IF]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="RunState" Id="{2b2483c2-4bd9-4ad0-b041-871f8d2cdb53}">
+      <Declaration><![CDATA[{attribute 'monitoring' := 'call'}
+//{attribute 'TcRpcEnable'}
+PROPERTY PUBLIC RunState : BOOL]]></Declaration>
+      <Get Name="Get" Id="{56e77485-169f-424d-a70f-f44846aa6127}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[RunState := _RunState;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{7cb2595d-9058-4c99-a24f-6b15c74a0b09}">
+        <Declaration><![CDATA[PUBLIC
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_RunState := RunState;
+Root.OnPropertyChangedBool(THIS^, 37, _RunState);]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="SwitchToAutomatic" Id="{34c02ab4-081f-42e3-897d-82b8dc534c15}">
+      <Declaration><![CDATA[METHOD PUBLIC SwitchToAutomatic
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SwitchToMaintenance" Id="{fde04cdc-3266-4bc0-8e75-2e37790be204}">
+      <Declaration><![CDATA[METHOD PUBLIC SwitchToMaintenance
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="TurnOff" Id="{47cbf5cf-1d59-4eed-956c-75bbc60a50ea}">
+      <Declaration><![CDATA[METHOD PUBLIC TurnOff
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[RunState := FALSE;]]></ST>
+      </Implementation>
+    </Method>
+    <LineIds Name="PAEEMotorBase">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEEMotorBase.AcknowledgeAlarms">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEEMotorBase.FB_init">
+      <LineId Id="7" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEEMotorBase.FB_postinit">
+      <LineId Id="7" Count="0" />
+      <LineId Id="14" Count="0" />
+      <LineId Id="8" Count="0" />
+      <LineId Id="6" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEEMotorBase.InvokeSetterBool">
+      <LineId Id="7" Count="4" />
+      <LineId Id="6" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEEMotorBase.IsEnabledAcknowledgeAlarms">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEEMotorBase.IsEnabledSwitchToMaintenance">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEEMotorBase.IsEnabledTurnOff">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEEMotorBase.OnInitMemory">
+      <LineId Id="10" Count="0" />
+      <LineId Id="6" Count="0" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEEMotorBase.ReqRunState.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEEMotorBase.ReqRunState.Set">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+      <LineId Id="8" Count="1" />
+      <LineId Id="7" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEEMotorBase.RunState.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEEMotorBase.RunState.Set">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEEMotorBase.SwitchToAutomatic">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEEMotorBase.SwitchToMaintenance">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="PAEEMotorBase.TurnOff">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

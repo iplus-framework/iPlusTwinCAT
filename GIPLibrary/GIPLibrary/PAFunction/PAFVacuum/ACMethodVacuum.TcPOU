@@ -1,0 +1,90 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4020.12">
+  <POU Name="ACMethodVacuum" Id="{6b4933e1-f730-446f-a666-d70106d0291a}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK PUBLIC ACMethodVacuum EXTENDS ACMethodRouteBase
+VAR_INPUT
+END_VAR
+VAR_OUTPUT
+END_VAR
+VAR PERSISTENT
+	_Parameter : ACMethodVacuumP;
+	_Result : ACMethodVacuumR;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Property Name="IsValid" Id="{aae50082-92ab-454e-98f0-abf59943cb27}">
+      <Declaration><![CDATA[PROPERTY IsValid : BOOL
+]]></Declaration>
+      <Get Name="Get" Id="{37611b0d-e248-4e41-b154-8cc0041f0cb9}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[IsValid := TRUE;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="Parameter" Id="{5cdd3dec-8957-41bd-a52c-ebe93b73df41}">
+      <Declaration><![CDATA[PROPERTY Parameter : ACMethodVacuumP
+]]></Declaration>
+      <Get Name="Get" Id="{32b17611-5c74-4287-a514-ead9199e94dc}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Parameter := _Parameter;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{5d98b568-deee-4bc0-9671-f893954c7425}">
+        <Declaration><![CDATA[PUBLIC 
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_Parameter := Parameter;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="Result" Id="{efaabf01-a49c-4087-b034-85810509a63a}">
+      <Declaration><![CDATA[PROPERTY Result : ACMethodVacuumR
+]]></Declaration>
+      <Get Name="Get" Id="{777b8b85-0ee0-4d2b-9bae-552be9f3b145}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[Result := _Result;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{f7a9d232-0a9b-4eb2-844b-86cf067e847d}">
+        <Declaration><![CDATA[PUBLIC 
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_Result := Result;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <LineIds Name="ACMethodVacuum">
+      <LineId Id="9" Count="0" />
+    </LineIds>
+    <LineIds Name="ACMethodVacuum.IsValid.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="ACMethodVacuum.Parameter.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="ACMethodVacuum.Parameter.Set">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="ACMethodVacuum.Result.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="ACMethodVacuum.Result.Set">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

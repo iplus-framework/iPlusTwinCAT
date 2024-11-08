@@ -1,0 +1,76 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4022.7">
+  <POU Name="ACMethodBase" Id="{85ac7060-1ece-469d-b6ba-dc9801c7486e}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK ACMethodBase EXTENDS ACObject IMPLEMENTS IACMethod
+VAR_INPUT
+END_VAR
+VAR_OUTPUT
+END_VAR
+VAR
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Property Name="ACInitState" Id="{831582d6-9136-439e-b3b4-31d1f062cafe}">
+      <Declaration><![CDATA[PROPERTY ACInitState : ACInitStateEnum
+]]></Declaration>
+      <Get Name="Get" Id="{52430745-f6a2-44e9-aa0a-f1348c9885fc}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[ACInitState := ACInitStateEnum.Unchanged;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="FB_postinit" Id="{a6291b5b-7e6c-4b6d-b5bc-ca6f6de59193}">
+      <Declaration><![CDATA[METHOD FB_postinit
+VAR_INPUT
+		root : IACVariobatch;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="InstanceID" Id="{34b6e2a7-7077-4c28-b952-7041328962bf}">
+      <Declaration><![CDATA[PROPERTY InstanceID : UDINT
+]]></Declaration>
+      <Get Name="Get" Id="{f5da2b1b-1bab-492c-bd5c-71c80fd1af72}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[InstanceID := 0;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="IsValid" Id="{133a1595-5623-473e-a7a3-f231599d7111}">
+      <Declaration><![CDATA[PROPERTY IsValid : BOOL
+]]></Declaration>
+      <Get Name="Get" Id="{89af1a6d-df99-403a-afae-4454632f547c}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[IsValid := FALSE;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <LineIds Name="ACMethodBase">
+      <LineId Id="9" Count="0" />
+    </LineIds>
+    <LineIds Name="ACMethodBase.ACInitState.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="ACMethodBase.FB_postinit">
+      <LineId Id="4" Count="0" />
+    </LineIds>
+    <LineIds Name="ACMethodBase.InstanceID.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="ACMethodBase.IsValid.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>
